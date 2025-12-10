@@ -179,6 +179,11 @@ export const analyzeChart = async (base64Image: string | null, mimeType: string 
     if (ticker) {
       marketContext = await fetchIndicators(ticker);
     }
+
+    // CRITICAL CHECK: In text-only mode, if we failed to get data, DO NOT HALLUCINATE.
+    if (!base64Image && (!marketContext || marketContext.length < 50)) {
+      throw new Error(`Could not retrieve market data for "${ticker}". Please check the ticker symbol (e.g. try "BTC-USD" instead of "BTC").`);
+    }
     // ... rest of the function remains same but wrapped in the existing try block 
     // Initialize client here (Lazy load)
     let ai = getAIClient(process.env.API_KEY);
