@@ -15,6 +15,7 @@ function App() {
     imageUrl: null,
   });
   const [ticker, setTicker] = useState('');
+  const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | null>(null);
 
   const handleFileSelect = async (base64: string, mimeType: string) => {
     // Set loading state and store preview image
@@ -49,11 +50,6 @@ function App() {
       imageUrl: null,
     });
   };
-
-  return (
-  const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | null>(null);
-
-  // ... (handleFileSelect and handleReset match existing)
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
