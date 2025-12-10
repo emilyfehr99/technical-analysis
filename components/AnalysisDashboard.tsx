@@ -736,14 +736,14 @@ Note: ${data.headline}
                 </div>
             </div>
             {/* NEW: Trade Execution Timeline */}
-            <motion.div variants={itemVariants} className="mt-8">
+            <div className="mt-8 animate-fade-in-up">
                 <TradeTimeline
                     entryPrice={data.setup.entryZone}
                     stopLoss={data.setup.stopLoss}
                     targets={data.setup.takeProfitTargets}
                     currentPrice={data.currentPrice}
                 />
-            </motion.div>
+            </div>
 
         </motion.div>
     );
