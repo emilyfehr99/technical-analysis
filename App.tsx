@@ -158,52 +158,55 @@ function App() {
           {/* Upload Section - Always show if not success, or if we want to allow re-upload (could hide on success) */}
           {analysisState.status !== 'success' && (
             <div className="space-y-6 max-w-xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-                <div className="relative group w-full max-w-md">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span className="text-slate-400 font-bold">$</span>
+              {/* Input Section - Hide if Image is Present (User Request) */}
+              {!analysisState.imageUrl && (
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+                  <div className="relative group w-full max-w-md">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <span className="text-slate-400 font-bold">$</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={ticker}
+                      onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                      placeholder="BTC, AAPL, SPX..."
+                      className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    value={ticker}
-                    onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    placeholder="BTC, AAPL, SPX..."
-                    className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                    <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  </div>
-                </div>
 
-                <button
-                  onClick={() => {
-                    if (!analysisState.imageUrl && !ticker) {
-                      // If neither, prompt for file
-                      document.getElementById('file-upload-input')?.click();
-                      return;
-                    }
-                    handleAnalyze();
-                  }}
-                  disabled={analysisState.status === 'analyzing'}
-                  className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 
-                    ${(analysisState.imageUrl || ticker)
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
-                      : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'} 
-                    ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
-                >
-                  {analysisState.status === 'analyzing' ? (
-                    <>
-                      <RefreshCw className="w-5 h-5 animate-spin" />
-                      Scanning...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className={`w-5 h-5 ${(!analysisState.imageUrl && !ticker) && 'text-blue-400'}`} />
-                      {analysisState.imageUrl ? 'Run Vision' : ticker ? 'Analyze Ticker' : 'Upload Chart'}
-                    </>
-                  )}
-                </button>
-              </div>
+                  <button
+                    onClick={() => {
+                      if (!analysisState.imageUrl && !ticker) {
+                        // If neither, prompt for file
+                        document.getElementById('file-upload-input')?.click();
+                        return;
+                      }
+                      handleAnalyze();
+                    }}
+                    disabled={analysisState.status === 'analyzing'}
+                    className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 
+                      ${(analysisState.imageUrl || ticker)
+                        ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
+                        : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'} 
+                      ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
+                  >
+                    {analysisState.status === 'analyzing' ? (
+                      <>
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                        Scanning...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className={`w-5 h-5 ${(!analysisState.imageUrl && !ticker) && 'text-blue-400'}`} />
+                        {analysisState.imageUrl ? 'Run Vision' : ticker ? 'Analyze Ticker' : 'Upload Chart'}
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
 
               {/* File Upload or Preview State */}
               {!analysisState.imageUrl ? (
