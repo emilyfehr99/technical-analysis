@@ -4,10 +4,9 @@ import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import { AnalysisState } from './types';
 import { analyzeImage } from './services/geminiService';
-import { RefreshCw, Wallet } from 'lucide-react';
+import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
 import { Modal } from './components/Modal';
 import PaywallModal from './components/PaywallModal';
-import { Wallet } from 'lucide-react'; s / PaywallModal';
 
 function App() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
@@ -77,38 +76,108 @@ function App() {
           {/* Upload Section - Always show if not success, or if we want to allow re-upload (could hide on success) */}
           {analysisState.status !== 'success' && (
             <div className="space-y-6 max-w-xl mx-auto">
-              <div className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-white/50 animate-fade-in-up">
-                <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Asset Ticker (Crypto/Stocks)</label>
-                <div className="relative group">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+                <div className="relative group w-full max-w-md">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span className="text-slate-400 font-bold">$</span>
                   </div>
                   <input
                     type="text"
-                    placeholder="e.g. BTC-USD, NVDA, SPY"
                     value={ticker}
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    className="w-full pl-10 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono text-lg font-bold text-slate-900 placeholder:text-slate-300 shadow-inner"
+                    placeholder="BTC, AAPL, SPX..."
+                    className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
                   />
-                  {ticker && (
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                      <div className="flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 animate-in fade-in zoom-in">
-                        <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-                        Active
-                      </div>
-                    </div>
-                  )}
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-3 ml-1 flex items-center justify-between">
-                  <span>Fetches live price & indicators via <strong>Yahoo Finance</strong></span>
-                  {ticker && <span className="text-blue-500 cursor-pointer hover:underline" onClick={() => setTicker('')}>Clear</span>}
-                </p>
+
+                <button
+                  onClick={handleAnalyze}
+                  disabled={!analysisState.imageUrl || analysisState.status === 'analyzing'}
+                  className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 ${analysisState.imageUrl
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                >
+                  {analysisState.status === 'analyzing' ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      Scanning...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Analyze Chart
+                    </>
+                  )}
+                </button>
               </div>
 
-              <FileUpload
-                onFileSelect={handleFileSelect}
-                isAnalyzing={analysisState.status === 'analyzing'}
-              />
+              {/* File Upload or Preview State */}
+              {!analysisState.imageUrl ? (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 mb-4">
+                      <div className="flex -space-x-2">
+                        <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white"></div>
+                        <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white"></div>
+                        <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white"></div>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-600"> Trusted by 10k+ Traders</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+                      Instant Technical Analysis. <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                        Powered by AI Motion.
+                      </span>
+                    </h1>
+                    <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                      Upload any chart screenshot. Our multi-model AI agent identifies setups, support/resistance, and risk parameters in seconds.
+                    </p>
+                  </div>
+
+                  <FileUpload
+                    onFileSelect={handleFileSelect}
+                    isAnalyzing={analysisState.status === 'analyzing'}
+                  />
+                </>
+              ) : (
+                <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
+                  <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
+                    <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-center text-slate-500 text-sm">
+                      Ready to analyze <strong>{ticker || "this asset"}</strong>?
+                    </p>
+                    <button
+                      onClick={handleAnalyze}
+                      disabled={analysisState.status === 'analyzing'}
+                      className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      {analysisState.status === 'analyzing' ? (
+                        <>
+                          <RefreshCw className="w-5 h-5 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5" />
+                          Run AI Analysis
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
+                    >
+                      Cancel / Upload Different Chart
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
