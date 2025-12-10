@@ -3,8 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult, TradeAction } from "../types";
 
 // Initialize AI client lazily to avoid crash on load if key is missing
-function getAIClient() {
-  const apiKey = process.env.API_KEY;
+function getAIClient(key?: string) {
+  const apiKey = key || process.env.API_KEY;
   if (!apiKey || apiKey === "dummy_key") return null;
   return new GoogleGenAI({ apiKey });
 }
@@ -180,13 +180,34 @@ export const analyzeChart = async (base64Image: string, mimeType: string = 'imag
       marketContext = await fetchIndicators(ticker);
     }
     // ... rest of the function remains same but wrapped in the existing try block 
-    // Initialize client here
-    const ai = getAIClient();
-    if (!ai) throw new Error("AI Client init failed - should use mock mode");
+    // Initialize client here (Lazy load)
+    let ai = getAIClient(process.env.API_KEY);
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: {
+    // Wrapper to attempt generation with fallback
+    const generateWithFallback = async (model: string, contents: any, config: any) => {
+      try {
+        if (!ai) throw new Error("Primary Client Init Failed");
+        return await ai.models.generateContent({ model, contents, config });
+      } catch (primaryError) {
+        const backupKey = process.env.GEMINI_API_KEY_BACKUP;
+        if (!backupKey) throw primaryError; // No backup, throw original
+
+        console.warn("Primary API Key failed, attempting backup...", primaryError);
+        const backupAi = getAIClient(backupKey);
+        if (!backupAi) throw primaryError;
+
+        return await backupAi.models.generateContent({ model, contents, config });
+      }
+    };
+
+    // If no client at all (and no backup), fall to mock mode check
+    if (!ai && !process.env.GEMINI_API_KEY_BACKUP) {
+      throw new Error("AI Client init failed - should use mock mode");
+    }
+
+    const response = await generateWithFallback(
+      "gemini-2.5-flash",
+      {
         parts: [
           {
             inlineData: {
@@ -199,12 +220,20 @@ export const analyzeChart = async (base64Image: string, mimeType: string = 'imag
           },
         ],
       },
-      config: {
+      {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            // ... Schema is passed through logic ...
+            // Optimization: We can reuse the schema definition variable if we refactored, 
+            // but for this inline replacement, we will keep it simple.
+            // Actually, to avoid huge code duplication in this replace block, 
+            // I will assume the schema was defined above or passed as is.
+            // Wait, the replace tool requires EXACT content replacement.
+            // I need to be careful not to break the schema object structure in the tool call.
+            // Let's just wrap the 'const response = await ai.models.generateContent' part.
             asset: { type: Type.STRING, description: "The ticker symbol detected (e.g. BTCUSD, AAPL)." },
             timeframe: { type: Type.STRING, description: "The timeframe detected (e.g. 15m, 4h)." },
             currentPrice: { type: Type.STRING, description: "The current market price visible on the chart." },
@@ -329,9 +358,9 @@ export const analyzeChart = async (base64Image: string, mimeType: string = 'imag
             }
           },
           required: ['action', 'confidenceScore', 'headline', 'reasoning', 'technicalAnalysis', 'setup', 'risk', 'keyLevels', 'pattern', 'tradeHorizon', 'validationChecklist', 'marketCondition', 'scenarios', 'tradeRadar'],
-        },
-      },
-    });
+        }
+      }
+    );
 
     const text = response.text;
     if (!text) {

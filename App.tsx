@@ -4,7 +4,8 @@ import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Wallet } from 'lucide-react';
+import { Modal } from './components/Modal';
 
 function App() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
@@ -50,6 +51,11 @@ function App() {
   };
 
   return (
+  const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | null>(null);
+
+  // ... (handleFileSelect and handleReset match existing)
+
+  return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
 
       {/* Background Gradients for Subtle Depth */}
@@ -59,7 +65,7 @@ function App() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Header />
+        <Header onOpenModal={setActiveModal} />
 
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
@@ -154,6 +160,93 @@ function App() {
       <footer className="relative z-10 text-center py-8 text-slate-400 text-sm">
         <p className="font-medium tracking-wide">© {new Date().getFullYear()} TradeSight AI</p>
       </footer>
+
+      {/* --- MODALS --- */}
+
+      {/* 1. DOCUMENTATION */}
+      <Modal
+        isOpen={activeModal === 'docs'}
+        onClose={() => setActiveModal(null)}
+        title="Documentation & Usage"
+      >
+        <div className="prose prose-slate max-w-none">
+          <p className="text-slate-600">
+            TradeSight AI combines <strong>Computer Vision (Gemini 2.5)</strong> with <strong>Hard Mathematical Indicators</strong> (MACD, RSI from Yahoo Finance) to give you an institutional-grade validation of your chart setup.
+          </p>
+          <h4>How to Use</h4>
+          <ol>
+            <li><strong>Enter Ticker</strong>: Type user ticker (e.g. <code>BTC-USD</code>) for accurate ground-truth data.</li>
+            <li><strong>Upload Chart</strong>: Take a screenshot of your TradingView chart. Ensure price axes are visible.</li>
+            <li><strong>Analyze</strong>: The AI will identify patterns, key levels, and generate a 3-scenario trade plan.</li>
+          </ol>
+          <h4>Indicators Supported</h4>
+          <ul>
+            <li><strong>MACD (12, 26, 9)</strong>: For trend direction and momentum.</li>
+            <li><strong>Williams Alligator</strong>: For sleeping/awakening trends.</li>
+            <li><strong>RSI (14)</strong>: For overbought/oversold conditions.</li>
+          </ul>
+        </div>
+      </Modal>
+
+      {/* 2. RISK MODELS (Calculator) */}
+      <Modal
+        isOpen={activeModal === 'risk'}
+        onClose={() => setActiveModal(null)}
+        title="Position Size Calculator"
+      >
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-sm">
+            <strong>Standard Risk Protocol:</strong> Never risk more than 1-2% of your account on a single trade.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Account Balance ($)</label>
+              <input type="number" placeholder="10000" className="w-full p-2 border rounded-lg" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Risk per Trade (%)</label>
+              <input type="number" placeholder="1.0" className="w-full p-2 border rounded-lg" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Entry Price</label>
+              <input type="number" placeholder="0.00" className="w-full p-2 border rounded-lg" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Stop Loss Price</label>
+              <input type="number" placeholder="0.00" className="w-full p-2 border rounded-lg" />
+            </div>
+          </div>
+
+          <button className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl mt-4">
+            Calculate Max Position Size
+          </button>
+
+          {/* Result Placeholder */}
+          <div className="mt-4 p-4 bg-slate-100 rounded-xl text-center">
+            <p className="text-sm text-slate-500">Result will appear here...</p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 3. CONNECT BROKER */}
+      <Modal
+        isOpen={activeModal === 'broker'}
+        onClose={() => setActiveModal(null)}
+        title="Connect Brokerage"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {['Binance', 'Coinbase', 'Kraken', 'Alpaca', 'MetaTrader 5'].map((broker) => (
+            <button key={broker} className="flex items-center p-4 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all group">
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-100 text-slate-500 group-hover:text-blue-600">
+                <Wallet className="w-5 h-5" />
+              </div>
+              <span className="font-semibold text-slate-700">{broker}</span>
+            </button>
+          ))}
+        </div>
+      </Modal>
+
     </div>
   );
 }
