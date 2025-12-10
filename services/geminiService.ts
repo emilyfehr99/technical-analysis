@@ -57,7 +57,7 @@ Analyze the provided chart image and generate a highly structured, institutional
 // Helper to fetch indicators
 async function fetchIndicators(ticker: string): Promise<string> {
   try {
-    const response = await fetch('http://localhost:3001/api/analyze', {
+    const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ symbol: ticker })
