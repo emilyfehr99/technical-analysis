@@ -745,7 +745,7 @@ Note: ${data.headline}
                 />
             </div>
 
-        </motion.div>
+        </div>
     );
 };
 
