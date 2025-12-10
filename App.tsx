@@ -143,12 +143,18 @@ function App() {
                 </div>
 
                 <button
-                  onClick={handleAnalyze}
-                  disabled={!analysisState.imageUrl || analysisState.status === 'analyzing'}
+                  onClick={() => {
+                    if (!analysisState.imageUrl) {
+                      document.getElementById('file-upload-input')?.click();
+                      return;
+                    }
+                    handleAnalyze();
+                  }}
+                  disabled={analysisState.status === 'analyzing'}
                   className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 ${analysisState.imageUrl
-                    ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    }`}
+                      ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
+                      : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'
+                    } ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
                 >
                   {analysisState.status === 'analyzing' ? (
                     <>
@@ -157,8 +163,8 @@ function App() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5" />
-                      Analyze Chart
+                      <Sparkles className={`w-5 h-5 ${!analysisState.imageUrl && 'text-blue-400'}`} />
+                      {analysisState.imageUrl ? 'Run Analysis' : 'Upload Chart'}
                     </>
                   )}
                 </button>

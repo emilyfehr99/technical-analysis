@@ -29,7 +29,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       if (isAnalyzing) return;
-      
+
       const items = e.clipboardData?.items;
       if (!items) return;
 
@@ -39,7 +39,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
           if (file) {
             processFile(file);
             // Prevent default behavior (like pasting into a text input if one was focused)
-            e.preventDefault(); 
+            e.preventDefault();
             break; // Stop after finding the first image
           }
         }
@@ -82,10 +82,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
     <div className="w-full max-w-2xl mx-auto mb-8">
       <div
         className={`relative group rounded-3xl border-2 border-dashed transition-all duration-300 ease-out p-12 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden
-        ${dragActive 
-          ? 'border-blue-500 bg-blue-50/50 scale-[1.02]' 
-          : 'border-slate-300 hover:border-slate-400 bg-white/40 hover:bg-white/60'
-        }
+        ${dragActive
+            ? 'border-blue-500 bg-blue-50/50 scale-[1.02]'
+            : 'border-slate-300 hover:border-slate-400 bg-white/40 hover:bg-white/60'
+          }
         ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
         `}
         onDragEnter={handleDrag}
@@ -94,13 +94,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
         onDrop={handleDrop}
       >
         <input
+          id="file-upload-input"
           type="file"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           onChange={handleChange}
           accept="image/*"
           disabled={isAnalyzing}
         />
-        
+
         <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/0 to-white/40 pointer-events-none" />
 
         {isAnalyzing ? (
@@ -119,7 +120,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
             </h3>
             <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
               Drag & drop, click to browse, or <span className="font-semibold text-slate-700 bg-slate-200/60 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly from clipboard.
-              <br/>
+              <br />
               <span className="text-xs text-slate-400 mt-2 block">Supported: PNG, JPG, WEBP</span>
             </p>
           </>
