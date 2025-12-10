@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import { AnalysisState } from './types';
-import { analyzeChart } from './services/geminiService';
+import { analyzeImage } from './services/geminiService';
 import { RefreshCw, Wallet } from 'lucide-react';
 import { Modal } from './components/Modal';
+import PaywallModal from './components/PaywallModal';
+import { Wallet } from 'lucide-react'; s / PaywallModal';
 
 function App() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
@@ -16,30 +18,24 @@ function App() {
   });
   const [ticker, setTicker] = useState('');
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [analysisCount, setAnalysisCount] = useState(0);
 
-  const handleFileSelect = async (base64: string, mimeType: string) => {
-    // Set loading state and store preview image
-    setAnalysisState(prev => ({
-      ...prev,
-      status: 'analyzing',
-      error: null,
-      imageUrl: `data:${mimeType};base64,${base64}`
-    }));
-
-    try {
-      const result = await analyzeChart(base64, mimeType, ticker);
-      setAnalysisState(prev => ({
-        ...prev,
-        status: 'success',
-        result: result,
-      }));
-    } catch (err) {
-      setAnalysisState(prev => ({
-        ...prev,
-        status: 'error',
-        error: "Failed to analyze the chart. Please ensure the image is clear and try again.",
-      }));
+  useEffect(() => {
+    const savedCount = localStorage.getItem('user_analysis_count');
+    if (savedCount) {
+      setAnalysisCount(parseInt(savedCount, 10));
     }
+  }, []);
+
+  const handleFileSelect = (file: File) => {
+    // Reset state for new analysis
+    setAnalysisState({
+      status: 'idle',
+      result: null,
+      error: null,
+      imageUrl: URL.createObjectURL(file)
+    });
   };
 
   const handleReset = () => {
