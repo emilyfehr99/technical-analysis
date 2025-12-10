@@ -1,0 +1,238 @@
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { AnalysisResult } from "../types";
+
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+const SYSTEM_INSTRUCTION = `
+You are a world-class Senior Technical Analyst and Quantitative Strategist (ex-Citadel/Bridgewater). 
+Your expertise lies in reading charts, specifically utilizing the MACD, Williams Alligator, Volume, and Market Structure.
+
+### YOUR MISSION
+Analyze the provided chart image and generate a highly structured, institutional-grade trading plan.
+
+### CRITICAL RULES
+1. **Identify the Asset**: Look at the top left of the chart for Ticker/Symbol and Timeframe.
+2. **Extract Price**: Look at the Y-axis or the active candle label to find the **Current Price**.
+3. **Pattern Recognition**: You MUST identify the specific chart pattern (e.g. Bull Flag, Double Bottom, Channel).
+4. **"WAIT" means "PLAN THE FUTURE TRADE"**:
+   - If the action is **WAIT**, you **MUST** provide the **Trigger Levels**.
+   - **Entry Zone**: Write "Watch for breakout above [Price]" or "Wait for retest of [Price]".
+   - **Stop Loss**: Write "Invalidation below [Price]".
+   - **Targets**: "Projected move to [Price]".
+   - **NEVER return "N/A" for setup fields.** Always provide the hypothetical setup levels.
+
+5. **Probabilistic Thinking**:
+   - Do not just give one prediction. Generate 3 scenarios: BULL CASE, BEAR CASE, and BASE CASE.
+   - Assign probabilities to each (must sum to ~100%).
+
+6. **Real-Time Execution Radar**:
+   - Provide 3 distinct actionable trade setups based on the current chart state:
+     a. **SCALP**: Aggressive, quick timeframe (minutes).
+     b. **DAY_TRADE**: The standard intraday setup.
+     c. **SWING**: A wider stop/target setup for overnight holding.
+
+7. **Confidence Scoring**:
+   - If the chart is readable, Confidence should be **>75%**. 
+   - Only use low confidence if the image is blurry or unreadable.
+
+### OUTPUT SCHEMA INSTRUCTIONS
+- **asset**: Detect the ticker (e.g., "SPY", "BTCUSD").
+- **currentPrice**: The price visible on the chart right now (e.g. "4,120.50").
+- **timeframe**: Detect the time (e.g., "5m", "1H").
+- **pattern**: Identify the geometric pattern (Name) and Type (Continuation/Reversal).
+- **tradeHorizon**: Estimate duration (e.g., "Intraday", "Swing 1-3 Days").
+- **tradeRadar**: Generate 3 specific execution orders (Scalp/Day/Swing).
+- **keyLevels**: List specific support/resistance prices found on the chart.
+- **validationChecklist**: Create 4 boolean checks relevant to the trade (e.g. "Trend Aligned", "Volume Spike", "Key Level Broken", "RSI Not Overbought").
+- **marketCondition**: Classify the environment (TRENDING, RANGING, VOLATILE, CHOPPY).
+- **scenarios**: Generate 3 scenarios (Bull, Bear, Base) with probability % and specific targets.
+`;
+
+// Helper to fetch indicators
+async function fetchIndicators(ticker: string): Promise<string> {
+  try {
+    const response = await fetch('http://localhost:3001/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbol: ticker })
+    });
+    if (!response.ok) return "";
+    const data = await response.json();
+    return data.summary;
+  } catch (e) {
+    console.warn("Failed to fetch indicators", e);
+    return "";
+  }
+}
+
+export const analyzeChart = async (base64Image: string, mimeType: string = 'image/png', ticker?: string): Promise<AnalysisResult> => {
+  if (!process.env.API_KEY) {
+    throw new Error("Gemini API Key is missing. Please add GEMINI_API_KEY to .env.local");
+  }
+  try {
+    let marketContext = "";
+    if (ticker) {
+      marketContext = await fetchIndicators(ticker);
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              data: base64Image,
+              mimeType: mimeType,
+            },
+          },
+          {
+            text: `Analyze this chart. Identify the ticker and timeframe. If the action is WAIT, give me the exact trigger prices for the future entry. Do not return N/A. ${marketContext}`,
+          },
+        ],
+      },
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            asset: { type: Type.STRING, description: "The ticker symbol detected (e.g. BTCUSD, AAPL)." },
+            timeframe: { type: Type.STRING, description: "The timeframe detected (e.g. 15m, 4h)." },
+            currentPrice: { type: Type.STRING, description: "The current market price visible on the chart." },
+            action: {
+              type: Type.STRING,
+              enum: ['BUY', 'SELL', 'WAIT', 'HOLD'],
+              description: 'The primary recommendation.',
+            },
+            confidenceScore: {
+              type: Type.INTEGER,
+              description: 'Confidence in the clarity of the setup and analysis (0-100).',
+            },
+            headline: {
+              type: Type.STRING,
+              description: 'A short, punchy summary (e.g., "Bull Flag Breakout Imminent").',
+            },
+            reasoning: {
+              type: Type.STRING,
+              description: 'Detailed explanation of why this action is recommended.',
+            },
+            marketCondition: {
+              type: Type.STRING,
+              enum: ['TRENDING', 'RANGING', 'VOLATILE', 'CHOPPY'],
+              description: 'The general state of the market.',
+            },
+            pattern: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING, description: "Name of the chart pattern (e.g. Bull Flag)" },
+                type: { type: Type.STRING, enum: ['CONTINUATION', 'REVERSAL', 'INDECISION'], description: "Type of pattern" },
+                confidence: { type: Type.INTEGER, description: "Confidence in pattern (0-100)" }
+              },
+              required: ['name', 'type', 'confidence']
+            },
+            tradeHorizon: {
+              type: Type.STRING,
+              description: "Estimated duration of the trade (e.g. 2-4 Hours, 1-2 Days)"
+            },
+            tradeRadar: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  style: { type: Type.STRING, enum: ['SCALP', 'DAY_TRADE', 'SWING'] },
+                  side: { type: Type.STRING, enum: ['LONG', 'SHORT'] },
+                  entryPrice: { type: Type.STRING, description: "Specific entry price limit" },
+                  stopLoss: { type: Type.STRING, description: "Specific stop loss price" },
+                  targetPrice: { type: Type.STRING, description: "Specific take profit price" },
+                  leverageRecommendation: { type: Type.STRING, description: "e.g. 5x, 10x, Spot" },
+                  reasoning: { type: Type.STRING, description: "Very brief reason (e.g. 'Bounce off VWAP')" }
+                },
+                required: ['style', 'side', 'entryPrice', 'stopLoss', 'targetPrice', 'reasoning']
+              },
+              description: "3 distinct actionable orders based on the chart state."
+            },
+            scenarios: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING, enum: ['BULL_CASE', 'BEAR_CASE', 'BASE_CASE'] },
+                  probability: { type: Type.INTEGER, description: "Percentage probability (0-100)" },
+                  priceTarget: { type: Type.STRING, description: "Target price for this scenario" },
+                  description: { type: Type.STRING, description: "Short description of this outcome" }
+                },
+                required: ['name', 'probability', 'priceTarget', 'description']
+              },
+              description: "3 distinct probabilistic outcomes."
+            },
+            technicalAnalysis: {
+              type: Type.OBJECT,
+              properties: {
+                macd: { type: Type.STRING, description: 'Specific observation of MACD.' },
+                alligator: { type: Type.STRING, description: 'Specific observation of Alligator indicator.' },
+                trend: { type: Type.STRING, enum: ['BULLISH', 'BEARISH', 'NEUTRAL'] },
+                volume: { type: Type.STRING, description: 'Volume analysis if visible.' },
+              },
+              required: ['macd', 'alligator', 'trend'],
+            },
+            keyLevels: {
+              type: Type.OBJECT,
+              properties: {
+                support: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of support price levels" },
+                resistance: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of resistance price levels" },
+                pivotPoint: { type: Type.STRING, description: "Key pivot or midway point" }
+              },
+              required: ['support', 'resistance']
+            },
+            setup: {
+              type: Type.OBJECT,
+              properties: {
+                entryZone: { type: Type.STRING, description: 'Price range to enter OR the specific trigger level to watch for.' },
+                stopLoss: { type: Type.STRING, description: 'Specific price level for invalidation.' },
+                takeProfitTargets: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: 'List of price targets.',
+                },
+                optionsStrategy: { type: Type.STRING, description: 'Suggested options strategy.' },
+              },
+              required: ['entryZone', 'stopLoss', 'takeProfitTargets'],
+            },
+            risk: {
+              type: Type.OBJECT,
+              properties: {
+                riskToRewardRatio: { type: Type.STRING, description: 'Estimated R:R ratio in strictly "1:X" format (e.g. "1:3").' },
+                suggestedPositionSize: { type: Type.STRING, description: 'Recommended size based on volatility.' },
+                activeRiskParameters: { type: Type.STRING, description: 'Current active risks.' },
+              },
+              required: ['riskToRewardRatio', 'suggestedPositionSize', 'activeRiskParameters'],
+            },
+            validationChecklist: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  label: { type: Type.STRING, description: "Criterion name (e.g. Trend Alignment)" },
+                  passed: { type: Type.BOOLEAN, description: "Whether this criterion is met" }
+                }
+              },
+              description: "A list of 4-5 technical criteria used to validate this trade idea."
+            }
+          },
+          required: ['action', 'confidenceScore', 'headline', 'reasoning', 'technicalAnalysis', 'setup', 'risk', 'keyLevels', 'pattern', 'tradeHorizon', 'validationChecklist', 'marketCondition', 'scenarios', 'tradeRadar'],
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) {
+      throw new Error("No response from AI");
+    }
+
+    return JSON.parse(text) as AnalysisResult;
+  } catch (error) {
+    console.error("Analysis failed:", error);
+    throw error;
+  }
+};

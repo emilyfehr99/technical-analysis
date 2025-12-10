@@ -1,0 +1,5 @@
+{
+  "name": "Technical Analysis",
+  "description": "An intelligent technical analysis assistant for day traders. Upload your chart screenshots (MACD, Alligator, etc.) to receive instant, structured trading plans, risk assessments, and actionable insights in a clean, Apple-inspired interface.",
+  "requestFramePermissions": []
+}
