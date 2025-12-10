@@ -105,18 +105,14 @@ function App() {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
         if (file) {
-          // Reuse the file handling logic
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            setAnalysisState(prev => ({
-              ...prev,
-              status: 'idle',
-              error: null,
-              imageUrl: URL.createObjectURL(file)
-            }));
-          };
-          reader.readAsDataURL(file);
+          setAnalysisState(prev => ({
+            ...prev,
+            status: 'idle',
+            error: null,
+            imageUrl: URL.createObjectURL(file)
+          }));
           e.preventDefault();
+          return; // Stop after finding first image
         }
       }
     }
