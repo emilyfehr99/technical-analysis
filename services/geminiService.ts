@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { AnalysisResult } from "../types";
+import { AnalysisResult, TradeAction } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -66,16 +66,115 @@ async function fetchIndicators(ticker: string): Promise<string> {
   }
 }
 
+const MOCK_RESULT: AnalysisResult = {
+  action: TradeAction.WAIT,
+  confidenceScore: 85,
+  asset: "BTC/USD (Mock)",
+  currentPrice: "42,000.00",
+  timeframe: "4h",
+  headline: "Mock Analysis: API Key Invalid or Missing",
+  reasoning: "This is a demonstration mode because no valid Gemini API Key was found. Please add your key to .env.local to see real AI analysis.",
+  marketCondition: 'RANGING',
+  pattern: {
+    name: "Symmetrical Triangle",
+    type: 'CONTINUATION',
+    confidence: 80
+  },
+  tradeHorizon: "Intraday",
+  tradeRadar: [
+    {
+      style: "SCALP",
+      side: "LONG",
+      entryPrice: "42,100",
+      stopLoss: "41,900",
+      targetPrice: "42,500",
+      reasoning: "Quick bounce off support",
+      leverageRecommendation: "10x"
+    },
+    {
+      style: "DAY_TRADE",
+      side: "SHORT",
+      entryPrice: "42,500",
+      stopLoss: "42,800",
+      targetPrice: "41,500",
+      reasoning: "Rejection at resistance",
+      leverageRecommendation: "5x"
+    },
+    {
+      style: "SWING",
+      side: "LONG",
+      entryPrice: "41,000",
+      stopLoss: "40,000",
+      targetPrice: "45,000",
+      reasoning: "Major weekly support",
+      leverageRecommendation: "Spot"
+    }
+  ],
+  scenarios: [
+    {
+      name: 'BULL_CASE',
+      probability: 40,
+      priceTarget: "45,000",
+      description: "Breakout above triangle resistance"
+    },
+    {
+      name: 'BEAR_CASE',
+      probability: 30,
+      priceTarget: "38,000",
+      description: "Breakdown below support trendline"
+    },
+    {
+      name: 'BASE_CASE',
+      probability: 30,
+      priceTarget: "42,000",
+      description: "Continued chopping within range"
+    }
+  ],
+  technicalAnalysis: {
+    macd: "Bullish Crossover (Mock)",
+    alligator: "Sleeping (Mock)",
+    trend: 'NEUTRAL',
+    volume: "Low volume consolidation"
+  },
+  keyLevels: {
+    support: ["41,000", "40,500"],
+    resistance: ["43,000", "44,000"],
+    pivotPoint: "42,200"
+  },
+  setup: {
+    entryZone: "Wait for break of 42,500",
+    stopLoss: "41,800",
+    takeProfitTargets: ["43,500", "45,000"],
+    optionsStrategy: "Iron Condor"
+  },
+  risk: {
+    riskToRewardRatio: "1:3",
+    suggestedPositionSize: "2%",
+    activeRiskParameters: "Choppy market conditions"
+  },
+  validationChecklist: [
+    { label: "Trend Alignment", passed: true },
+    { label: "Volume Confirmation", passed: false },
+    { label: "RSI Neutral", passed: true },
+    { label: "Key Level Hold", passed: true }
+  ]
+};
+
 export const analyzeChart = async (base64Image: string, mimeType: string = 'image/png', ticker?: string): Promise<AnalysisResult> => {
-  if (!process.env.API_KEY) {
-    throw new Error("Gemini API Key is missing. Please add GEMINI_API_KEY to .env.local");
+  // Check for API Key - If missing, return MOCK data instead of crashing
+  if (!process.env.API_KEY || process.env.API_KEY === "dummy_key") {
+    console.warn("Using MOCK MODE: No valid API Key found.");
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return { ...MOCK_RESULT, asset: ticker || "MOCK ASSET" };
   }
+
   try {
     let marketContext = "";
     if (ticker) {
       marketContext = await fetchIndicators(ticker);
     }
-
+    // ... rest of the function remains same but wrapped in the existing try block 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: {
