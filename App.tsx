@@ -25,7 +25,34 @@ function App() {
     if (savedCount) {
       setAnalysisCount(parseInt(savedCount, 10));
     }
-  }, []);
+
+    // Global Paste Listener
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      if (analysisState.status === 'analyzing') return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault(); // Prevent default only if we found and handled an image
+            setAnalysisState(prev => ({
+              ...prev,
+              status: 'idle',
+              error: null,
+              imageUrl: URL.createObjectURL(file)
+            }));
+            return;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, [analysisState.status]);
 
   const handleFileSelect = (file: File) => {
     // Reset state for new analysis
@@ -99,24 +126,7 @@ function App() {
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const file = items[i].getAsFile();
-        if (file) {
-          setAnalysisState(prev => ({
-            ...prev,
-            status: 'idle',
-            error: null,
-            imageUrl: URL.createObjectURL(file)
-          }));
-          e.preventDefault();
-          return; // Stop after finding first image
-        }
-      }
-    }
-  };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
@@ -157,7 +167,6 @@ function App() {
                     type="text"
                     value={ticker}
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    onPaste={handlePaste}
                     placeholder="BTC, AAPL, SPX..."
                     className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
                   />

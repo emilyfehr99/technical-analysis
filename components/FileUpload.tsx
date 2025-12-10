@@ -26,31 +26,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
   };
 
   // Handle Global Paste Events
-  useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
-      if (isAnalyzing) return;
 
-      const items = e.clipboardData?.items;
-      if (!items) return;
-
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            processFile(file);
-            // Prevent default behavior (like pasting into a text input if one was focused)
-            e.preventDefault();
-            break; // Stop after finding the first image
-          }
-        }
-      }
-    };
-
-    window.addEventListener('paste', handlePaste);
-    return () => {
-      window.removeEventListener('paste', handlePaste);
-    };
-  }, [isAnalyzing, onFileSelect]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
