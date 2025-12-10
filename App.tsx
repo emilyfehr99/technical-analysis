@@ -47,7 +47,8 @@ function App() {
   };
 
   const handleAnalyze = async () => {
-    if (!analysisState.imageUrl) return;
+    // Determine input source (Image or Ticker)
+    if (!analysisState.imageUrl && !ticker) return;
 
     // Check Paywall Limit (Max 3 free analyses)
     if (analysisCount >= 3) {
@@ -58,20 +59,23 @@ function App() {
     setAnalysisState(prev => ({ ...prev, status: 'analyzing', error: null }));
 
     try {
-      // 1. Convert image to base64
-      const response = await fetch(analysisState.imageUrl);
-      const blob = await response.blob();
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
+      let base64Data: string | null = null;
+      let mimeType = 'image/png';
 
-      // 2. Extract base64 and mimeType properly
-      const base64Data = (base64 as string).split(',')[1];
-      const mimeType = blob.type;
+      if (analysisState.imageUrl) {
+        // 1. Convert image to base64
+        const response = await fetch(analysisState.imageUrl);
+        const blob = await response.blob();
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        base64Data = (base64 as string).split(',')[1];
+        mimeType = blob.type;
+      }
 
-      // 3. Send to API
+      // 3. Send to API (supports null image now)
       const result = await analyzeChart(base64Data, mimeType, ticker);
 
       setAnalysisState(prev => ({
@@ -95,6 +99,29 @@ function App() {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          // Reuse the file handling logic
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setAnalysisState(prev => ({
+              ...prev,
+              status: 'idle',
+              error: null,
+              imageUrl: URL.createObjectURL(file)
+            }));
+          };
+          reader.readAsDataURL(file);
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
 
@@ -110,7 +137,7 @@ function App() {
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
           {/* Intro Text - Only show when idle */}
-          {analysisState.status === 'idle' && (
+          {analysisState.status === 'idle' && !analysisState.imageUrl && (
             <div className="text-center mb-12 mt-10 space-y-4 animate-fade-in-up">
               <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
                 Institutional <br className="md:hidden" />
@@ -134,6 +161,7 @@ function App() {
                     type="text"
                     value={ticker}
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                    onPaste={handlePaste}
                     placeholder="BTC, AAPL, SPX..."
                     className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
                   />
@@ -144,17 +172,19 @@ function App() {
 
                 <button
                   onClick={() => {
-                    if (!analysisState.imageUrl) {
+                    if (!analysisState.imageUrl && !ticker) {
+                      // If neither, prompt for file
                       document.getElementById('file-upload-input')?.click();
                       return;
                     }
                     handleAnalyze();
                   }}
                   disabled={analysisState.status === 'analyzing'}
-                  className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 ${analysisState.imageUrl
+                  className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 
+                    ${(analysisState.imageUrl || ticker)
                       ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
-                      : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'
-                    } ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
+                      : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'} 
+                    ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
                 >
                   {analysisState.status === 'analyzing' ? (
                     <>
@@ -163,8 +193,8 @@ function App() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className={`w-5 h-5 ${!analysisState.imageUrl && 'text-blue-400'}`} />
-                      {analysisState.imageUrl ? 'Run Analysis' : 'Upload Chart'}
+                      <Sparkles className={`w-5 h-5 ${(!analysisState.imageUrl && !ticker) && 'text-blue-400'}`} />
+                      {analysisState.imageUrl ? 'Run Vision' : ticker ? 'Analyze Ticker' : 'Upload Chart'}
                     </>
                   )}
                 </button>
