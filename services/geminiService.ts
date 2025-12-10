@@ -2,7 +2,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult, TradeAction } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize AI client lazily to avoid crash on load if key is missing
+function getAIClient() {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey || apiKey === "dummy_key") return null;
+  return new GoogleGenAI({ apiKey });
+}
 
 const SYSTEM_INSTRUCTION = `
 You are a world-class Senior Technical Analyst and Quantitative Strategist (ex-Citadel/Bridgewater). 
@@ -175,6 +180,10 @@ export const analyzeChart = async (base64Image: string, mimeType: string = 'imag
       marketContext = await fetchIndicators(ticker);
     }
     // ... rest of the function remains same but wrapped in the existing try block 
+    // Initialize client here
+    const ai = getAIClient();
+    if (!ai) throw new Error("AI Client init failed - should use mock mode");
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: {
