@@ -46,6 +46,55 @@ function App() {
     });
   };
 
+  const handleAnalyze = async () => {
+    if (!analysisState.imageUrl) return;
+
+    // Check Paywall Limit (Max 3 free analyses)
+    if (analysisCount >= 3) {
+      setShowPaywall(true);
+      return;
+    }
+
+    setAnalysisState(prev => ({ ...prev, status: 'analyzing', error: null }));
+
+    try {
+      // 1. Convert image to base64
+      const response = await fetch(analysisState.imageUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+
+      // 2. Extract base64 and mimeType properly
+      const base64Data = (base64 as string).split(',')[1];
+      const mimeType = blob.type;
+
+      // 3. Send to API
+      const result = await analyzeChart(base64Data, mimeType, ticker);
+
+      setAnalysisState(prev => ({
+        ...prev,
+        status: 'success',
+        result
+      }));
+
+      // Increment Usage Count logic
+      const newCount = analysisCount + 1;
+      setAnalysisCount(newCount);
+      localStorage.setItem('user_analysis_count', newCount.toString());
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      setAnalysisState(prev => ({
+        ...prev,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Failed to analyze chart'
+      }));
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
 
