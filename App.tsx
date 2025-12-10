@@ -87,16 +87,30 @@ function App() {
             <div className="space-y-6 max-w-xl mx-auto">
               <div className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-white/50 animate-fade-in-up">
                 <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Asset Ticker (Crypto/Stocks)</label>
-                <div className="relative">
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-slate-400 font-bold">$</span>
+                  </div>
                   <input
                     type="text"
-                    placeholder="e.g. BTC/USDT, ETH/USDT"
+                    placeholder="e.g. BTC-USD, NVDA, SPY"
                     value={ticker}
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                    className="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono text-slate-800 placeholder:text-slate-400"
+                    className="w-full pl-10 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-mono text-lg font-bold text-slate-900 placeholder:text-slate-300 shadow-inner"
                   />
+                  {ticker && (
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+                      <div className="flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 animate-in fade-in zoom-in">
+                        <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                        Active
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-slate-400 mt-2 ml-1">Enter symbol to fetch real-time MACD & Alligator data from Taapi.io.</p>
+                <p className="text-xs text-slate-400 mt-3 ml-1 flex items-center justify-between">
+                  <span>Fetches live price & indicators via <strong>Yahoo Finance</strong></span>
+                  {ticker && <span className="text-blue-500 cursor-pointer hover:underline" onClick={() => setTicker('')}>Clear</span>}
+                </p>
               </div>
 
               <FileUpload
