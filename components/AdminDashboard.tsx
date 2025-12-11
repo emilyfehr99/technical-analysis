@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { DashboardErrorBoundary } from './DashboardErrorBoundary';
+// import { DashboardErrorBoundary } from './DashboardErrorBoundary';
 
 const AdminDashboard = () => {
     useEffect(() => {
