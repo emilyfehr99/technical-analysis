@@ -26,7 +26,7 @@ export const Analytics = {
         // Optional: Block localhost if you strictly want Prod data only
         if (isBot) {
             console.log('Analytics: Bot detected', userAgent);
-            // return; // VERIFICATION MODE
+            return;
         }
 
         try {
