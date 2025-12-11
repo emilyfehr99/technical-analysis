@@ -21,7 +21,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
     const [email, setEmail] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [isJoined, setIsJoined] = React.useState(false);
-    const [waitlistCount, setWaitlistCount] = React.useState<number | null>(null);
+    const [isJoined, setIsJoined] = React.useState(false);
 
     const handleSubscribe = async () => {
         setLoading(true);
@@ -105,8 +105,8 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                     {!isJoined ? (
                         <>
                             <div className="text-center md:text-left mb-8">
-                                <h3 className="text-2xl font-bold text-slate-900">Join the Waitlist</h3>
-                                <p className="text-slate-500 mt-2">Demand is high. Secure your spot for institutional access.</p>
+                                <h3 className="text-2xl font-bold text-slate-900">Choose Your Plan</h3>
+                                <p className="text-slate-500 mt-2">Unlock institutional-grade analysis for all valid assets.</p>
                             </div>
 
                             <div className="space-y-4">
