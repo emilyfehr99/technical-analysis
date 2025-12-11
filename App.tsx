@@ -41,8 +41,8 @@ function App() {
         console.log("Checking admin status for:", session.user.email);
 
         // 1. Hardcoded Bypass (for debugging/recovery)
-        const normalize = (s: string) => s?.trim().toLowerCase();
-        if (normalize(session.user.email) === normalize('8emilyfehr@gmail.com')) {
+        const normalize = (s: string) => (s || '').trim().toLowerCase();
+        if (session?.user?.email && normalize(session.user.email) === normalize('8emilyfehr@gmail.com')) {
           console.log("Admin Email Matched - Bypass");
           setIsAdmin(true);
         }
