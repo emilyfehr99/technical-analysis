@@ -117,14 +117,14 @@ function App() {
   };
 
   const handleDemoAnalysis = async () => {
+    // 1. Track Click Immediately
+    Analytics.trackEvent('click_demo_mode', { asset: 'BTC' });
+
     try {
       // Load the demo image from public folder
       const response = await fetch('/demo-chart.png');
       const blob = await response.blob();
       const imageUrl = URL.createObjectURL(blob);
-
-      // Track Demo Click
-      Analytics.trackEvent('click_demo_mode', { asset: 'BTC' });
 
       setAnalysisState({
         status: 'idle',

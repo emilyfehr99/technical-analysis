@@ -27,6 +27,23 @@ async function runTest() {
     console.log("Querying stats since:", today.toISOString());
 
     // 2. Fetch New Analytics
+    const { count: dau } = await supabase
+        .from('analytics_sessions')
+        .select('*', { count: 'exact', head: true })
+        .gte('started_at', today.toISOString());
+
+    const { count: demoClicks } = await supabase
+        .from('analytics_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_name', 'click_demo_mode')
+        .gte('occurred_at', today.toISOString());
+
+    const { count: pricingClicks } = await supabase
+        .from('analytics_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_name', 'click_pricing_header')
+        .gte('occurred_at', today.toISOString());
+
     // 2. Fetch New Analytics
     // Fetch ALL sessions for today to calculate Bounce Rate & Time of Day
     // LIMIT to 1000 to prevent memory blowup on free tier
@@ -42,37 +59,41 @@ async function runTest() {
         .gte('occurred_at', today.toISOString())
         .limit(2000);
 
-    // --- CALCULATIONS ---
-    const totalSessions = sessions ? sessions.length : 0;
+    // --- DEEP DIVE CALCULATIONS ---
+    const { data: recentSessions } = await supabase
+        .from('analytics_sessions')
+        .select('*')
+        .gte('started_at', today.toISOString())
+        .limit(1000);
 
-    // A. Bounce Rate: Sessions < 30s AND No Events (Approximation)
-    // We can join events, but for now let's use duration if available, or just single-page-visit logic if we had pages.
-    // Better proxy: "Bounced" if duration is small (e.g. < 10s) and NOT in the list of sessions that fired key events.
-    // Let's keep it simple: Duration < 10s.
+    const { data: recentEvents } = await supabase
+        .from('analytics_events')
+        .select('event_name')
+        .gte('occurred_at', today.toISOString())
+        .neq('event_name', 'test_event_backend')
+        .limit(2000);
+
+    // Bounce Rate
     let bounced = 0;
-    const hourMap = {}; // for Time of Day
+    const totalSessions = recentSessions ? recentSessions.length : 0;
+    const hourMap = {};
 
-    if (sessions) {
-        sessions.forEach(s => {
-            // Bounce Calc
+    if (recentSessions) {
+        recentSessions.forEach(s => {
             const duration = (new Date(s.last_seen_at) - new Date(s.started_at)) / 1000;
             if (duration < 10) bounced++;
-
-            // Time of Day
             const hour = new Date(s.started_at).getHours();
             hourMap[hour] = (hourMap[hour] || 0) + 1;
         });
     }
-
     const bounceRate = totalSessions > 0 ? Math.round((bounced / totalSessions) * 100) : 0;
 
-    // B. Most Active Hour
+    // Peak Time
     let peakHour = "N/A";
     let maxVisits = 0;
     Object.entries(hourMap).forEach(([hour, count]) => {
         if (count > maxVisits) {
             maxVisits = count;
-            // Format 13 -> "1 PM"
             const h = parseInt(hour);
             const ampm = h >= 12 ? 'PM' : 'AM';
             const displayH = h % 12 || 12;
@@ -80,30 +101,39 @@ async function runTest() {
         }
     });
 
-    // C. Top Buttons (Events)
+    // Top Actions
     const eventCounts = {};
-    if (events) {
-        events.forEach(e => {
+    if (recentEvents) {
+        recentEvents.forEach(e => {
             eventCounts[e.event_name] = (eventCounts[e.event_name] || 0) + 1;
         });
     }
-    // Sort and get Top 3
     const topEvents = Object.entries(eventCounts)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 3)
-        .map(([name, count]) => `${name.replace(/_/g, ' ')}: **${count}**`)
+        .map(([name, count]) => `> ${name.replace(/_/g, ' ')}: **${count}**`)
         .join('\n');
 
-    console.log("Calculated metrics:", { totalSessions, bounceRate, peakHour, topEvents });
 
     // 3. Construct Embed
     const embed = {
-        title: "🧠 Deep Dive Analytics",
-        color: 0x8b5cf6, // Purple
+        title: "📊 Kairos Manual Report",
+        description: `**Data snapshot as of ${new Date().toLocaleTimeString()}**`,
+        color: 0x3b82f6,
         fields: [
-            { name: "📉 Bounce Rate", value: `${bounceRate}%`, inline: true },
-            { name: "⏰ Peak Time", value: `${peakHour}`, inline: true },
-            { name: "👆 Top Actions", value: topEvents || "No data", inline: false }
+            // SECTION 1: VISITOR TRAFFIC
+            { name: "🌍 __**Site Visitors**__", value: "_Anonymous Traffic_", inline: false },
+            { name: "Unique Visits (DAU)", value: `${dau}`, inline: true },
+            { name: "Bounce Rate", value: `${bounceRate}%`, inline: true },
+            { name: "Peak Hour", value: `${peakHour}`, inline: true },
+
+            // SECTION 2: PRODUCT USAGE
+            { name: "👥 __**User Growth**__", value: "_Registered / Active_", inline: false },
+            { name: "Key Events (Demos)", value: `${demoClicks}`, inline: true },
+            { name: "Pricing Interest", value: `${pricingClicks}`, inline: true },
+
+            // SECTION 3: BEHAVIOR
+            { name: "👆 __**Top Actions**__", value: topEvents || "No significant activity", inline: false }
         ],
         timestamp: new Date().toISOString()
     };
