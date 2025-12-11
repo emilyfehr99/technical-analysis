@@ -134,8 +134,14 @@ function App() {
     Analytics.trackEvent('click_demo_mode', { asset: type });
 
     try {
-      // Load the demo image from public folder (using same for now but ideally different)
-      const response = await fetch('/demo-chart.png');
+      // Load the demo image from public folder
+      const filenameMap: Record<string, string> = {
+        'BTC': '/demo-btc.png',
+        'NVDA': '/demo-nvda.png',
+        'SPY': '/demo-spy.png'
+      };
+
+      const response = await fetch(filenameMap[type] || '/demo-chart.png');
       const blob = await response.blob();
       const imageUrl = URL.createObjectURL(blob);
 

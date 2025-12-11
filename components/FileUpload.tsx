@@ -120,10 +120,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
               <Upload className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
-              Upload Chart Screenshot
+              <span className="hidden md:inline">Upload Chart Screenshot</span>
+              <span className="md:hidden">Upload from Photo Library</span>
             </h3>
             <p className="text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
-              Drag & drop, click to browse, or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly from clipboard.
+              <span className="hidden md:inline">Drag & drop, click to browse, or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly.</span>
+              <span className="md:hidden">Tap to select a screenshot from your gallery.</span>
               <br />
               <span className="text-xs text-slate-400 dark:text-neutral-500 mt-2 block">Supported: PNG, JPG, WEBP</span>
             </p>
