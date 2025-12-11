@@ -38,11 +38,22 @@ function App() {
         headers['Authorization'] = `Bearer ${session.access_token}`;
 
         // Fetch Admin Status
-        const { data: profile } = await supabase
+        console.log("Checking admin status for:", session.user.email);
+
+        // 1. Hardcoded Bypass (for debugging/recovery)
+        if (session.user.email === '8emilyfehr@gmail.com') {
+          console.log("Admin Email Matched - Bypass");
+          setIsAdmin(true);
+        }
+
+        // 2. DB Check
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', session.user.id)
           .single();
+
+        if (profileError) console.error("Profile check error:", profileError);
         if (profile?.is_admin) setIsAdmin(true);
       }
 
