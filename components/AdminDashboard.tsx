@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Users, Clock, Globe, Smartphone, TrendingUp, Activity, RefreshCw } from 'lucide-react';
+import { DashboardErrorBoundary } from './DashboardErrorBoundary';
 
 // Types
 interface DailyStat {
@@ -37,6 +38,70 @@ const MetricCard = ({ label, value, subvalue, icon, trend }: { label: string, va
         <p className="text-xs text-slate-400 font-medium">{subvalue}</p>
     </div>
 );
+
+// Isolated Charts Component
+const ChartsSection = ({ dailyStats }: { dailyStats: DailyStat[] }) => {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
+            {/* Traffic Trend */}
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm flex flex-col">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-blue-500" /> Traffic Volume
+                </h3>
+                <div className="flex-grow">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={dailyStats}>
+                            <defs>
+                                <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.1} />
+                            <XAxis
+                                dataKey="date"
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(str) => str.substring(5)}
+                                stroke="#888"
+                            />
+                            <YAxis stroke="#888" tick={{ fontSize: 12 }} />
+                            <Tooltip
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                            />
+                            <Area type="monotone" dataKey="sessions" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorSessions)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* User Growth */}
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm flex flex-col">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-purple-500" /> New Signups
+                </h3>
+                <div className="flex-grow">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={dailyStats}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.1} />
+                            <XAxis
+                                dataKey="date"
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(str) => str.substring(5)}
+                                stroke="#888"
+                            />
+                            <YAxis stroke="#888" tick={{ fontSize: 12 }} />
+                            <Tooltip
+                                cursor={{ fill: 'transparent' }}
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                            />
+                            <Bar dataKey="signups" fill="#A855F7" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const AdminDashboard = () => {
     useEffect(() => {
@@ -210,11 +275,14 @@ const AdminDashboard = () => {
                 />
             </div>
 
-            {/* 2. CHARTS ROW (DISABLED FOR DEBUGGING) */}
-            <div className="p-8 text-center bg-slate-100 dark:bg-neutral-900 rounded-xl border border-slate-200 dark:border-neutral-800 text-slate-500">
-                <p className="mb-2">📊 Charts Disabled for Stability Testing</p>
-                <p className="text-xs">If you see the metrics above, the data is loading correctly.</p>
-            </div>
+            {/* 2. CHARTS ROW */}
+            <DashboardErrorBoundary fallback={
+                <div className="p-8 text-center bg-red-50 text-red-600 rounded-xl border border-red-200">
+                    Charts failed to load (Library Error). Metrics above are still accurate.
+                </div>
+            }>
+                <ChartsSection dailyStats={dailyStats} />
+            </DashboardErrorBoundary>
 
             {/* 3. DETAILS: Top Actions & Recent Logs */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
