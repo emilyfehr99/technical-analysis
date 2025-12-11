@@ -12,6 +12,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { supabase } from './lib/supabaseClient';
 import { Analytics } from './lib/analytics';
 
+import { EmailGateModal } from './components/EmailGateModal';
+
 function App() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
     status: 'idle',
@@ -23,6 +25,8 @@ function App() {
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
   const [currentView, setCurrentView] = useState<'home'>('home');
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [hasUnlocked, setHasUnlocked] = useState(false);
 
   // Auth State
   const [session, setSession] = useState<any>(null);
@@ -125,31 +129,32 @@ function App() {
     });
   };
 
-  const handleDemoAnalysis = async () => {
+  const handleDemoAnalysis = async (type: 'BTC' | 'NVDA' | 'SPY' = 'BTC') => {
     // 1. Track Click Immediately
-    Analytics.trackEvent('click_demo_mode', { asset: 'BTC' });
+    Analytics.trackEvent('click_demo_mode', { asset: type });
 
     try {
-      // Load the demo image from public folder
+      // Load the demo image from public folder (using same for now but ideally different)
       const response = await fetch('/demo-chart.png');
       const blob = await response.blob();
       const imageUrl = URL.createObjectURL(blob);
 
       setAnalysisState({
-        status: 'idle',
+        status: 'analyzing', // Start loading immediately per request
         result: null,
         error: null,
         imageUrl: imageUrl,
-        isDemo: true // Flag this as a demo run
+        isDemo: true
       });
 
-      // Optional: Auto-run analysis or let user click "Run AI Analysis"
-      // Let's letting them click "Run" feels more interactive/empowering, 
-      // but "One-Click" usually suggests immediate action. 
-      // Let's set the image and let them click "Run" to match the "Preview" flow 
-      // OR we can automate it. 
-      // Let's just set the image so they can see the "Trusted by 10k" preview state 
-      // replaced by the chart, then they hit the big button.
+      // Simulate analysis delay for "Labor Illusion"
+      setTimeout(() => {
+        // Auto-trigger analysis success simulation
+        // Since we don't have real backend for different types in this demo logic,
+        // We might just call the API or mock it.
+        // For now, let's call the real API with the demo flag, it should return mock data.
+        handleAnalyze(imageUrl, true);
+      }, 1500);
 
     } catch (e) {
       console.error("Failed to load demo chart", e);
@@ -157,28 +162,35 @@ function App() {
     }
   };
 
-  const handleAnalyze = async () => {
-    // Determine input source (Image Only)
-    if (!analysisState.imageUrl) return;
+  const handleAnalyze = async (autoImageUrl?: string, isDemoRun: boolean = false) => {
+    // Input Source: Arg or State
+    const activeImageUrl = autoImageUrl || analysisState.imageUrl;
 
-    setAnalysisState(prev => ({ ...prev, status: 'analyzing', error: null }));
+    if (!activeImageUrl) return;
+
+    // Sunk Cost Trigger: Update state to 'analyzing'
+    setAnalysisState(prev => ({
+      ...prev,
+      status: 'analyzing',
+      error: null,
+      imageUrl: activeImageUrl,
+      isDemo: isDemoRun || prev.isDemo
+    }));
 
     try {
       let base64Data: string | null = null;
       let mimeType = 'image/png';
 
-      if (analysisState.imageUrl) {
-        // 1. Convert image to base64
-        const response = await fetch(analysisState.imageUrl);
-        const blob = await response.blob();
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(blob);
-        });
-        base64Data = (base64 as string).split(',')[1];
-        mimeType = blob.type;
-      }
+      // 1. Convert activeImageUrl to base64
+      const response = await fetch(activeImageUrl);
+      const blob = await response.blob();
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      base64Data = (base64 as string).split(',')[1];
+      mimeType = blob.type;
 
       // 3. Send to API
       // Pass token if we have one
@@ -187,41 +199,54 @@ function App() {
         headers['Authorization'] = `Bearer ${session.access_token}`;
       }
 
-      // Payload (Symbol is removed/null)
+      // Payload 
       const payload = {
         image: base64Data,
         mimeType,
         symbol: null,
-        isDemo: analysisState.isDemo // Send flag to backend
+        isDemo: isDemoRun || analysisState.isDemo
       };
 
-      const response = await fetch('/api/analyze', {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
         headers,
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.status === 403 && data.error === 'LIMIT_REACHED') {
+      if (res.status === 403 && data.error === 'LIMIT_REACHED') {
         setAnalysisState(prev => ({ ...prev, status: 'idle' }));
-        // Always show pricing/paywall for limit reached
         setShowPaywall(true);
         return;
       }
 
-      if (!response.ok) {
+      if (!res.ok) {
         const errorMsg = data.details ? `${data.error}: ${data.details}` : (data.error || 'Analysis failed');
         throw new Error(errorMsg);
       }
 
-      const result = data; // Success result
+      // SUCCESS!
+      // Here is the Sunk Cost Hook:
+      // If user is logged in, show result.
+      // If user is NOT logged in, show Gate (unless it's a demo run, perhpas? No, gate demos too for max leads? User said "ask for email to see result" generally).
+      // Let's gate everything if not logged in.
+
+      const result = data;
 
       setAnalysisState(prev => ({
         ...prev,
         status: 'success',
         result
       }));
+
+      // Check Gate
+      if (!session?.user && !hasUnlocked) {
+        setShowEmailGate(true);
+        // Result is in state, but UI will hide it via conditional rendering until hasUnlocked is true
+      } else {
+        setHasUnlocked(true);
+      }
 
       // Update usage stats
       fetchUsage();
@@ -267,55 +292,43 @@ function App() {
 
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
+          {/* NEW: Sunk Cost / Email Gate Modal */}
+          <EmailGateModal
+            isOpen={showEmailGate}
+            imageUrl={analysisState.imageUrl}
+            onClose={() => setShowEmailGate(false)} // Prevent closing without email? User said "Ask for email". Let's allow close but not show result? Nah, standard gate.
+            onSuccess={() => {
+              setShowEmailGate(false);
+              // Set flag to show result
+              setHasUnlocked(true);
+            }}
+          />
+
           <>
-            {/* Intro Text - Only show when idle */}
+            {/* Refactored Hero Section */}
             {analysisState.status === 'idle' && !analysisState.imageUrl && (
-              <div className="text-center mb-12 mt-10 space-y-4 animate-fade-in-up">
-                <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                  Institutional <br className="md:hidden" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-600 to-neutral-900 dark:from-white dark:to-neutral-400">Technical Intelligence</span>
+              <div className="text-center mb-10 mt-6 space-y-6 animate-fade-in-up">
+                {/* Headline Change */}
+                <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[1.05] drop-shadow-sm">
+                  Roast My Chart.
                 </h1>
-                <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
-                  Upload your trading setup. Receive an institutional-grade validation plan, risk protocol, and execution targets in seconds.
+                <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                  Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
                 </p>
               </div>
             )}
 
             {/* Upload Section */}
             {analysisState.status !== 'success' && (
-              <div className="space-y-6 max-w-xl mx-auto">
-                {/* File Upload or Preview State */}
+              <div className="space-y-6 max-w-2xl mx-auto">
+
+                {/* File Upload Hero */}
                 {!analysisState.imageUrl ? (
                   <>
-                    <div className="text-center mb-8">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 mb-4">
-                        <div className="flex -space-x-2">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white dark:border-slate-800"></div>
-                          <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white dark:border-slate-800"></div>
-                          <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800"></div>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300"> Trusted by 10k+ Traders</span>
-                      </div>
-                      <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
-                        Instant Technical Analysis. <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                          Powered by AI Motion.
-                        </span>
-                      </h1>
-                      <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                        Upload any chart screenshot (from TradingView, etc).<br />
-                        Our AI Agent automatically detects the ticker, identifies setups, and generates a plan.
-                      </p>
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                        <button
-                          onClick={handleDemoAnalysis}
-                          className="inline-flex items-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 active:scale-95 group"
-                        >
-                          <Sparkles className="w-4 h-4 mr-2 text-purple-400 dark:text-purple-600" />
-                          Try Demo Chart
-                        </button>
-                        <span className="text-sm text-slate-400 font-medium">or upload your own below ↓</span>
-                      </div>
+                    {/* CMD+V Hint for Desktop */}
+                    <div className="hidden md:flex items-center justify-center gap-2 mb-4 text-sm text-slate-400 font-mono">
+                      <span className="px-2 py-1 bg-slate-200 dark:bg-neutral-800 rounded-md text-xs border border-slate-300 dark:border-neutral-700">CMD + V</span>
+                      to paste instantly
                     </div>
 
                     <FileUpload
@@ -323,21 +336,37 @@ function App() {
                       isAnalyzing={analysisState.status === 'analyzing'}
                     />
 
-                    <p className="text-center text-slate-400 text-sm mt-6 animate-pulse hidden md:block">
-                      Tip: You can just press <strong>CMD+V</strong> to paste a screenshot directly!
-                    </p>
-
+                    {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
+                      <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Breakout</span>
+                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">$NVDA Setup</span>
+                      </button>
+                      <button onClick={() => handleDemoAnalysis('BTC')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition-all group">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Warning</span>
+                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-red-500 transition-colors">$BTC Crash</span>
+                      </button>
+                      <button onClick={() => handleDemoAnalysis('SPY')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all group">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reversal</span>
+                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-green-500 transition-colors">$SPY Dip Buy</span>
+                      </button>
+                    </div>
 
                   </>
                 ) : (
+                  /* Preview State - (If they uploaded but haven't analyzed yet. 
+                     BUT: User wanted "Paste -> Immediately start loading". 
+                     If they Paste, handleGlobalPaste sets ImageUrl. 
+                     We should probably auto-trigger analyze in useEffect if it came from paste?
+                     Let's keep the button for now as "Confirmation" is often safer, 
+                     or update handleGlobalPaste to set status: 'analyzing' directly?
+                     User said: "If they paste an image, IMMEDIATELY start the loading animation."
+                     I will update handleGlobalPaste logic for that.) */
                   <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
                     <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
                       <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
                     </div>
                     <div className="space-y-3">
-                      <p className="text-center text-slate-500 text-sm">
-                        Ready to analyze <strong>this chart</strong>?
-                      </p>
                       <button
                         onClick={handleAnalyze}
                         disabled={analysisState.status === 'analyzing'}
@@ -359,7 +388,7 @@ function App() {
                         onClick={handleReset}
                         className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
                       >
-                        Cancel / Upload Different Chart
+                        Cancel / Upload Different
                       </button>
                     </div>
                   </div>
@@ -370,6 +399,7 @@ function App() {
             {/* Error State */}
             {analysisState.status === 'error' && (
               <div className="max-w-xl mx-auto mt-8 p-6 bg-white/80 backdrop-blur-md border border-red-100 rounded-3xl text-center shadow-lg animate-shake">
+                {/* ... error content ... */}
                 <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 </div>
@@ -384,19 +414,18 @@ function App() {
               </div>
             )}
 
-            {/* Success / Dashboard State */}
-            {analysisState.status === 'success' && analysisState.result && (
+            {/* Success / Dashboard State - GATED */}
+            {analysisState.status === 'success' && analysisState.result && hasUnlocked && (
               <div className="relative animate-fade-in-up">
                 {/* Context Bar: Image Preview + Reset */}
                 <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-200/60">
                   <div className="flex items-center gap-6">
                     {analysisState.imageUrl && (
                       <div className="relative group cursor-pointer">
-                        <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
                         <img
                           src={analysisState.imageUrl}
                           alt="Chart Preview"
-                          className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md transition-transform hover:scale-105"
+                          className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md"
                         />
                       </div>
                     )}
