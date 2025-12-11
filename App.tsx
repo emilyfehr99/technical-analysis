@@ -41,7 +41,8 @@ function App() {
         console.log("Checking admin status for:", session.user.email);
 
         // 1. Hardcoded Bypass (for debugging/recovery)
-        if (session.user.email === '8emilyfehr@gmail.com') {
+        const normalize = (s: string) => s?.trim().toLowerCase();
+        if (normalize(session.user.email) === normalize('8emilyfehr@gmail.com')) {
           console.log("Admin Email Matched - Bypass");
           setIsAdmin(true);
         }
@@ -443,6 +444,13 @@ function App() {
 
       <footer className="relative z-10 text-center py-8 text-slate-400 text-sm">
         <p className="font-medium tracking-wide">© {new Date().getFullYear()} Kairos.AI</p>
+        {/* DEBUG INFO - REMOVE LATER */}
+        <div className="mt-2 text-xs text-slate-600 font-mono">
+          Status: {session ? 'Logged In' : 'Logged Out'} |
+          User: {session?.user?.email || 'None'} |
+          Admin: {isAdmin ? 'YES' : 'NO'} |
+          UID: {session?.user?.id?.substring(0, 6) || 'N/A'}
+        </div>
       </footer>
 
       {/* --- MODALS --- */}
