@@ -8,12 +8,13 @@ interface HeaderProps {
   onAuth: () => void;
   onPricing: () => void;
   onAdmin: () => void;
+  onHome: () => void;
   user: any | null;
   isAdmin?: boolean;
   usage: { used: number; limit: number; tier: string } | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, user, isAdmin, usage }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, isAdmin, usage }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -23,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
           {/* Brand */}
-          <div className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity">
+          <div onClick={onHome} className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity">
             <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
               <LineChart className="w-6 h-6 text-white" strokeWidth={2.5} />
             </div>
