@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { DashboardErrorBoundary } from './DashboardErrorBoundary';
 
+
+
 interface DailyStat {
     date: string;
     sessions: number;
