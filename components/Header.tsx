@@ -160,6 +160,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               </button>
             </div>
 
+            {isAdmin && (
+              <button
+                onClick={() => { onAdmin(); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-4 py-3 font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 rounded-xl transition-colors"
+              >
+                <LineChart className="w-6 h-6" />
+                Admin Dashboard
+              </button>
+            )}
+
             <button
               onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
               className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
