@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
+import { AdminDashboard } from './components/AdminDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
@@ -25,6 +26,7 @@ function App() {
 
   // Auth State
   const [session, setSession] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [usage, setUsage] = useState<{ used: number; limit: number; tier: string } | null>(null);
 
   const fetchUsage = async () => {
@@ -33,6 +35,14 @@ function App() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
+
+        // Fetch Admin Status
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', session.user.id)
+          .single();
+        if (profile?.is_admin) setIsAdmin(true);
       }
 
       const res = await fetch('/api/status', { headers });
@@ -54,7 +64,7 @@ function App() {
     // 1. Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      fetchUsage(); // Fetch usage on load
+      if (session) fetchUsage(); // Fetch usage on load
     });
 
     // 2. Listen for changes
@@ -249,7 +259,9 @@ function App() {
             Analytics.trackEvent('click_pricing_header');
             setShowPaywall(true);
           }}
+          onAdmin={() => setActiveModal('admin' as any)}
           user={session?.user}
+          isAdmin={isAdmin}
           usage={usage}
         />
 
@@ -503,6 +515,18 @@ function App() {
         onClose={() => setActiveModal(null)}
         onSuccess={() => { }} // Handled by listener
       />
+
+      {/* 5. ADMIN DASHBOARD */}
+      <Modal
+        isOpen={activeModal === 'admin' as any}
+        onClose={() => setActiveModal(null)}
+        title="Admin Analytics"
+      >
+        <div className="min-w-[80vw] md:min-w-[600px]">
+          {/* Dynamic Import or Direct Render */}
+          <AdminDashboard />
+        </div>
+      </Modal>
 
       <PaywallModal
         isOpen={showPaywall}

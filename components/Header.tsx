@@ -7,11 +7,13 @@ interface HeaderProps {
   onOpenModal: (modal: 'docs' | 'risk' | 'broker') => void;
   onAuth: () => void;
   onPricing: () => void;
+  onAdmin: () => void;
   user: any | null;
+  isAdmin?: boolean;
   usage: { used: number; limit: number; tier: string } | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, user, usage }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, user, isAdmin, usage }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -37,6 +39,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, user, u
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
+
+            {isAdmin && (
+              <button
+                onClick={onAdmin}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-full transition-all border border-purple-200 dark:border-purple-800 mr-2"
+              >
+                <LineChart className="w-4 h-4" />
+                Admin
+              </button>
+            )}
 
             <button
               onClick={() => onOpenModal('docs')}

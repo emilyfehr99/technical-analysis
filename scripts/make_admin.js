@@ -56,7 +56,8 @@ async function grantAdmin() {
         .from('profiles')
         .update({
             tier: 'premium',
-            credits: 999999
+            credits: 999999,
+            is_admin: true
         })
         .eq('id', user.id);
 
