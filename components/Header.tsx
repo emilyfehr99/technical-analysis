@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {(/* isAdmin removed */)}
+            {/* Admin removed */}
 
             <button
               onClick={() => onOpenModal('docs')}
@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               </button>
             </div>
 
-            {(/* isAdmin removed */)}
+            {/* Admin removed */}
 
             <button
               onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
