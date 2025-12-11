@@ -61,6 +61,24 @@ export const Analytics = {
         }
     },
 
+    // 2b. Track Custom Event
+    async trackEvent(eventName: string, properties: Record<string, any> = {}) {
+        if (!currentSessionId) await this.initSession();
+        if (!currentSessionId) return;
+
+        try {
+            await supabase.from('analytics_events').insert({
+                session_id: currentSessionId,
+                event_name: eventName,
+                properties: properties,
+                occurred_at: new Date().toISOString()
+            });
+            console.log('Analytics: Event Tracked', eventName);
+        } catch (e) {
+            console.error('Analytics: Track Event Error', e);
+        }
+    },
+
     // 3. Heartbeat (Update last_seen_at every minute)
     startHeartbeat() {
         if (heartbeatInterval) clearInterval(heartbeatInterval);

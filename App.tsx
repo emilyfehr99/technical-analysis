@@ -103,6 +103,8 @@ function App() {
       error: null,
       imageUrl: URL.createObjectURL(file)
     });
+    // Track Upload
+    Analytics.trackEvent('upload_chart_select', { fileName: file.name, type: file.type });
   };
 
   const handleReset = () => {
@@ -120,6 +122,9 @@ function App() {
       const response = await fetch('/demo-chart.png');
       const blob = await response.blob();
       const imageUrl = URL.createObjectURL(blob);
+
+      // Track Demo Click
+      Analytics.trackEvent('click_demo_mode', { asset: 'BTC' });
 
       setAnalysisState({
         status: 'idle',
@@ -236,8 +241,14 @@ function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header
           onOpenModal={setActiveModal}
-          onAuth={() => setActiveModal('auth')}
-          onPricing={() => setShowPaywall(true)}
+          onAuth={() => {
+            Analytics.trackEvent('click_auth_header');
+            setActiveModal('auth');
+          }}
+          onPricing={() => {
+            Analytics.trackEvent('click_pricing_header');
+            setShowPaywall(true);
+          }}
           user={session?.user}
           usage={usage}
         />
