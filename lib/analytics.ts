@@ -7,15 +7,32 @@ let heartbeatInterval: any = null;
 export const Analytics = {
     // 1. Start a Session (Call on App Mount)
     async initSession() {
-        if (currentSessionId) return; // Already initialized
+        if (currentSessionId) return; // In-memory check
+
+        // A. Persistence Check (Prevent duplicate session on refresh)
+        const storedSession = sessionStorage.getItem('kairos_session_id');
+        if (storedSession) {
+            currentSessionId = storedSession;
+            console.log('Analytics: Resumed Session', currentSessionId);
+            this.startHeartbeat();
+            return;
+        }
+
+        // B. Bot Filter (Exclude Crawlers)
+        const userAgent = navigator.userAgent || '';
+        const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(userAgent);
+        const isLocal = window.location.hostname === 'localhost';
+
+        // Optional: Block localhost if you strictly want Prod data only
+        if (isBot) {
+            console.log('Analytics: Bot detected', userAgent);
+            return;
+        }
 
         try {
             // Get User info (if any)
             const { data: { session } } = await supabase.auth.getSession();
             const userId = session?.user?.id || null;
-
-            // Get basic device info
-            const userAgent = navigator.userAgent;
 
             // Insert Session
             const { data, error } = await supabase
@@ -23,7 +40,7 @@ export const Analytics = {
                 .insert({
                     user_id: userId,
                     user_agent: userAgent,
-                    ip_address: null, // IP is better set by Postgres trigger or edge function, but we'll leave null for client insert
+                    // ip_address is handled by backend or RLS if needed, leaving null for client
                     started_at: new Date().toISOString(),
                     last_seen_at: new Date().toISOString()
                 })
@@ -37,6 +54,7 @@ export const Analytics = {
 
             if (data) {
                 currentSessionId = data.id;
+                sessionStorage.setItem('kairos_session_id', currentSessionId); // Persist
                 console.log('Analytics: Session Started', currentSessionId);
                 this.startHeartbeat();
             }
