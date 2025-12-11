@@ -10,11 +10,11 @@ interface HeaderProps {
   onAdmin: () => void;
   onHome: () => void;
   user: any | null;
-  isAdmin?: boolean;
+  user: any | null;
   usage: { used: number; limit: number; tier: string } | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, isAdmin, usage }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, usage }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -41,15 +41,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {isAdmin && (
-              <button
-                onClick={onAdmin}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-full transition-all border border-purple-200 dark:border-purple-800 mr-2"
-              >
-                <LineChart className="w-4 h-4" />
-                Admin
-              </button>
-            )}
+            {(/* isAdmin removed */)}
 
             <button
               onClick={() => onOpenModal('docs')}
@@ -160,15 +152,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               </button>
             </div>
 
-            {isAdmin && (
-              <button
-                onClick={() => { onAdmin(); setIsMobileMenuOpen(false); }}
-                className="flex items-center gap-4 py-3 font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 rounded-xl transition-colors"
-              >
-                <LineChart className="w-6 h-6" />
-                Admin Dashboard
-              </button>
-            )}
+            {(/* isAdmin removed */)}
 
             <button
               onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}

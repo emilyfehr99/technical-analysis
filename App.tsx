@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
-import SafeAdminDashboard from './components/AdminDashboard';
+// import SafeAdminDashboard from './components/AdminDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
@@ -22,12 +22,12 @@ function App() {
     isDemo: false
   });
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'admin'>('home');
+  const [currentView, setCurrentView] = useState<'home'>('home');
   const [showPaywall, setShowPaywall] = useState(false);
 
   // Auth State
   const [session, setSession] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
   const [usage, setUsage] = useState<{ used: number; limit: number; tier: string } | null>(null);
 
   const fetchUsage = async () => {
@@ -37,25 +37,7 @@ function App() {
       if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
 
-        // Fetch Admin Status
-        console.log("Checking admin status for:", session.user.email);
-
-        // 1. Hardcoded Bypass (for debugging/recovery)
-        const normalize = (s: string) => (s || '').trim().toLowerCase();
-        if (session?.user?.email && normalize(session.user.email) === normalize('8emilyfehr@gmail.com')) {
-          console.log("Admin Email Matched - Bypass");
-          setIsAdmin(true);
-        }
-
-        // 2. DB Check
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profileError) console.error("Profile check error:", profileError);
-        if (profile?.is_admin) setIsAdmin(true);
+        // Admin Check REMOVED
       }
 
       const res = await fetch('/api/status', { headers });
@@ -89,7 +71,7 @@ function App() {
         // Re-fetch usage and admin status when session changes
         fetchUsage();
       } else {
-        setIsAdmin(false);
+        // setIsAdmin(false);
         setUsage(null);
       }
     });
@@ -268,13 +250,6 @@ function App() {
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-black to-black" />
       </div>
 
-      {/* ADMIN DEBUG BANNER */}
-      {isAdmin && (
-        <div className="bg-purple-600 text-white text-xs font-bold text-center py-1 relative z-[60]">
-          ADMIN MODE ACTIVE - DEBUG
-        </div>
-      )}
-
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header
           onOpenModal={setActiveModal}
@@ -286,185 +261,171 @@ function App() {
             Analytics.trackEvent('click_pricing_header');
             setShowPaywall(true);
           }}
-          onAdmin={() => setCurrentView('admin')}
+          onAdmin={() => { }}
           onHome={() => setCurrentView('home')}
           user={session?.user}
-          isAdmin={isAdmin}
+          // isAdmin={isAdmin}
           usage={usage}
         />
 
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
-          {currentView === 'admin' ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
-              {console.log("SafeAdminDashboard type:", typeof SafeAdminDashboard, SafeAdminDashboard)}
-              <SafeAdminDashboard />
-            </div>
-          ) : (
-            <>
-              {/* Intro Text - Only show when idle */}
-              {analysisState.status === 'idle' && !analysisState.imageUrl && (
-                <div className="text-center mb-12 mt-10 space-y-4 animate-fade-in-up">
-                  <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                    Institutional <br className="md:hidden" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-600 to-neutral-900 dark:from-white dark:to-neutral-400">Technical Intelligence</span>
-                  </h1>
-                  <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
-                    Upload your trading setup. Receive an institutional-grade validation plan, risk protocol, and execution targets in seconds.
-                  </p>
-                </div>
-              )}
+          <>
+            {/* Intro Text - Only show when idle */}
+            {analysisState.status === 'idle' && !analysisState.imageUrl && (
+              <div className="text-center mb-12 mt-10 space-y-4 animate-fade-in-up">
+                <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                  Institutional <br className="md:hidden" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-600 to-neutral-900 dark:from-white dark:to-neutral-400">Technical Intelligence</span>
+                </h1>
+                <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
+                  Upload your trading setup. Receive an institutional-grade validation plan, risk protocol, and execution targets in seconds.
+                </p>
+              </div>
+            )}
 
-              {/* Upload Section */}
-              {analysisState.status !== 'success' && (
-                <div className="space-y-6 max-w-xl mx-auto">
-                  {/* File Upload or Preview State */}
-                  {!analysisState.imageUrl ? (
-                    <>
-                      <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 mb-4">
-                          <div className="flex -space-x-2">
-                            <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white dark:border-slate-800"></div>
-                            <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white dark:border-slate-800"></div>
-                            <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800"></div>
-                          </div>
-                          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300"> Trusted by 10k+ Traders</span>
+            {/* Upload Section */}
+            {analysisState.status !== 'success' && (
+              <div className="space-y-6 max-w-xl mx-auto">
+                {/* File Upload or Preview State */}
+                {!analysisState.imageUrl ? (
+                  <>
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 mb-4">
+                        <div className="flex -space-x-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white dark:border-slate-800"></div>
+                          <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white dark:border-slate-800"></div>
+                          <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800"></div>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
-                          Instant Technical Analysis. <br />
-                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                            Powered by AI Motion.
-                          </span>
-                        </h1>
-                        <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                          Upload any chart screenshot (from TradingView, etc).<br />
-                          Our AI Agent automatically detects the ticker, identifies setups, and generates a plan.
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                          <button
-                            onClick={handleDemoAnalysis}
-                            className="inline-flex items-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 active:scale-95 group"
-                          >
-                            <Sparkles className="w-4 h-4 mr-2 text-purple-400 dark:text-purple-600" />
-                            Try Demo Chart
-                          </button>
-                          <span className="text-sm text-slate-400 font-medium">or upload your own below ↓</span>
-                        </div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300"> Trusted by 10k+ Traders</span>
                       </div>
-
-                      <FileUpload
-                        onFileSelect={handleFileSelect}
-                        isAnalyzing={analysisState.status === 'analyzing'}
-                      />
-
-                      <p className="text-center text-slate-400 text-sm mt-6 animate-pulse hidden md:block">
-                        Tip: You can just press <strong>CMD+V</strong> to paste a screenshot directly!
+                      <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
+                        Instant Technical Analysis. <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                          Powered by AI Motion.
+                        </span>
+                      </h1>
+                      <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                        Upload any chart screenshot (from TradingView, etc).<br />
+                        Our AI Agent automatically detects the ticker, identifies setups, and generates a plan.
                       </p>
-
-
-                    </>
-                  ) : (
-                    <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
-                      <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
-                        <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
-                      </div>
-                      <div className="space-y-3">
-                        <p className="text-center text-slate-500 text-sm">
-                          Ready to analyze <strong>this chart</strong>?
-                        </p>
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
                         <button
-                          onClick={handleAnalyze}
-                          disabled={analysisState.status === 'analyzing'}
-                          className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                          onClick={handleDemoAnalysis}
+                          className="inline-flex items-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 active:scale-95 group"
                         >
-                          {analysisState.status === 'analyzing' ? (
-                            <>
-                              <RefreshCw className="w-5 h-5 animate-spin" />
-                              Analyzing...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-5 h-5" />
-                              Run AI Analysis
-                            </>
-                          )}
+                          <Sparkles className="w-4 h-4 mr-2 text-purple-400 dark:text-purple-600" />
+                          Try Demo Chart
                         </button>
-                        <button
-                          onClick={handleReset}
-                          className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
-                        >
-                          Cancel / Upload Different Chart
-                        </button>
+                        <span className="text-sm text-slate-400 font-medium">or upload your own below ↓</span>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
 
-              {/* Error State */}
-              {analysisState.status === 'error' && (
-                <div className="max-w-xl mx-auto mt-8 p-6 bg-white/80 backdrop-blur-md border border-red-100 rounded-3xl text-center shadow-lg animate-shake">
-                  <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <FileUpload
+                      onFileSelect={handleFileSelect}
+                      isAnalyzing={analysisState.status === 'analyzing'}
+                    />
+
+                    <p className="text-center text-slate-400 text-sm mt-6 animate-pulse hidden md:block">
+                      Tip: You can just press <strong>CMD+V</strong> to paste a screenshot directly!
+                    </p>
+
+
+                  </>
+                ) : (
+                  <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
+                    <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
+                      <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-center text-slate-500 text-sm">
+                        Ready to analyze <strong>this chart</strong>?
+                      </p>
+                      <button
+                        onClick={handleAnalyze}
+                        disabled={analysisState.status === 'analyzing'}
+                        className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                      >
+                        {analysisState.status === 'analyzing' ? (
+                          <>
+                            <RefreshCw className="w-5 h-5 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-5 h-5" />
+                            Run AI Analysis
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleReset}
+                        className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        Cancel / Upload Different Chart
+                      </button>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 mb-2">Analysis Failed</h3>
-                  <p className="text-slate-500 mb-6">{analysisState.error}</p>
+                )}
+              </div>
+            )}
+
+            {/* Error State */}
+            {analysisState.status === 'error' && (
+              <div className="max-w-xl mx-auto mt-8 p-6 bg-white/80 backdrop-blur-md border border-red-100 rounded-3xl text-center shadow-lg animate-shake">
+                <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Analysis Failed</h3>
+                <p className="text-slate-500 mb-6">{analysisState.error}</p>
+                <button
+                  onClick={handleReset}
+                  className="px-6 py-2.5 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl"
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+
+            {/* Success / Dashboard State */}
+            {analysisState.status === 'success' && analysisState.result && (
+              <div className="relative animate-fade-in-up">
+                {/* Context Bar: Image Preview + Reset */}
+                <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-200/60">
+                  <div className="flex items-center gap-6">
+                    {analysisState.imageUrl && (
+                      <div className="relative group cursor-pointer">
+                        <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <img
+                          src={analysisState.imageUrl}
+                          alt="Chart Preview"
+                          className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md transition-transform hover:scale-105"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     onClick={handleReset}
-                    className="px-6 py-2.5 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl"
+                    className="flex items-center px-5 py-2.5 bg-white border border-slate-200 shadow-sm rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all hover:shadow-md"
                   >
-                    Try Again
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    New Analysis
                   </button>
                 </div>
-              )}
 
-              {/* Success / Dashboard State */}
-              {analysisState.status === 'success' && analysisState.result && (
-                <div className="relative animate-fade-in-up">
-                  {/* Context Bar: Image Preview + Reset */}
-                  <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-200/60">
-                    <div className="flex items-center gap-6">
-                      {analysisState.imageUrl && (
-                        <div className="relative group cursor-pointer">
-                          <div className="absolute inset-0 bg-blue-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                          <img
-                            src={analysisState.imageUrl}
-                            alt="Chart Preview"
-                            className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md transition-transform hover:scale-105"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleReset}
-                      className="flex items-center px-5 py-2.5 bg-white border border-slate-200 shadow-sm rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all hover:shadow-md"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      New Analysis
-                    </button>
-                  </div>
-
-                  <ErrorBoundary>
-                    <AnalysisDashboard data={analysisState.result} />
-                  </ErrorBoundary>
-                </div>
-              )}
-            </>
-          )}
+                <ErrorBoundary>
+                  <AnalysisDashboard data={analysisState.result} />
+                </ErrorBoundary>
+              </div>
+            )}
+          </>
 
         </main>
       </div>
 
       <footer className="relative z-10 text-center py-8 text-slate-400 text-sm">
         <p className="font-medium tracking-wide">© {new Date().getFullYear()} Kairos.AI</p>
-        {/* DEBUG INFO - REMOVE LATER */}
-        <div className="mt-2 text-xs text-slate-600 font-mono">
-          Status: {session ? 'Logged In' : 'Logged Out'} |
-          User: {session?.user?.email || 'None'} |
-          Admin: {isAdmin ? 'YES' : 'NO'} |
-          UID: {session?.user?.id?.substring(0, 6) || 'N/A'}
-        </div>
       </footer>
 
       {/* --- MODALS --- */}
