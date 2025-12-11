@@ -21,7 +21,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
     const [email, setEmail] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [isJoined, setIsJoined] = React.useState(false);
-    const [isJoined, setIsJoined] = React.useState(false);
+
 
     const handleSubscribe = async () => {
         setLoading(true);
