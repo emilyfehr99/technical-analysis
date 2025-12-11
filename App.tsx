@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
-// import SafeAdminDashboard from './components/AdminDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
@@ -27,7 +26,6 @@ function App() {
 
   // Auth State
   const [session, setSession] = useState<any>(null);
-  // const [isAdmin, setIsAdmin] = useState(false);
   const [usage, setUsage] = useState<{ used: number; limit: number; tier: string } | null>(null);
 
   const fetchUsage = async () => {
@@ -71,7 +69,6 @@ function App() {
         // Re-fetch usage and admin status when session changes
         fetchUsage();
       } else {
-        // setIsAdmin(false);
         setUsage(null);
       }
     });
@@ -423,10 +420,6 @@ function App() {
 
         </main>
       </div>
-
-      <footer className="relative z-10 text-center py-8 text-slate-400 text-sm">
-        <p className="font-medium tracking-wide">© {new Date().getFullYear()} Kairos.AI</p>
-      </footer>
 
       {/* --- MODALS --- */}
 
