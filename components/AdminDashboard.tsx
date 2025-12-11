@@ -53,6 +53,15 @@ const MetricCard = ({ label, value, subvalue, icon, trend }: { label: string, va
 );
 
 const AdminDashboard = () => {
+    // Debug Recharts imports
+    useEffect(() => {
+        console.log("AdminDashboard Check:", {
+            BarChart: !!BarChart,
+            ResponsiveContainer: !!ResponsiveContainer,
+            MetricCard: !!MetricCard
+        });
+    }, []);
+
     const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
     const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
     const [loading, setLoading] = useState(true);
@@ -387,12 +396,10 @@ const AdminDashboard = () => {
     );
 };
 
-const AdminDashboardContent = AdminDashboard;
-
 export default function SafeAdminDashboard() {
     return (
         <DashboardErrorBoundary>
-            <AdminDashboardContent />
+            <AdminDashboard />
         </DashboardErrorBoundary>
     );
 };
