@@ -46,33 +46,20 @@ export const AdminDashboard = () => {
     const fetchDeepDive = async () => {
         setLoading(true);
         try {
-            const today = new Date();
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(today.getDate() - 30);
+            // CALL RPC FUNCTION (Bypasses RLS)
+            const { data, error } = await supabase.rpc('get_admin_dashboard_stats');
 
-            // 1. Fetch Sessions (Last 30 Days)
-            const { data: sessions } = await supabase
-                .from('analytics_sessions')
-                .select('started_at, duration, user_agent, last_seen_at')
-                .gte('started_at', thirtyDaysAgo.toISOString())
-                .order('started_at', { ascending: true });
+            if (error) {
+                console.error("RPC Error:", error);
+                // Fallback or Alert?
+                return;
+            }
 
-            // 2. Fetch Waitlist/Users (Last 30 Days)
-            // Note: We get all to calculate total, but graph only recent
-            const { data: allUsers } = await supabase
-                .from('waitlist')
-                .select('created_at');
+            if (!data) return;
 
-            const { data: profiles } = await supabase.from('profiles').select('tier');
+            const { sessions, signups, recents, profiles_counts } = data;
 
-            // 3. Fetch Events (Recent 50 for Log)
-            const { data: events } = await supabase
-                .from('analytics_events')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(50);
-
-            // --- AGGREGATION LOGIC ---
+            // --- AGGREGATION LOGIC (Reuse existing processing) ---
 
             // A. Daily Graph Data
             const daysMap = new Map<string, DailyStat>();
@@ -86,7 +73,7 @@ export const AdminDashboard = () => {
             }
 
             if (sessions) {
-                sessions.forEach(s => {
+                sessions.forEach((s: any) => {
                     const key = s.started_at.split('T')[0];
                     if (daysMap.has(key)) {
                         const stat = daysMap.get(key)!;
@@ -95,8 +82,8 @@ export const AdminDashboard = () => {
                 });
             }
 
-            if (allUsers) {
-                allUsers.forEach(u => {
+            if (signups) {
+                signups.forEach((u: any) => {
                     const key = u.created_at.split('T')[0];
                     if (daysMap.has(key)) {
                         const stat = daysMap.get(key)!;
@@ -114,57 +101,47 @@ export const AdminDashboard = () => {
             let mobileCount = 0;
 
             if (sessions) {
-                sessions.forEach(s => {
+                sessions.forEach((s: any) => {
                     // Duration
                     const dur = (new Date(s.last_seen_at).getTime() - new Date(s.started_at).getTime()) / 1000;
                     totalDuration += dur;
                     if (dur < 10) bounced++;
 
-                    // Mobile Check (Basic) - In production use a real parser, here we guess
+                    // Mobile Check
                     if (s.user_agent?.toLowerCase().includes('mobile')) mobileCount++;
                 });
             }
 
-            const totalUsers = allUsers?.length || 0;
-            const premiumCount = profiles?.filter((p: any) => p.tier === 'premium' || p.tier === 'institutional').length || 0;
+            // Total Users is trickier with partial fetch, but signups has last 30 days.
+            // RPC could fetch total count. Assume signups.length for now or use profile counts?
+            // Actually profiles_counts has 'premium' and 'free'. Sum them for total users estimate
+            const totalUsersEstimate = (profiles_counts?.free || 0) + (profiles_counts?.premium || 0);
 
             setMetrics({
-                totalUsers,
+                totalUsers: totalUsersEstimate,
                 totalSessions,
-                premiumUsers: premiumCount,
+                premiumUsers: profiles_counts?.premium || 0,
                 bounceRate: totalSessions ? Math.round((bounced / totalSessions) * 100) : 0,
                 avgDuration: totalSessions ? Math.round(totalDuration / totalSessions) : 0,
                 mobile_percentage: totalSessions ? Math.round((mobileCount / totalSessions) * 100) : 0
             });
 
-            // C. Top Pages/Events
-            if (events) {
-                setRecentActivity(events);
+            // C. Recent Logs
+            if (recents) {
+                setRecentActivity(recents);
 
-                // Calculate Top Event Names from the RECENT fetches (or we could fetch aggregate)
-                // For "All Time" top events we'd need a separate RPC or fetch all events (expensive).
-                // Let's optimize: fetch ALL event names only (lightweight?) or just use recent as proxy.
-                // Better: Use a dedicated .rpc() in future. For now, client side agg on recent 1000 events?
-                // Let's just use the `limit(50)` for the Log, but fetch more for stats?
-                // Let's fetch 1000 events for stats.
+                // Top Pages from Recents
+                const eventCounts: Record<string, number> = {};
+                recents.forEach((e: any) => {
+                    eventCounts[e.event_name] = (eventCounts[e.event_name] || 0) + 1;
+                });
+
+                const top = Object.entries(eventCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 5)
+                    .map(([name, count]) => ({ name, count }));
+                setTopPages(top);
             }
-
-            const { data: statEvents } = await supabase
-                .from('analytics_events')
-                .select('event_name')
-                .limit(2000); // Sample last 2000
-
-            const eventCounts: Record<string, number> = {};
-            statEvents?.forEach(e => {
-                eventCounts[e.event_name] = (eventCounts[e.event_name] || 0) + 1;
-            });
-
-            const top = Object.entries(eventCounts)
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 5)
-                .map(([name, count]) => ({ name, count }));
-            setTopPages(top);
-
 
         } catch (e) {
             console.error("Deep Dive Error", e);
