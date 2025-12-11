@@ -16,9 +16,5 @@ const AdminDashboard = () => {
 };
 
 export default function SafeAdminDashboard() {
-    return (
-        <DashboardErrorBoundary>
-            <AdminDashboard />
-        </DashboardErrorBoundary>
-    );
+    return <AdminDashboard />;
 };
