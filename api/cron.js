@@ -25,21 +25,26 @@ export default async function handler(req, res) {
         const { count: signupsToday } = await supabase.from('waitlist').select('*', { count: 'exact', head: true }).gte('created_at', todayISO);
         const { count: analysisToday } = await supabase.from('analysis_logs').select('*', { count: 'exact', head: true }).gte('created_at', todayISO);
 
-        // New Analytics (Sessions & Events)
-        const { count: dau } = await supabase.from('analytics_sessions').select('*', { count: 'exact', head: true }).gte('started_at', todayISO);
+        // New Analytics (Sessions & Page Views)
+        const { count: dau } = await supabase.from('analytics_sessions').select('*', { count: 'exact', head: true })
+            .gte('started_at', todayISO);
 
-        // --- DEEP DIVE CALCULATIONS (Fetch recent interactions) ---
-        // Fetch sessions for calculations (Bounce Rate, Time of Day)
+        const { count: pageViews } = await supabase.from('analytics_page_views').select('*', { count: 'exact', head: true })
+            .gte('viewed_at', todayISO);
+
+        // --- DEEP DIVE CALCULATIONS ---
         const { data: recentSessions } = await supabase
             .from('analytics_sessions')
             .select('*')
             .gte('started_at', todayISO)
-            .limit(1000); // Limit to prevent memory overuse
+            .limit(1000);
 
         const { data: recentEvents } = await supabase
             .from('analytics_events')
             .select('event_name')
             .gte('occurred_at', todayISO)
+            .neq('event_name', 'test_event_backend') // FILTER TEST EVENTS
+            .neq('event_name', 'upload_chart_select') // Optional: Filter high-volume noise if needed
             .limit(2000);
 
         // A. Bounce Rate & Time of Day
@@ -49,17 +54,15 @@ export default async function handler(req, res) {
 
         if (recentSessions) {
             recentSessions.forEach(s => {
-                // Bounce Calc (Duration < 10s)
                 const duration = (new Date(s.last_seen_at) - new Date(s.started_at)) / 1000;
                 if (duration < 10) bounced++;
-                // Peak Time
                 const hour = new Date(s.started_at).getHours();
                 hourMap[hour] = (hourMap[hour] || 0) + 1;
             });
         }
         const bounceRate = totalSessions > 0 ? Math.round((bounced / totalSessions) * 100) : 0;
 
-        // B. Peak Time String
+        // B. Peak Time
         let peakHour = "N/A";
         let maxVisits = 0;
         Object.entries(hourMap).forEach(([hour, count]) => {
@@ -72,7 +75,7 @@ export default async function handler(req, res) {
             }
         });
 
-        // C. Top Actions
+        // C. Top Actions (Filtered)
         const eventCounts = {};
         if (recentEvents) {
             recentEvents.forEach(e => {
@@ -85,28 +88,34 @@ export default async function handler(req, res) {
             .map(([name, count]) => `> ${name.replace(/_/g, ' ')}: **${count}**`)
             .join('\n');
 
-
         const { count: totalWaitlist } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
 
         // Compile Embeds
         const embeds = [];
 
-        // A. Daily Embed
+        // A. Daily Embed (Split Visitors vs Users)
         embeds.push({
-            title: "📊 Daily Pulse",
+            title: "📊 Kairos Daily Insight",
             description: `**${today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}**`,
             color: 0x3b82f6,
             fields: [
-                { name: "👥 DAU", value: `${dau}`, inline: true },
-                { name: "⚡️ Analyses", value: `${analysisToday}`, inline: true },
-                { name: "📝 New Signups", value: `+${signupsToday}`, inline: true },
-                { name: "🏆 Total Users", value: `${totalWaitlist}`, inline: true },
-                { name: "----------", value: "**Context & Behavior**", inline: false },
-                { name: "📉 Bounce Rate", value: `${bounceRate}%`, inline: true },
-                { name: "⏰ Peak Time", value: `${peakHour}`, inline: true },
-                { name: "👆 Top Actions", value: topEvents || "None", inline: false }
+                // SECTION 1: VISITOR TRAFFIC
+                { name: "🌍 __**Site Visitors**__", value: "_Anonymous Traffic_", inline: false },
+                { name: "Unique Visits", value: `${dau}`, inline: true },
+                { name: "Page Views", value: `${pageViews}`, inline: true },
+                { name: "Bounce Rate", value: `${bounceRate}%`, inline: true },
+                { name: "Peak Hour", value: `${peakHour}`, inline: true },
+
+                // SECTION 2: PRODUCT USAGE
+                { name: "👥 __**User Growth**__", value: "_Registered / Active_", inline: false },
+                { name: "New Signups", value: `+${signupsToday}`, inline: true },
+                { name: "Total Database", value: `${totalWaitlist}`, inline: true },
+                { name: "AI Analyses", value: `${analysisToday}`, inline: true },
+
+                // SECTION 3: BEHAVIOR
+                { name: "👆 __**Top Actions**__", value: topEvents || "No significant activity", inline: false }
             ],
-            footer: { text: "Kairos.AI Daily" },
+            footer: { text: "Kairos.AI Analytics | Filtered Data" },
             timestamp: new Date().toISOString()
         });
 
