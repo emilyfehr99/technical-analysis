@@ -7,6 +7,10 @@ import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
 import { Modal } from './components/Modal';
 import PaywallModal from './components/PaywallModal';
+import { AuthModal } from './components/AuthModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { supabase } from './lib/supabaseClient';
+import { Analytics } from './lib/analytics';
 
 function App() {
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
@@ -15,16 +19,49 @@ function App() {
     error: null,
     imageUrl: null,
   });
-  const [ticker, setTicker] = useState('');
-  const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | null>(null);
+  const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [analysisCount, setAnalysisCount] = useState(0);
+
+  // Auth State
+  const [session, setSession] = useState<any>(null);
+  const [usage, setUsage] = useState<{ used: number; limit: number; tier: string } | null>(null);
+
+  const fetchUsage = async () => {
+    try {
+      const headers: Record<string, string> = {};
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      const res = await fetch('/api/status', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        setUsage(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch usage", e);
+    }
+  };
 
   useEffect(() => {
-    const savedCount = localStorage.getItem('user_analysis_count');
-    if (savedCount) {
-      setAnalysisCount(parseInt(savedCount, 10));
-    }
+    // Initialize Analytics
+    Analytics.initSession().then(() => {
+      Analytics.trackPageView('/home');
+    });
+
+    // 1. Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      fetchUsage(); // Fetch usage on load
+    });
+
+    // 2. Listen for changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
     // Global Paste Listener
     const handleGlobalPaste = (e: ClipboardEvent) => {
@@ -51,8 +88,11 @@ function App() {
     };
 
     window.addEventListener('paste', handleGlobalPaste);
-    return () => window.removeEventListener('paste', handleGlobalPaste);
-  }, [analysisState.status]);
+    return () => {
+      subscription.unsubscribe(); // Unsubscribe from auth changes
+      window.removeEventListener('paste', handleGlobalPaste); // Clean up paste listener
+    };
+  }, [analysisState.status]); // Keep analysisState.status for paste listener re-evaluation
 
   const handleFileSelect = (file: File) => {
     // Reset state for new analysis
@@ -73,15 +113,37 @@ function App() {
     });
   };
 
-  const handleAnalyze = async () => {
-    // Determine input source (Image or Ticker)
-    if (!analysisState.imageUrl && !ticker) return;
+  const handleDemoAnalysis = async () => {
+    try {
+      // Load the demo image from public folder
+      const response = await fetch('/demo-chart.png');
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
 
-    // Check Paywall Limit (Max 3 free analyses)
-    if (analysisCount >= 3) {
-      setShowPaywall(true);
-      return;
+      setAnalysisState({
+        status: 'idle',
+        result: null,
+        error: null,
+        imageUrl: imageUrl
+      });
+
+      // Optional: Auto-run analysis or let user click "Run AI Analysis"
+      // Let's letting them click "Run" feels more interactive/empowering, 
+      // but "One-Click" usually suggests immediate action. 
+      // Let's set the image and let them click "Run" to match the "Preview" flow 
+      // OR we can automate it. 
+      // Let's just set the image so they can see the "Trusted by 10k" preview state 
+      // replaced by the chart, then they hit the big button.
+
+    } catch (e) {
+      console.error("Failed to load demo chart", e);
+      alert("Failed to load demo chart. Please try again.");
     }
+  };
+
+  const handleAnalyze = async () => {
+    // Determine input source (Image Only)
+    if (!analysisState.imageUrl) return;
 
     setAnalysisState(prev => ({ ...prev, status: 'analyzing', error: null }));
 
@@ -102,8 +164,41 @@ function App() {
         mimeType = blob.type;
       }
 
-      // 3. Send to API (supports null image now)
-      const result = await analyzeChart(base64Data, mimeType, ticker);
+      // 3. Send to API
+      // Pass token if we have one
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      // Payload (Symbol is removed/null)
+      const payload = {
+        image: base64Data,
+        mimeType,
+        symbol: null
+      };
+
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.status === 403 && data.error === 'LIMIT_REACHED') {
+        setAnalysisState(prev => ({ ...prev, status: 'idle' }));
+        // Always show pricing/paywall for limit reached
+        setShowPaywall(true);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorMsg = data.details ? `${data.error}: ${data.details}` : (data.error || 'Analysis failed');
+        throw new Error(errorMsg);
+      }
+
+      const result = data; // Success result
 
       setAnalysisState(prev => ({
         ...prev,
@@ -111,10 +206,8 @@ function App() {
         result
       }));
 
-      // Increment Usage Count logic
-      const newCount = analysisCount + 1;
-      setAnalysisCount(newCount);
-      localStorage.setItem('user_analysis_count', newCount.toString());
+      // Update usage stats
+      fetchUsage();
 
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -129,27 +222,33 @@ function App() {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F5F7] relative overflow-x-hidden selection:bg-blue-500/30">
+    <div className="min-h-screen w-full relative bg-[#F5F5F7] dark:bg-black text-slate-900 dark:text-neutral-200 transition-colors duration-300">
 
       {/* Background Gradients for Subtle Depth */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-100/40 rounded-full blur-[120px]" />
-        <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-indigo-100/40 rounded-full blur-[120px]" />
+      {/* Background Gradients for Subtle Depth - Desaturated/Darkened for "Pure Black" feel */}
+      <div className="hidden dark:block fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-black to-black" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Header onOpenModal={setActiveModal} />
+        <Header
+          onOpenModal={setActiveModal}
+          onAuth={() => setActiveModal('auth')}
+          onPricing={() => setShowPaywall(true)}
+          user={session?.user}
+          usage={usage}
+        />
 
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
           {/* Intro Text - Only show when idle */}
           {analysisState.status === 'idle' && !analysisState.imageUrl && (
             <div className="text-center mb-12 mt-10 space-y-4 animate-fade-in-up">
-              <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1]">
+              <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
                 Institutional <br className="md:hidden" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Technical Intelligence</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-600 to-neutral-900 dark:from-white dark:to-neutral-400">Technical Intelligence</span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium">
+              <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
                 Upload your trading setup. Receive an institutional-grade validation plan, risk protocol, and execution targets in seconds.
               </p>
             </div>
@@ -158,83 +257,50 @@ function App() {
           {/* Upload Section - Always show if not success, or if we want to allow re-upload (could hide on success) */}
           {analysisState.status !== 'success' && (
             <div className="space-y-6 max-w-xl mx-auto">
-              {/* Input Section - Hide if Image is Present (User Request) */}
-              {!analysisState.imageUrl && (
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-                  <div className="relative group w-full max-w-md">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <span className="text-slate-400 font-bold">$</span>
-                    </div>
-                    <input
-                      type="text"
-                      value={ticker}
-                      onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                      placeholder="BTC, AAPL, SPX..."
-                      className="w-full pl-8 pr-12 py-4 bg-white border border-slate-200 rounded-2xl text-lg font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      if (!analysisState.imageUrl && !ticker) {
-                        // If neither, prompt for file
-                        document.getElementById('file-upload-input')?.click();
-                        return;
-                      }
-                      handleAnalyze();
-                    }}
-                    disabled={analysisState.status === 'analyzing'}
-                    className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2 
-                      ${(analysisState.imageUrl || ticker)
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white translate-y-0'
-                        : 'bg-white text-blue-600 border-2 border-blue-100 hover:border-blue-200 hover:bg-blue-50'} 
-                      ${analysisState.status === 'analyzing' ? 'opacity-70 cursor-wait' : ''}`}
-                  >
-                    {analysisState.status === 'analyzing' ? (
-                      <>
-                        <RefreshCw className="w-5 h-5 animate-spin" />
-                        Scanning...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className={`w-5 h-5 ${(!analysisState.imageUrl && !ticker) && 'text-blue-400'}`} />
-                        {analysisState.imageUrl ? 'Run Vision' : ticker ? 'Analyze Ticker' : 'Upload Chart'}
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
               {/* File Upload or Preview State */}
               {!analysisState.imageUrl ? (
                 <>
                   <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 mb-4">
                       <div className="flex -space-x-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white"></div>
-                        <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white"></div>
-                        <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white"></div>
+                        <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white dark:border-slate-800"></div>
+                        <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white dark:border-slate-800"></div>
+                        <div className="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800"></div>
                       </div>
-                      <span className="text-xs font-semibold text-slate-600"> Trusted by 10k+ Traders</span>
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-300"> Trusted by 10k+ Traders</span>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
                       Instant Technical Analysis. <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
                         Powered by AI Motion.
                       </span>
                     </h1>
-                    <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                      Upload any chart screenshot. Our multi-model AI agent identifies setups, support/resistance, and risk parameters in seconds.
+                    <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                      Upload any chart screenshot (from TradingView, etc).<br />
+                      Our AI Agent automatically detects the ticker, identifies setups, and generates a plan.
                     </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+                      <button
+                        onClick={handleDemoAnalysis}
+                        className="inline-flex items-center px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 active:scale-95 group"
+                      >
+                        <Sparkles className="w-4 h-4 mr-2 text-purple-400 dark:text-purple-600" />
+                        Try Demo Chart
+                      </button>
+                      <span className="text-sm text-slate-400 font-medium">or upload your own below ↓</span>
+                    </div>
                   </div>
 
                   <FileUpload
                     onFileSelect={handleFileSelect}
                     isAnalyzing={analysisState.status === 'analyzing'}
                   />
+
+                  <p className="text-center text-slate-400 text-sm mt-6 animate-pulse hidden md:block">
+                    Tip: You can just press <strong>CMD+V</strong> to paste a screenshot directly!
+                  </p>
+
+
                 </>
               ) : (
                 <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
@@ -243,7 +309,7 @@ function App() {
                   </div>
                   <div className="space-y-3">
                     <p className="text-center text-slate-500 text-sm">
-                      Ready to analyze <strong>{ticker || "this asset"}</strong>?
+                      Ready to analyze <strong>this chart</strong>?
                     </p>
                     <button
                       onClick={handleAnalyze}
@@ -318,7 +384,9 @@ function App() {
                 </button>
               </div>
 
-              <AnalysisDashboard data={analysisState.result} />
+              <ErrorBoundary>
+                <AnalysisDashboard data={analysisState.result} />
+              </ErrorBoundary>
             </div>
           )}
 
@@ -326,7 +394,7 @@ function App() {
       </div>
 
       <footer className="relative z-10 text-center py-8 text-slate-400 text-sm">
-        <p className="font-medium tracking-wide">© {new Date().getFullYear()} TradeSight AI</p>
+        <p className="font-medium tracking-wide">© {new Date().getFullYear()} Kairos.AI</p>
       </footer>
 
       {/* --- MODALS --- */}
@@ -339,7 +407,7 @@ function App() {
       >
         <div className="prose prose-slate max-w-none">
           <p className="text-slate-600">
-            TradeSight AI combines <strong>Computer Vision (Gemini 2.5)</strong> with <strong>Hard Mathematical Indicators</strong> (MACD, RSI from Yahoo Finance) to give you an institutional-grade validation of your chart setup.
+            Kairos.AI combines <strong>Computer Vision (Gemini 2.5)</strong> with <strong>Hard Mathematical Indicators</strong> (MACD, RSI from Yahoo Finance) to give you an institutional-grade validation of your chart setup.
           </p>
           <h4>How to Use</h4>
           <ol>
@@ -415,7 +483,24 @@ function App() {
         </div>
       </Modal>
 
-    </div>
+      {/* 4. AUTH & PAYWALL */}
+      <AuthModal
+        isOpen={activeModal === 'auth'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={() => { }} // Handled by listener
+      />
+
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onAuth={() => {
+          setShowPaywall(false);
+          setActiveModal('auth');
+        }}
+        isLoggedIn={!!session?.user}
+      />
+
+    </div >
   );
 }
 

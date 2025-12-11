@@ -27,10 +27,10 @@ import {
     Coins,
     Radar,
     ArrowRight,
-    AlertTriangle, // Added
-    ShieldAlert,   // Added
-    BarChart3,     // Added
-    Binary         // Added
+    AlertTriangle,
+    ShieldAlert,
+    BarChart3,
+    Binary
 } from 'lucide-react';
 import { TradeTimeline } from './TradeTimeline';
 
@@ -46,10 +46,10 @@ const XLogo = ({ className }: { className?: string }) => (
 
 const ActionBadge: React.FC<{ action: TradeAction }> = ({ action }) => {
     const styles = {
-        [TradeAction.BUY]: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
-        [TradeAction.SELL]: "bg-rose-500/10 text-rose-600 border-rose-200",
-        [TradeAction.WAIT]: "bg-amber-500/10 text-amber-600 border-amber-200",
-        [TradeAction.HOLD]: "bg-blue-500/10 text-blue-600 border-blue-200",
+        [TradeAction.BUY]: "bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50",
+        [TradeAction.SELL]: "bg-rose-500/10 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/50",
+        [TradeAction.WAIT]: "bg-amber-500/10 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/50",
+        [TradeAction.HOLD]: "bg-blue-500/10 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/50",
     };
 
     const icons = {
@@ -68,11 +68,11 @@ const ActionBadge: React.FC<{ action: TradeAction }> = ({ action }) => {
 };
 
 const Card: React.FC<{ title?: string; children: React.ReactNode; icon?: React.ReactNode, className?: string, gradient?: boolean }> = ({ title, children, icon, className = "", gradient = false }) => (
-    <div className={`relative overflow-hidden rounded-[2rem] p-6 transition-all duration-300 hover:shadow-lg border border-white/40 ${gradient ? 'bg-gradient-to-br from-white/80 to-white/40' : 'bg-white/60'} backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${className}`}>
+    <div className={`relative overflow-hidden rounded-[2rem] p-6 transition-all duration-300 hover:shadow-lg border border-white/40 dark:border-neutral-800 ${gradient ? 'bg-gradient-to-br from-white/80 to-white/40 dark:from-neutral-900 dark:to-black' : 'bg-white/60 dark:bg-black'} backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${className}`}>
         {title && (
-            <div className="flex items-center mb-4 text-slate-400">
-                {icon && <span className="mr-2 text-slate-500">{icon}</span>}
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{title}</h3>
+            <div className="flex items-center mb-4 text-slate-400 dark:text-neutral-500">
+                {icon && <span className="mr-2 text-slate-500 dark:text-neutral-400">{icon}</span>}
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-neutral-400">{title}</h3>
             </div>
         )}
         {children}
@@ -100,18 +100,18 @@ const TradeOrderCard: React.FC<{ order: TradeOrder }> = ({ order }) => {
     );
 
     return (
-        <div className={`relative p-5 rounded-2xl border ${isLong ? 'bg-emerald-50/30 border-emerald-100/60' : 'bg-rose-50/30 border-rose-100/60'} transition-all hover:scale-[1.02] duration-300`}>
+        <div className={`relative p-5 rounded-2xl border ${isLong ? 'bg-emerald-50/30 dark:bg-emerald-950/20 border-emerald-100/60 dark:border-emerald-900/30' : 'bg-rose-50/30 dark:bg-rose-950/20 border-rose-100/60 dark:border-rose-900/30'} transition-all hover:scale-[1.02] duration-300`}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex flex-col">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLong ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isLong ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                         {order.style.replace('_', ' ')}
                     </span>
-                    <span className={`text-sm font-black uppercase ${isLong ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    <span className={`text-sm font-black uppercase ${isLong ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
                         {order.side}
                     </span>
                 </div>
                 {order.leverageRecommendation && (
-                    <span className="px-2 py-1 bg-white/60 rounded-md text-[10px] font-mono font-bold text-slate-500 border border-white/40">
+                    <span className="px-2 py-1 bg-white/60 dark:bg-slate-800/60 rounded-md text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 border border-white/40 dark:border-white/10">
                         {order.leverageRecommendation}
                     </span>
                 )}
@@ -119,31 +119,31 @@ const TradeOrderCard: React.FC<{ order: TradeOrder }> = ({ order }) => {
 
             <div className="space-y-2 mb-4">
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 text-xs">Entry</span>
-                    <div className="flex items-center font-mono font-bold text-slate-700">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Entry</span>
+                    <div className="flex items-center font-mono font-bold text-slate-700 dark:text-slate-200">
                         {order.entryPrice}
                         <CopyButton text={order.entryPrice} field={`entry-${order.style}`} />
                     </div>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 text-xs">Target</span>
-                    <div className="flex items-center font-mono font-bold text-emerald-600">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Target</span>
+                    <div className="flex items-center font-mono font-bold text-emerald-600 dark:text-emerald-400">
                         {order.targetPrice}
                         <CopyButton text={order.targetPrice} field={`target-${order.style}`} />
                     </div>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 text-xs">Stop</span>
-                    <div className="flex items-center font-mono font-bold text-rose-500">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Stop</span>
+                    <div className="flex items-center font-mono font-bold text-rose-500 dark:text-rose-400">
                         {order.stopLoss}
                         <CopyButton text={order.stopLoss} field={`stop-${order.style}`} />
                     </div>
                 </div>
             </div>
 
-            <div className="pt-3 border-t border-black/5">
-                <p className="text-[10px] text-slate-500 leading-tight">
-                    <span className="font-bold text-slate-600 mr-1">Logic:</span>
+            <div className="pt-3 border-t border-black/5 dark:border-white/10">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                    <span className="font-bold text-slate-600 dark:text-slate-300 mr-1">Logic:</span>
                     {order.reasoning}
                 </p>
             </div>
@@ -227,20 +227,20 @@ ${tags}`;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
-            <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 border border-white/50 animate-fade-in-up">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+            <div className="relative w-full max-w-lg bg-white dark:bg-black rounded-3xl shadow-2xl p-6 border border-white/50 dark:border-neutral-800 animate-fade-in-up">
                 <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-slate-900">
+                    <div className="flex items-center gap-2 text-slate-900 dark:text-white">
                         <XLogo className="w-5 h-5" />
                         <h3 className="font-bold text-lg">Post Analysis</h3>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-neutral-300">
                         <CloseIcon className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
-                    <p className="whitespace-pre-wrap text-sm text-slate-600 font-medium leading-relaxed font-mono">
+                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-neutral-800 backdrop-blur-sm relative overflow-hidden">
+                    <p className="whitespace-pre-wrap text-sm text-slate-600 dark:text-neutral-300 font-medium leading-relaxed font-mono">
                         {postText}
                     </p>
                     <div className="mt-3 flex justify-end">
@@ -253,7 +253,7 @@ ${tags}`;
                 <div className="flex gap-3">
                     <button
                         onClick={handleCopy}
-                        className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] transition-all text-slate-700 font-semibold rounded-xl flex items-center justify-center"
+                        className="flex-1 py-3 bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 active:scale-[0.98] transition-all text-slate-700 dark:text-white font-semibold rounded-xl flex items-center justify-center"
                     >
                         {copied ? (
                             <>
@@ -269,7 +269,7 @@ ${tags}`;
                     </button>
                     <button
                         onClick={handlePostDirectly}
-                        className="flex-1 py-3 bg-black hover:bg-slate-800 active:scale-[0.98] transition-all text-white font-semibold rounded-xl flex items-center justify-center shadow-lg shadow-black/20"
+                        className="flex-1 py-3 bg-black dark:bg-white hover:bg-slate-800 dark:hover:bg-neutral-200 active:scale-[0.98] transition-all text-white dark:text-black font-semibold rounded-xl flex items-center justify-center shadow-lg shadow-black/20"
                     >
                         <XLogo className="w-4 h-4 mr-2" />
                         Post to X
@@ -334,8 +334,8 @@ const KellyCalculator: React.FC<{ rrRatioString: string }> = ({ rrRatioString })
     const suggestedRiskAmount = Math.floor(accountSize * quarterKelly);
 
     return (
-        <div className="bg-white/50 rounded-xl p-4 border border-white/60">
-            <div className="flex items-center gap-2 mb-4 text-slate-500">
+        <div className="bg-white/50 dark:bg-neutral-900/50 rounded-xl p-4 border border-white/60 dark:border-white/5 backdrop-blur-md">
+            <div className="flex items-center gap-2 mb-4 text-slate-500 dark:text-neutral-400">
                 <Calculator className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Kelly Criterion Calculator</span>
             </div>
@@ -347,7 +347,7 @@ const KellyCalculator: React.FC<{ rrRatioString: string }> = ({ rrRatioString })
                         type="number"
                         value={accountSize}
                         onChange={(e) => setAccountSize(Number(e.target.value))}
-                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        className="w-full bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg px-2 py-1 text-sm font-mono text-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                 </div>
                 <div>
@@ -359,19 +359,19 @@ const KellyCalculator: React.FC<{ rrRatioString: string }> = ({ rrRatioString })
                             max="90"
                             value={winRate}
                             onChange={(e) => setWinRate(Number(e.target.value))}
-                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                            className="w-full accent-blue-600 h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
                         />
-                        <span className="text-sm font-mono text-slate-700 w-8">{winRate}</span>
+                        <span className="text-sm font-mono text-slate-700 dark:text-white w-8">{winRate}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="p-3 bg-slate-900 rounded-lg text-white">
+            <div className="p-3 bg-slate-900 dark:bg-black rounded-lg text-white border border-slate-800 dark:border-neutral-800">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-slate-400">Optimal Risk (Quarter Kelly)</span>
+                    <span className="text-xs text-slate-400 dark:text-neutral-500">Optimal Risk (Quarter Kelly)</span>
                     <span className="text-lg font-bold text-emerald-400">${suggestedRiskAmount.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-500">
+                <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-neutral-400">
                     <span>Implied R:R: <span className="text-slate-300">1:{safeRR.toFixed(1)}</span></span>
                     <span>Fraction: <span className="text-slate-300">{(quarterKelly * 100).toFixed(2)}%</span></span>
                 </div>
@@ -380,7 +380,39 @@ const KellyCalculator: React.FC<{ rrRatioString: string }> = ({ rrRatioString })
     );
 };
 
-const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data }) => {
+const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ data: rawData }) => {
+    // Helper to ensure arrays are actually arrays
+    const ensureArray = (val: any): any[] => Array.isArray(val) ? val : [];
+
+    // 1. Defensive Data Normalization (Prevents White Screen Verification)
+    const data: AnalysisResult = {
+        ...rawData,
+        action: rawData.action || TradeAction.WAIT,
+        risk: rawData.risk || { riskToRewardRatio: 'N/A', suggestedPositionSize: 'N/A', activeRiskParameters: 'N/A' },
+        setup: rawData.setup ? {
+            ...rawData.setup,
+            takeProfitTargets: ensureArray(rawData.setup.takeProfitTargets)
+        } : { entryZone: 'N/A', stopLoss: 'N/A', takeProfitTargets: [], optionsStrategy: 'N/A' },
+
+        technicalAnalysis: rawData.technicalAnalysis || { macd: 'N/A', alligator: 'N/A', trend: 'NEUTRAL', volume: 'N/A' },
+
+        keyLevels: rawData.keyLevels ? {
+            support: ensureArray(rawData.keyLevels.support),
+            resistance: ensureArray(rawData.keyLevels.resistance),
+            pivotPoint: rawData.keyLevels.pivotPoint || 'N/A'
+        } : { support: [], resistance: [], pivotPoint: 'N/A' },
+
+        tradeRadar: ensureArray(rawData.tradeRadar),
+        scenarios: ensureArray(rawData.scenarios),
+        validationChecklist: ensureArray(rawData.validationChecklist),
+
+        pattern: rawData.pattern || { name: 'Pattern Detection Active', type: 'INDECISION', confidence: 50 },
+        headline: rawData.headline || 'Analysis Complete',
+        reasoning: rawData.reasoning || 'No details provided.',
+        tradeHorizon: rawData.tradeHorizon || 'Intraday',
+        marketCondition: rawData.marketCondition || 'NEUTRAL',
+        confidenceScore: rawData.confidenceScore || 50
+    };
     const [copied, setCopied] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const isWait = data.action === TradeAction.WAIT || data.action === TradeAction.HOLD;
@@ -403,349 +435,352 @@ Note: ${data.headline}
     };
 
     return (
-        <div className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12">
+        <>
             <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} data={data} />
+            <div className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12">
 
-            {/* Dynamic Background Mesh */}
-            <div className="fixed inset-0 pointer-events-none -z-10">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-[100px] mix-blend-multiply opacity-70 animate-blob"></div>
-                <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-[100px] mix-blend-multiply opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-400/20 rounded-full blur-[100px] mix-blend-multiply opacity-70 animate-blob animation-delay-4000"></div>
-            </div>
+                {/* Dynamic Background Mesh */}
+                {/* Dynamic Background Mesh - REMOVED for Pure Black */}
+                <div className="hidden"></div>
 
-            {/* Header Info Bar */}
-            <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        {(data.asset || data.timeframe) && (
-                            <span className="text-3xl font-bold text-slate-900 tracking-tight flex items-center">
-                                {data.asset || 'Unknown Asset'}
-                                <span className="ml-2 text-lg text-slate-400 font-medium align-top">{data.timeframe}</span>
-                                {data.currentPrice && (
-                                    <span className="ml-4 px-3 py-1 bg-slate-200/50 rounded-lg text-sm font-mono text-slate-600 border border-slate-200">
-                                        {data.currentPrice}
-                                    </span>
-                                )}
-                            </span>
-                        )}
-                        <ActionBadge action={data.action} />
-                    </div>
-                    <h1 className="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">
-                        {data.headline}
-                    </h1>
-                </div>
-
-                <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setShowShareModal(true)}
-                            className="flex items-center justify-center w-10 h-10 bg-black hover:bg-slate-800 backdrop-blur-md border border-white/40 shadow-sm rounded-full text-white transition-all active:scale-95"
-                            title="Share on X"
-                        >
-                            <XLogo className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={copyToClipboard}
-                            className="group flex items-center px-4 py-2 bg-white/60 hover:bg-white backdrop-blur-md border border-white/40 shadow-sm rounded-full text-sm font-medium text-slate-600 hover:text-blue-600 transition-all active:scale-95"
-                        >
-                            {copied ? <Check className="w-4 h-4 mr-2 text-emerald-500" /> : <Copy className="w-4 h-4 mr-2" />}
-                            {copied ? 'Copied' : 'Copy Plan'}
-                        </button>
-                        <div className="flex items-center bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/40 shadow-sm">
-                            <span className="text-xs font-bold text-slate-400 uppercase mr-2">Confidence</span>
-                            <span className={`text-sm font-bold ${data.confidenceScore > 75 ? 'text-emerald-600' : 'text-amber-500'}`}>{data.confidenceScore}%</span>
-                        </div>
-                    </div>
-                    <div className="flex items-center text-[10px] text-slate-400 font-medium bg-slate-100/50 px-3 py-1 rounded-full border border-slate-200/50" title="This analysis is generated by AI Vision reading your screenshot, not live API data.">
-                        <ScanEye className="w-3 h-3 mr-1.5" />
-                        Source: Visual Chart Analysis
-                    </div>
-                </div>
-            </div>
-
-            {/* BENTO GRID LAYOUT */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-                {/* ROW 1: Real-Time Trade Radar (New Feature) */}
-                <div className="md:col-span-12">
-                    <Card title="Live Execution Radar" icon={<Radar className="w-4 h-4" />} className="bg-gradient-to-r from-slate-50 via-white to-slate-50 border-blue-100">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {data.tradeRadar?.map((order, i) => (
-                                <TradeOrderCard key={i} order={order} />
-                            ))}
-                            {!data.tradeRadar && (
-                                <div className="col-span-3 text-center py-8 text-slate-400 italic">
-                                    Live Execution Radar data unavailable for this chart.
-                                </div>
-                            )}
-                        </div>
-                    </Card>
-                </div>
-
-                {/* ROW 2: Execution & Key Levels */}
-
-                {/* Main Execution Card */}
-                <div className="md:col-span-8">
-                    <Card title={isWait ? "Conditional Trade Protocol" : "Execution Setup"} icon={<Target className="w-4 h-4" />} className="h-full">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                            {/* Entry */}
-                            <div className={`p-5 rounded-2xl border transition-colors ${isWait ? 'bg-amber-50/50 border-amber-100/50' : 'bg-emerald-50/50 border-emerald-100/50'}`}>
-                                <span className={`text-[10px] font-bold uppercase tracking-wider mb-2 block ${isWait ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                    {isWait ? 'Watch For Trigger' : 'Entry Zone'}
-                                </span>
-                                <span className="text-lg font-bold text-slate-800 leading-tight block">
-                                    {data.setup.entryZone}
-                                </span>
-                            </div>
-
-                            {/* Stop Loss */}
-                            <div className="p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">
-                                    {isWait ? 'Invalidation' : 'Stop Loss'}
-                                </span>
-                                <span className="text-lg font-bold text-rose-500 leading-tight block">
-                                    {data.setup.stopLoss}
-                                </span>
-                            </div>
-
-                            {/* Targets */}
-                            <div className="p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Targets</span>
-                                <div className="flex flex-col gap-0.5">
-                                    {data.setup.takeProfitTargets.slice(0, 3).map((tp, idx) => (
-                                        <span key={idx} className="text-base font-bold text-emerald-600 leading-tight">
-                                            {tp}
+                {/* Header Info Bar */}
+                <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            {(data.asset || data.timeframe) && (
+                                <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center">
+                                    {data.asset || 'Unknown Asset'}
+                                    <span className="ml-2 text-lg text-slate-400 font-medium align-top">{data.timeframe}</span>
+                                    {data.currentPrice && (
+                                        <span className="ml-4 px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-lg text-sm font-mono text-slate-600 dark:text-white border border-slate-200 dark:border-white/10">
+                                            {data.currentPrice}
                                         </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                                    <Activity className="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <div className="text-[10px] font-bold uppercase text-slate-400">Recommended Options</div>
-                                    <div className="text-sm font-semibold text-slate-700">{data.setup.optionsStrategy || "Standard Spot/Futures"}</div>
-                                </div>
-                            </div>
-                            <div className="text-right hidden sm:block">
-                                <div className="text-[10px] font-bold uppercase text-slate-400">Risk/Reward</div>
-                                <div className="text-sm font-mono font-bold text-slate-800">{data.risk.riskToRewardRatio}</div>
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-
-                {/* Validation Checklist */}
-                <div className="md:col-span-4">
-                    <Card title="Trade Validation" icon={<CheckCircle2 className="w-4 h-4" />} className="h-full bg-white/70">
-                        <div className="space-y-3">
-                            {data.validationChecklist?.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-white/50 shadow-sm">
-                                    <span className="text-sm font-medium text-slate-600">{item.label}</span>
-                                    {item.passed ? (
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                    ) : (
-                                        <XCircle className="w-5 h-5 text-slate-300" />
                                     )}
-                                </div>
-                            ))}
-                            {!data.validationChecklist && <p className="text-sm text-slate-400 italic">No validation data available.</p>}
-                        </div>
-
-                        {/* Market Condition Tag */}
-                        <div className="mt-6 pt-4 border-t border-slate-100">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase text-slate-400">Market Condition</span>
-                                <span className={`text-xs font-bold px-2 py-1 rounded-md border ${data.marketCondition === 'TRENDING' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                    data.marketCondition === 'VOLATILE' ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                                        'bg-slate-50 text-slate-600 border-slate-100'
-                                    }`}>
-                                    {data.marketCondition || 'NEUTRAL'}
                                 </span>
+                            )}
+                            <ActionBadge action={data.action} />
+                        </div>
+                        <h1 className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-2xl leading-relaxed">
+                            {data.headline}
+                        </h1>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setShowShareModal(true)}
+                                className="flex items-center justify-center w-10 h-10 bg-black hover:bg-slate-800 backdrop-blur-md border border-white/40 shadow-sm rounded-full text-white transition-all active:scale-95"
+                                title="Share on X"
+                            >
+                                <XLogo className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={copyToClipboard}
+                                className="group flex items-center px-4 py-2 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm rounded-full text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all active:scale-95"
+                            >
+                                {copied ? <Check className="w-4 h-4 mr-2 text-emerald-500" /> : <Copy className="w-4 h-4 mr-2" />}
+                                {copied ? 'Copied' : 'Copy Plan'}
+                            </button>
+                            <div className="flex items-center bg-white/60 dark:bg-neutral-900 backdrop-blur-md px-4 py-2 rounded-full border border-white/40 dark:border-neutral-800 shadow-sm">
+                                <span className="text-xs font-bold text-slate-400 dark:text-neutral-400 uppercase mr-2">Confidence</span>
+                                <span className={`text-sm font-bold ${data.confidenceScore > 75 ? 'text-emerald-500' : 'text-amber-500'}`}>{data.confidenceScore}%</span>
                             </div>
                         </div>
-                    </Card>
+                        <div className="flex items-center text-[10px] text-slate-400 dark:text-slate-500 font-medium bg-slate-100/50 dark:bg-slate-800/50 px-3 py-1 rounded-full border border-slate-200/50 dark:border-slate-700/50" title="This analysis is generated by AI Vision reading your screenshot, not live API data.">
+                            <ScanEye className="w-3 h-3 mr-1.5" />
+                            Source: Visual Chart Analysis
+                        </div>
+                    </div>
                 </div>
 
-                {/* ROW 3: Quantitative Risk Engine */}
-                <div className="md:col-span-12">
-                    <Card title="Quantitative Risk Engine" icon={<BrainCircuit className="w-4 h-4" />} className="bg-gradient-to-r from-slate-50 to-white">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                            {/* Probabilistic Scenarios */}
-                            <div className="md:col-span-7 space-y-5">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center">
-                                    <Layers className="w-4 h-4 mr-2 text-slate-400" />
-                                    Probabilistic Scenarios (Monte Carlo)
-                                </h4>
+                {/* BENTO GRID LAYOUT */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
-                                {data.scenarios?.map((scenario, i) => (
-                                    <div key={i} className="group">
-                                        <div className="flex justify-between items-end mb-1">
-                                            <span className={`text-xs font-bold uppercase tracking-wider ${scenario.name === 'BULL_CASE' ? 'text-emerald-600' :
-                                                scenario.name === 'BEAR_CASE' ? 'text-rose-600' : 'text-slate-500'
-                                                }`}>
-                                                {scenario.name.replace('_', ' ')}
+                    {/* ROW 1: Real-Time Trade Radar (New Feature) */}
+                    <div className="md:col-span-12">
+                        <Card title="Live Execution Radar" icon={<Radar className="w-4 h-4" />} className="bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-neutral-900 dark:via-black dark:to-neutral-900 border-blue-100 dark:border-neutral-800">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {(data.tradeRadar || []).map((order, i) => (
+                                    <TradeOrderCard key={i} order={order} />
+                                ))}
+                                {!data.tradeRadar && (
+                                    <div className="col-span-3 text-center py-8 text-slate-400 italic">
+                                        Live Execution Radar data unavailable for this chart.
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* ROW 2: Execution & Key Levels */}
+
+                    {/* Main Execution Card */}
+                    <div className="md:col-span-8">
+                        <Card title={isWait ? "Conditional Trade Protocol" : "Execution Setup"} icon={<Target className="w-4 h-4" />} className="h-full">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                {/* Entry */}
+                                {/* Entry */}
+                                {/* Entry */}
+                                <div className={`p-5 rounded-2xl border transition-colors ${isWait ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-100/50 dark:border-amber-900/30' : 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100/50 dark:border-emerald-900/30'}`}>
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-2 block ${isWait ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                        {isWait ? 'Watch For Trigger' : 'Entry Zone'}
+                                    </span>
+                                    <span className="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight block">
+                                        {data.setup.entryZone}
+                                    </span>
+                                </div>
+
+                                {/* Stop Loss */}
+                                <div className="p-5 rounded-2xl bg-slate-50/50 dark:bg-neutral-900/50 border border-slate-100/50 dark:border-neutral-800">
+                                    <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-2 block">
+                                        {isWait ? 'Invalidation' : 'Stop Loss'}
+                                    </span>
+                                    <span className="text-lg font-bold text-rose-500 dark:text-rose-500 leading-tight block">
+                                        {data.setup.stopLoss}
+                                    </span>
+                                </div>
+
+                                {/* Targets */}
+                                <div className="p-5 rounded-2xl bg-slate-50/50 dark:bg-neutral-900/50 border border-slate-100/50 dark:border-neutral-800">
+                                    <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-2 block">Targets</span>
+                                    <div className="flex flex-col gap-0.5">
+                                        {(data.setup?.takeProfitTargets || []).slice(0, 3).map((tp, idx) => (
+                                            <span key={idx} className="text-base font-bold text-emerald-600 leading-tight">
+                                                {tp}
                                             </span>
-                                            <span className="text-xs font-mono font-bold text-slate-700">{scenario.probability}%</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-2">
-                                            <div
-                                                className={`h-full rounded-full transition-all duration-1000 ease-out ${scenario.name === 'BULL_CASE' ? 'bg-emerald-400' :
-                                                    scenario.name === 'BEAR_CASE' ? 'bg-rose-400' : 'bg-slate-400'
-                                                    }`}
-                                                style={{ width: `${scenario.probability}%` }}
-                                            ></div>
-                                        </div>
-                                        <div className="flex justify-between items-start">
-                                            <p className="text-[10px] text-slate-500 leading-relaxed max-w-[80%]">{scenario.description}</p>
-                                            <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">{scenario.priceTarget}</span>
-                                        </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-slate-50/50 dark:bg-neutral-900/50 rounded-2xl border border-slate-100/50 dark:border-neutral-800">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-indigo-100 dark:bg-white/10 text-indigo-600 dark:text-white rounded-lg">
+                                        <Activity className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] font-bold uppercase text-slate-400 dark:text-neutral-500">Recommended Options</div>
+                                        <div className="text-sm font-semibold text-slate-700 dark:text-white">{data.setup.optionsStrategy || "Standard Spot/Futures"}</div>
+                                    </div>
+                                </div>
+                                <div className="text-right hidden sm:block">
+                                    <div className="text-[10px] font-bold uppercase text-slate-400 dark:text-neutral-500">Risk/Reward</div>
+                                    <div className="text-sm font-mono font-bold text-slate-800 dark:text-white">{data.risk.riskToRewardRatio}</div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* Validation Checklist */}
+                    <div className="md:col-span-4">
+                        <Card title="Trade Validation" icon={<CheckCircle2 className="w-4 h-4" />} className="h-full bg-white/70 dark:bg-neutral-900/50">
+                            <div className="space-y-3">
+                                {data.validationChecklist?.map((item, i) => (
+                                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-black/40 border border-white/50 dark:border-neutral-800 shadow-sm">
+                                        <span className="text-sm font-medium text-slate-600 dark:text-neutral-300">{item.label}</span>
+                                        {item.passed ? (
+                                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                        ) : (
+                                            <XCircle className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+                                        )}
                                     </div>
                                 ))}
-                                {!data.scenarios && <p className="text-sm text-slate-400 italic">No scenario data available.</p>}
+                                {!data.validationChecklist && <p className="text-sm text-slate-400 italic">No validation data available.</p>}
                             </div>
 
-                            {/* Kelly Calculator */}
-                            <div className="md:col-span-5 border-l border-slate-100 pl-8">
-                                <KellyCalculator rrRatioString={data.risk.riskToRewardRatio} />
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-
-                {/* ROW 4: Analysis & Pattern Intelligence */}
-
-                {/* Technical Deep Dive */}
-                <div className="md:col-span-5">
-                    <Card title="Technical Analysis" icon={<Zap className="w-4 h-4" />} className="h-full">
-                        <div className="space-y-4">
-                            <div className="group">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-semibold text-slate-700">MACD</span>
-                                    <div className="h-px bg-slate-100 flex-grow mx-3"></div>
-                                </div>
-                                <p className="text-xs text-slate-500 leading-relaxed">{data.technicalAnalysis.macd}</p>
-                            </div>
-
-                            <div className="group">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-semibold text-slate-700">Williams Alligator</span>
-                                    <div className="h-px bg-slate-100 flex-grow mx-3"></div>
-                                </div>
-                                <p className="text-xs text-slate-500 leading-relaxed">{data.technicalAnalysis.alligator}</p>
-                            </div>
-
-                            <div className="mt-4 p-3 bg-slate-50/50 rounded-xl border border-slate-100/50">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Trend Structure</span>
-                                <span className={`text-sm font-bold ${data.technicalAnalysis.trend === 'BULLISH' ? 'text-emerald-600' :
-                                    data.technicalAnalysis.trend === 'BEARISH' ? 'text-rose-600' : 'text-slate-600'
-                                    }`}>{data.technicalAnalysis.trend}</span>
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-
-                {/* Key Levels & Risk */}
-                <div className="md:col-span-4">
-                    <Card title="Market Levels" icon={<Layers className="w-4 h-4" />} className="h-full">
-                        <div className="space-y-4">
-                            <div>
-                                <span className="text-[10px] font-bold text-rose-400 uppercase mb-2 block">Resistance</span>
-                                <div className="flex flex-wrap gap-2">
-                                    {data.keyLevels?.resistance.slice(0, 3).map((level, i) => (
-                                        <span key={i} className="px-2.5 py-1 bg-rose-50/50 text-rose-600 rounded-lg text-xs font-bold border border-rose-100">{level}</span>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="w-full h-px bg-slate-100/50"></div>
-                            <div>
-                                <span className="text-[10px] font-bold text-emerald-400 uppercase mb-2 block">Support</span>
-                                <div className="flex flex-wrap gap-2">
-                                    {data.keyLevels?.support.slice(0, 3).map((level, i) => (
-                                        <span key={i} className="px-2.5 py-1 bg-emerald-50/50 text-emerald-600 rounded-lg text-xs font-bold border border-emerald-100">{level}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Risk Management</span>
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs text-slate-500">Position Size</span>
-                                    <span className="text-xs font-bold text-slate-800">{data.risk.suggestedPositionSize}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-xs text-slate-500">Risk Profile</span>
-                                    <span className="text-xs font-bold text-rose-500">{data.risk.activeRiskParameters}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-
-                {/* Pattern Intelligence Card */}
-                <div className="md:col-span-3">
-                    <div className="h-full rounded-[2rem] p-6 bg-gradient-to-b from-slate-800 to-slate-900 text-white shadow-xl relative overflow-hidden flex flex-col justify-between group cursor-default">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-400/30 transition-colors duration-500"></div>
-
-                        <div>
-                            <div className="flex items-center mb-4 text-white/50">
-                                <ScanEye className="w-4 h-4 mr-2" />
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest">Pattern Intelligence</h3>
-                            </div>
-
-                            <div className="mb-4">
-                                <h2 className="text-2xl font-bold text-white tracking-tight leading-none mb-2">{data.pattern?.name || 'Pattern Detected'}</h2>
-                                <div className="flex items-center gap-2">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${data.pattern?.type === 'REVERSAL' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
-                                        data.pattern?.type === 'CONTINUATION' ? 'bg-blue-500/20 text-blue-200 border-blue-500/30' :
-                                            'bg-slate-700 text-slate-300 border-slate-600'
+                            {/* Market Condition Tag */}
+                            <div className="mt-6 pt-4 border-t border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold uppercase text-slate-400">Market Condition</span>
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-md border ${data.marketCondition === 'TRENDING' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800' :
+                                        data.marketCondition === 'VOLATILE' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-800' :
+                                            'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700'
                                         }`}>
-                                        {data.pattern?.type || 'Neutral'}
+                                        {data.marketCondition || 'NEUTRAL'}
                                     </span>
-                                    <div className="flex items-center text-[10px] text-white/60">
-                                        <Clock className="w-3 h-3 mr-1" />
-                                        {data.tradeHorizon}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* ROW 3: Quantitative Risk Engine */}
+                    <div className="md:col-span-12">
+                        <Card title="Quantitative Risk Engine" icon={<BrainCircuit className="w-4 h-4" />} className="bg-gradient-to-r from-slate-50 to-white dark:from-neutral-900 dark:to-black border-red-500">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                                {/* Probabilistic Scenarios */}
+                                <div className="md:col-span-7 space-y-5">
+                                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center">
+                                        <Layers className="w-4 h-4 mr-2 text-slate-400" />
+                                        Probabilistic Scenarios (Monte Carlo)
+                                    </h4>
+
+                                    {data.scenarios?.map((scenario, i) => (
+                                        <div key={i} className="group">
+                                            <div className="flex justify-between items-end mb-1">
+                                                <span className={`text-xs font-bold uppercase tracking-wider ${scenario.name === 'BULL_CASE' ? 'text-emerald-600' :
+                                                    scenario.name === 'BEAR_CASE' ? 'text-rose-600' : 'text-slate-500'
+                                                    }`}>
+                                                    {scenario.name.replace('_', ' ')}
+                                                </span>
+                                                <span className="text-xs font-mono font-bold text-slate-700 dark:text-white">{scenario.probability}%</span>
+                                            </div>
+                                            <div className="h-2 w-full bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden mb-2">
+                                                <div
+                                                    className={`h-full rounded-full transition-all duration-1000 ease-out ${scenario.name === 'BULL_CASE' ? 'bg-emerald-400' :
+                                                        scenario.name === 'BEAR_CASE' ? 'bg-rose-400' : 'bg-slate-400'
+                                                        }`}
+                                                    style={{ width: `${scenario.probability}%` }}
+                                                ></div>
+                                            </div>
+                                            <div className="flex justify-between items-start">
+                                                <p className="text-[10px] text-slate-500 dark:text-neutral-400 leading-relaxed max-w-[80%]">{scenario.description}</p>
+                                                <span className="text-[10px] font-mono bg-slate-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-neutral-300">{scenario.priceTarget}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {!data.scenarios && <p className="text-sm text-slate-400 italic">No scenario data available.</p>}
+                                </div>
+
+                                {/* Kelly Calculator */}
+                                <div className="md:col-span-5 border-l border-slate-100 dark:border-neutral-800 pl-8">
+                                    <KellyCalculator rrRatioString={data.risk.riskToRewardRatio} />
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* ROW 4: Analysis & Pattern Intelligence */}
+
+                    {/* Technical Deep Dive */}
+                    <div className="md:col-span-5">
+                        <Card title="Technical Analysis" icon={<Zap className="w-4 h-4" />} className="h-full">
+                            <div className="space-y-4">
+                                <div className="group">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">MACD</span>
+                                        <div className="h-px bg-slate-100 dark:bg-slate-700/50 flex-grow mx-3"></div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{data.technicalAnalysis.macd}</p>
+                                </div>
+
+                                <div className="group">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Williams Alligator</span>
+                                        <div className="h-px bg-slate-100 dark:bg-slate-700/50 flex-grow mx-3"></div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{data.technicalAnalysis.alligator}</p>
+                                </div>
+
+                                <div className="mt-4 p-3 bg-slate-50/50 dark:bg-neutral-900/50 rounded-xl border border-slate-100/50 dark:border-neutral-800">
+                                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Trend Structure</span>
+                                    <span className={`text-sm font-bold ${data.technicalAnalysis?.trend === 'BULLISH' ? 'text-emerald-600 dark:text-emerald-400' :
+                                        data.technicalAnalysis?.trend === 'BEARISH' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-300'
+                                        }`}>{data.technicalAnalysis?.trend || 'NEUTRAL'}</span>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* Key Levels & Risk */}
+                    <div className="md:col-span-4">
+                        <Card title="Market Levels" icon={<Layers className="w-4 h-4" />} className="h-full">
+                            <div className="space-y-4">
+                                <div>
+                                    <span className="text-[10px] font-bold text-rose-400 uppercase mb-2 block">Resistance</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(data.keyLevels?.resistance || []).slice(0, 3).map((level, i) => (
+                                            <span key={i} className="px-2.5 py-1 bg-rose-50/50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-bold border border-rose-100 dark:border-rose-800">{level}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="w-full h-px bg-slate-100/50 dark:bg-slate-700/30"></div>
+                                <div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-emerald-400 uppercase mb-2 block">Support</span>
+                                        <div className="flex flex-wrap gap-2">
+                                            {(data.keyLevels?.support || []).slice(0, 3).map((level, i) => (
+                                                <span key={i} className="px-2.5 py-1 bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold border border-emerald-100 dark:border-emerald-800">{level}</span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="mt-4 pt-4 border-t border-white/10">
-                            <span className="text-[10px] font-bold uppercase text-white/40 block mb-1">Analysis Logic</span>
-                            <p className="text-[10px] text-white/60 line-clamp-4 leading-relaxed">
-                                {data.reasoning}
-                            </p>
+                            <div className="mt-6">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Risk Management</span>
+                                <div className="p-3 bg-slate-50 dark:bg-neutral-900/50 rounded-xl border border-slate-100 dark:border-neutral-800">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">Position Size</span>
+                                        <span className="text-xs font-bold text-slate-800 dark:text-white">{data.risk.suggestedPositionSize}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">Risk Profile</span>
+                                        <span className="text-xs font-bold text-rose-500 dark:text-rose-400">{data.risk.activeRiskParameters}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* Pattern Intelligence Card */}
+                    <div className="md:col-span-3">
+                        <div className="h-full rounded-[2rem] p-6 bg-gradient-to-b from-neutral-900 to-black text-white shadow-xl relative overflow-hidden flex flex-col justify-between group cursor-default border border-neutral-800">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-white/10 transition-colors duration-500"></div>
+
+                            <div>
+                                <div className="flex items-center mb-4 text-white/50">
+                                    <ScanEye className="w-4 h-4 mr-2" />
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest">Pattern Intelligence</h3>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h2 className="text-2xl font-bold text-white tracking-tight leading-none mb-2">{data.pattern?.name || 'Pattern Detected'}</h2>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${data.pattern?.type === 'REVERSAL' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
+                                            data.pattern?.type === 'CONTINUATION' ? 'bg-blue-500/20 text-blue-200 border-blue-500/30' :
+                                                'bg-slate-700 text-slate-300 border-slate-600'
+                                            }`}>
+                                            {data.pattern?.type || 'Neutral'}
+                                        </span>
+                                        <div className="flex items-center text-[10px] text-white/60">
+                                            <Clock className="w-3 h-3 mr-1" />
+                                            {data.tradeHorizon}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t border-white/10">
+                                <span className="text-[10px] font-bold uppercase text-white/40 block mb-1">Analysis Logic</span>
+                                <p className="text-[10px] text-white/60 line-clamp-4 leading-relaxed">
+                                    {data.reasoning}
+                                </p>
+                            </div>
                         </div>
                     </div>
+
+                </div>
+
+                <div className="mt-12 text-center">
+                    <div className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/40 backdrop-blur-md border border-white/40 text-slate-400 text-[10px] max-w-2xl mx-auto shadow-sm">
+                        <AlertCircle className="w-3 h-3 mr-2 flex-shrink-0" />
+                        <p>
+                            <strong>AI Analysis:</strong> Theoretical scenarios based on chart patterns. Not financial advice.
+                        </p>
+                    </div>
+                </div>
+                {/* NEW: Trade Execution Timeline */}
+                <div className="mt-8 animate-fade-in-up">
+                    <TradeTimeline
+                        entryPrice={data.setup.entryZone}
+                        stopLoss={data.setup.stopLoss}
+                        targets={data.setup.takeProfitTargets}
+                        currentPrice={data.currentPrice}
+                    />
                 </div>
 
             </div>
-
-            <div className="mt-12 text-center">
-                <div className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/40 backdrop-blur-md border border-white/40 text-slate-400 text-[10px] max-w-2xl mx-auto shadow-sm">
-                    <AlertCircle className="w-3 h-3 mr-2 flex-shrink-0" />
-                    <p>
-                        <strong>AI Analysis:</strong> Theoretical scenarios based on chart patterns. Not financial advice.
-                    </p>
-                </div>
-            </div>
-            {/* NEW: Trade Execution Timeline */}
-            <div className="mt-8 animate-fade-in-up">
-                <TradeTimeline
-                    entryPrice={data.setup.entryZone}
-                    stopLoss={data.setup.stopLoss}
-                    targets={data.setup.takeProfitTargets}
-                    currentPrice={data.currentPrice}
-                />
-            </div>
-
-        </div>
+        </>
     );
 };
 

@@ -59,8 +59,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
       <div
         className={`relative group rounded-3xl border-2 border-dashed transition-all duration-300 ease-out p-12 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden
         ${dragActive
-            ? 'border-blue-500 bg-blue-50/50 scale-[1.02]'
-            : 'border-slate-300 hover:border-slate-400 bg-white/40 hover:bg-white/60'
+            ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-[1.02]'
+            : 'border-slate-300 dark:border-neutral-700 hover:border-slate-400 dark:hover:border-neutral-500 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10'
           }
         ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
         `}
@@ -88,16 +88,16 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
           </div>
         ) : (
           <>
-            <div className={`w-16 h-16 mb-6 rounded-2xl flex items-center justify-center transition-colors duration-300 ${dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'}`}>
+            <div className={`w-16 h-16 mb-6 rounded-2xl flex items-center justify-center transition-colors duration-300 ${dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 group-hover:bg-slate-200 dark:group-hover:bg-neutral-700'}`}>
               <Upload className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-semibold text-slate-800 mb-2">
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
               Upload Chart Screenshot
             </h3>
-            <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
-              Drag & drop, click to browse, or <span className="font-semibold text-slate-700 bg-slate-200/60 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly from clipboard.
+            <p className="text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
+              Drag & drop, click to browse, or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly from clipboard.
               <br />
-              <span className="text-xs text-slate-400 mt-2 block">Supported: PNG, JPG, WEBP</span>
+              <span className="text-xs text-slate-400 dark:text-neutral-500 mt-2 block">Supported: PNG, JPG, WEBP</span>
             </p>
           </>
         )}
