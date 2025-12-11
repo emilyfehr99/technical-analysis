@@ -213,4 +213,3 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, user, u
 };
 
 export default Header;
-```
