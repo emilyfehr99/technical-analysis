@@ -39,18 +39,22 @@ export const AdminDashboard = () => {
 
     const [topPages, setTopPages] = useState<{ name: string, count: number }[]>([]);
 
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
     useEffect(() => {
         fetchDeepDive();
     }, []);
 
     const fetchDeepDive = async () => {
         setLoading(true);
+        setErrorMsg(null);
         try {
             // CALL RPC FUNCTION (Bypasses RLS)
             const { data, error } = await supabase.rpc('get_admin_dashboard_stats');
 
             if (error) {
                 console.error("RPC Error:", error);
+                setErrorMsg(error.message);
                 // Fallback or Alert?
                 return;
             }
@@ -253,6 +257,28 @@ export const AdminDashboard = () => {
 
             {/* 3. DETAILS: Top Actions & Recent Logs */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* DEBUG PANEL (Temporary) */}
+                <div className="lg:col-span-3 bg-red-50 dark:bg-red-900/10 p-4 rounded-xl border border-red-200 dark:border-red-800">
+                    <h4 className="text-sm font-bold text-red-600 dark:text-red-400 mb-2">Debug Diagnostics</h4>
+                    <code className="text-xs text-red-500 block mb-1">
+                        User: {supabase.auth.getUser().then(u => u.data.user?.email || 'None')}
+                    </code>
+                    <code className="text-xs text-red-500 block mb-1">
+                        UID: {supabase.auth.getUser().then(u => u.data.user?.id || 'None')}
+                    </code>
+                    {errorMsg && (
+                        <div className="mt-2 text-xs font-mono font-bold text-red-600 bg-red-100 p-2 rounded">
+                            RPC FAILURE: {errorMsg}
+                        </div>
+                    )}
+                    {metrics.totalSessions === 0 && !errorMsg && (
+                        <div className="mt-2 text-xs font-mono text-red-600">
+                            Warning: Zero Sessions found. RPC returned success but no data (or empty).
+                        </div>
+                    )}
+                </div>
+
                 {/* Top Actions */}
                 <div className="lg:col-span-1 bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Top Actions</h3>
