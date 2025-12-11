@@ -38,26 +38,26 @@ export interface ValidationItem {
 }
 
 export interface PatternAnalysis {
-    name: string; // e.g. "Bull Flag", "Double Bottom"
-    type: 'CONTINUATION' | 'REVERSAL' | 'INDECISION';
-    confidence: number;
+  name: string; // e.g. "Bull Flag", "Double Bottom"
+  type: 'CONTINUATION' | 'REVERSAL' | 'INDECISION';
+  confidence: number;
 }
 
 export interface Scenario {
-    name: 'BULL_CASE' | 'BEAR_CASE' | 'BASE_CASE';
-    probability: number; // 0-100
-    priceTarget: string;
-    description: string;
+  name: 'BULL_CASE' | 'BEAR_CASE' | 'BASE_CASE';
+  probability: number; // 0-100
+  priceTarget: string;
+  description: string;
 }
 
 export interface TradeOrder {
-    style: 'SCALP' | 'DAY_TRADE' | 'SWING';
-    side: 'LONG' | 'SHORT';
-    entryPrice: string;
-    stopLoss: string;
-    targetPrice: string;
-    leverageRecommendation?: string;
-    reasoning: string;
+  style: 'SCALP' | 'DAY_TRADE' | 'SWING';
+  side: 'LONG' | 'SHORT';
+  entryPrice: string;
+  stopLoss: string;
+  targetPrice: string;
+  leverageRecommendation?: string;
+  reasoning: string;
 }
 
 export interface AnalysisResult {
@@ -85,4 +85,5 @@ export interface AnalysisState {
   result: AnalysisResult | null;
   error: string | null;
   imageUrl: string | null;
+  isDemo?: boolean; // New Flag
 }

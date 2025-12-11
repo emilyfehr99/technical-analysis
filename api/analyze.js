@@ -88,22 +88,27 @@ export default async function handler(req, res) {
 
         // 2. Fallback Anonymous (IP)
         if (!userId) {
-            const ip = getIp(req);
-            console.log("Checking IP limits for:", ip);
-            const { data: ipData } = await supabase.from('ip_tracking').select('analysis_count').eq('ip_address', ip).single();
-            const currentCount = ipData ? ipData.analysis_count : 0;
-            console.log("IP Count:", currentCount);
+            // BYPASS FOR DEMO MODE
+            if (req.body.isDemo) {
+                console.log("Demo Mode: Bypassing IP Limit Check");
+            } else {
+                const ip = getIp(req);
+                console.log("Checking IP limits for:", ip);
+                const { data: ipData } = await supabase.from('ip_tracking').select('analysis_count').eq('ip_address', ip).single();
+                const currentCount = ipData ? ipData.analysis_count : 0;
+                console.log("IP Count:", currentCount);
 
-            if (currentCount >= 3) {
-                console.log("Paywall Hit: IP Limit Reached");
-                return res.status(403).json({ error: 'LIMIT_REACHED', isAuth: false });
+                if (currentCount >= 3) {
+                    console.log("Paywall Hit: IP Limit Reached");
+                    return res.status(403).json({ error: 'LIMIT_REACHED', isAuth: false });
+                }
+
+                await supabase.from('ip_tracking').upsert({
+                    ip_address: ip,
+                    analysis_count: currentCount + 1,
+                    last_used: new Date().toISOString()
+                }, { onConflict: 'ip_address' });
             }
-
-            await supabase.from('ip_tracking').upsert({
-                ip_address: ip,
-                analysis_count: currentCount + 1,
-                last_used: new Date().toISOString()
-            }, { onConflict: 'ip_address' });
         }
         // ---------------------------------
 

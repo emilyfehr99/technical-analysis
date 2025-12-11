@@ -18,6 +18,7 @@ function App() {
     result: null,
     error: null,
     imageUrl: null,
+    isDemo: false
   });
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -124,7 +125,8 @@ function App() {
         status: 'idle',
         result: null,
         error: null,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        isDemo: true // Flag this as a demo run
       });
 
       // Optional: Auto-run analysis or let user click "Run AI Analysis"
@@ -175,7 +177,8 @@ function App() {
       const payload = {
         image: base64Data,
         mimeType,
-        symbol: null
+        symbol: null,
+        isDemo: analysisState.isDemo // Send flag to backend
       };
 
       const response = await fetch('/api/analyze', {

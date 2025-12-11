@@ -8,6 +8,24 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) => {
   const [dragActive, setDragActive] = useState(false);
+  // Labor Illusion Steps
+  const [loadingStep, setLoadingStep] = useState(0);
+  const loadingMessages = [
+    "Identifying Asset & Timeframe...",
+    "Scanning Chart Patterns (Bullish/Bearish)...",
+    "Calculating Risk/Reward Ratios...",
+    "Finalizing Institutional Report..."
+  ];
+
+  useEffect(() => {
+    if (isAnalyzing) {
+      setLoadingStep(0);
+      const interval = setInterval(() => {
+        setLoadingStep(prev => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+      }, 2000); // Change message every 2 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAnalyzing]);
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -83,8 +101,18 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
         {isAnalyzing ? (
           <div className="flex flex-col items-center animate-pulse">
             <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-            <p className="text-lg font-medium text-slate-700">Analyzing Market Structure...</p>
-            <p className="text-sm text-slate-500 mt-2">Reading MACD & Alligator</p>
+            <p className="text-lg font-bold text-slate-800 dark:text-white transition-all duration-500">
+              {loadingMessages[loadingStep]}
+            </p>
+            <p className="text-sm text-slate-500 mt-2">Powered by AI Motion</p>
+
+            {/* Progress Bar */}
+            <div className="w-48 h-1 bg-slate-200 rounded-full mt-4 overflow-hidden">
+              <div
+                className="h-full bg-blue-600 transition-all duration-500 ease-out"
+                style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%` }}
+              />
+            </div>
           </div>
         ) : (
           <>
