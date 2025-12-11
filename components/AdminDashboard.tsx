@@ -9,6 +9,7 @@ import {
     Users, Clock, MousePointer, RefreshCw, TrendingUp,
     Activity, Globe, Smartphone, Shield, Wallet
 } from 'lucide-react';
+import { DashboardErrorBoundary } from './DashboardErrorBoundary';
 
 interface DailyStat {
     date: string;
@@ -24,7 +25,7 @@ interface ActivityLog {
     metadata?: any;
 }
 
-export const AdminDashboard = () => {
+const AdminDashboard = () => {
     const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
     const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
     const [loading, setLoading] = useState(true);
@@ -59,9 +60,16 @@ export const AdminDashboard = () => {
                 return;
             }
 
-            if (!data) return;
+            if (!data) {
+                console.warn("RPC returned no data");
+                return;
+            }
 
-            const { sessions, signups, recents, profiles_counts } = data;
+            // Defensive destructuring
+            const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+            const signups = Array.isArray(data.signups) ? data.signups : [];
+            const recents = Array.isArray(data.recents) ? data.recents : [];
+            const profiles_counts = data.profiles_counts || {};
 
             // --- AGGREGATION LOGIC (Reuse existing processing) ---
 
@@ -349,30 +357,37 @@ export const AdminDashboard = () => {
             </div>
 
         </div>
-    );
-};
+const AdminDashboardContent = AdminDashboard;
 
-// Sub-component for KPIs
-const MetricCard = ({ label, value, subvalue, icon, trend }: { label: string, value: string, subvalue: string, icon: React.ReactNode, trend?: 'up' | 'down' }) => (
-    <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-neutral-700 transition-colors">
-        <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-slate-50 dark:bg-neutral-800 rounded-2xl group-hover:scale-110 transition-transform">
-                {icon}
-            </div>
-            {trend && (
-                <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${trend === 'up' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                    {trend === 'up' ? '↑' : '↓'}
+    export default function SafeAdminDashboard() {
+        return (
+            <DashboardErrorBoundary>
+                <AdminDashboardContent />
+            </DashboardErrorBoundary>
+        );
+    };
+
+    // Sub-component for KPIs
+    const MetricCard = ({ label, value, subvalue, icon, trend }: { label: string, value: string, subvalue: string, icon: React.ReactNode, trend?: 'up' | 'down' }) => (
+        <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-neutral-700 transition-colors">
+            <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-slate-50 dark:bg-neutral-800 rounded-2xl group-hover:scale-110 transition-transform">
+                    {icon}
                 </div>
-            )}
+                {trend && (
+                    <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${trend === 'up' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                        {trend === 'up' ? '↑' : '↓'}
+                    </div>
+                )}
+            </div>
+            <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1">
+                {value}
+            </div>
+            <div className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                {label}
+            </div>
+            <div className="absolute bottom-6 right-6 text-xs text-slate-400 font-medium">
+                {subvalue}
+            </div>
         </div>
-        <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1">
-            {value}
-        </div>
-        <div className="text-xs font-medium text-slate-400 uppercase tracking-widest">
-            {label}
-        </div>
-        <div className="absolute bottom-6 right-6 text-xs text-slate-400 font-medium">
-            {subvalue}
-        </div>
-    </div>
-);
+    );

@@ -270,8 +270,8 @@ function App() {
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
           {currentView === 'admin' ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <AdminDashboard />
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+              <SafeAdminDashboard />
             </div>
           ) : (
             <>
