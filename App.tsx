@@ -85,6 +85,13 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        // Re-fetch usage and admin status when session changes
+        fetchUsage();
+      } else {
+        setIsAdmin(false);
+        setUsage(null);
+      }
     });
 
     // Global Paste Listener
@@ -260,6 +267,13 @@ function App() {
       <div className="hidden dark:block fixed top-0 left-0 w-full h-full pointer-events-none z-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-black to-black" />
       </div>
+
+      {/* ADMIN DEBUG BANNER */}
+      {isAdmin && (
+        <div className="bg-purple-600 text-white text-xs font-bold text-center py-1 relative z-[60]">
+          ADMIN MODE ACTIVE - DEBUG
+        </div>
+      )}
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header
