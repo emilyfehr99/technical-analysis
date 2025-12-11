@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
-import { AdminDashboard } from './components/AdminDashboard';
+import SafeAdminDashboard from './components/AdminDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
