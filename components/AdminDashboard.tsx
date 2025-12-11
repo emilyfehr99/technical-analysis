@@ -239,9 +239,9 @@ const AdminDashboard = () => {
                 />
             </div>
 
-            {/* 2. CHARTS ROW */}
+            {/* 2. CHARTS ROW */
+             /* CHARTS DISABLED FOR DEBUGGING
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
-                {/* Traffic Trend */}
                 <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm flex flex-col">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-blue-500" /> Traffic Volume
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
                                 <XAxis
                                     dataKey="date"
                                     tick={{ fontSize: 12 }}
-                                    tickFormatter={(str) => str.substring(5)} // Show MM-DD
+                                    tickFormatter={(str) => str.substring(5)} 
                                     stroke="#888"
                                 />
                                 <YAxis stroke="#888" tick={{ fontSize: 12 }} />
@@ -272,7 +272,6 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* User Growth */}
                 <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-slate-200 dark:border-neutral-800 shadow-sm flex flex-col">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                         <Users className="w-5 h-5 text-purple-500" /> New Signups
@@ -297,6 +296,10 @@ const AdminDashboard = () => {
                         </ResponsiveContainer>
                     </div>
                 </div>
+            </div>
+            */}
+            <div className="p-8 text-center bg-slate-100 rounded-xl border border-slate-200 text-slate-500">
+                Charts are temporarily disabled to debug the crash. Check below for logs.
             </div>
 
             {/* 3. DETAILS: Top Actions & Recent Logs */}
