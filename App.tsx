@@ -522,7 +522,7 @@ function App() {
         onClose={() => setActiveModal(null)}
         title="Admin Analytics"
       >
-        <div className="min-w-[80vw] md:min-w-[600px]">
+        <div className="w-[90vw] h-[85vh] overflow-y-auto">
           {/* Dynamic Import or Direct Render */}
           <AdminDashboard />
         </div>
