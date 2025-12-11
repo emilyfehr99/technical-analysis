@@ -121,91 +121,92 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, user, u
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] bg-white dark:bg-black p-6 flex flex-col animate-in slide-in-from-right duration-200">
-          <div className="flex items-center justify-between mb-8">
-            <span className="font-bold text-2xl text-slate-900 dark:text-white">Menu</span>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 -mr-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-full transition-colors"
-            >
-              <X className="w-8 h-8" />
-            </button>
-          </div>
-
-          <nav className="flex flex-col gap-4 text-lg">
-
-            {/* Theme Toggle Mobile */}
-            <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-neutral-800">
-              <span className="font-medium text-slate-700 dark:text-slate-200">Appearance</span>
+        { isMobileMenuOpen && (
+          <div className="fixed inset-0 z-[100] bg-white dark:bg-black p-6 flex flex-col animate-in slide-in-from-right duration-200 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <span className="font-bold text-2xl text-slate-900 dark:text-white">Menu</span>
               <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-900 dark:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 -mr-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-full transition-colors"
               >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                <X className="w-8 h-8" />
               </button>
             </div>
 
-            <button
-              onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
-              className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              <BookOpen className="w-6 h-6" />
-              Documentation
-            </button>
+            <nav className="flex flex-col gap-4 text-lg">
 
-            <button
-              onClick={() => { onOpenModal('risk'); setIsMobileMenuOpen(false); }}
-              className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              <Shield className="w-6 h-6" />
-              Risk Models
-            </button>
+              {/* Theme Toggle Mobile */}
+              <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-neutral-800">
+                <span className="font-medium text-slate-700 dark:text-slate-200">Appearance</span>
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-900 dark:text-white"
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              </div>
 
-            <button
-              onClick={() => { onPricing(); setIsMobileMenuOpen(false); }}
-              className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              <Wallet className="w-6 h-6" />
-              Pricing
-            </button>
-
-            <button
-              onClick={() => {
-                alert("Feature Requested! Brokerage connection is coming in v2.");
-                setIsMobileMenuOpen(false);
-              }}
-              className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              <Wallet className="w-6 h-6" />
-              Connect Broker
-            </button>
-
-            <hr className="my-2 border-slate-100 dark:border-neutral-800" />
-
-            {!user ? (
               <button
-                onClick={() => { onAuth(); setIsMobileMenuOpen(false); }}
-                className="w-full py-4 mt-2 text-white bg-blue-600 font-bold rounded-xl shadow-lg hover:bg-blue-500 transition-all"
+                onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
-                Sign In
+                <BookOpen className="w-6 h-6" />
+                Documentation
               </button>
-            ) : (
-              <div className="flex items-center justify-center gap-2 p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                Active Session
-              </div>
-            )}
 
-            {/* Mobile Usage Badge */}
-            {usage && (
-              <div className="mt-4 text-center text-sm text-slate-500 dark:text-slate-500">
-                {usage.tier === 'free' ? `${usage.limit - usage.used} scans remaining` : 'Premium Active'}
-              </div>
-            )}
+              <button
+                onClick={() => { onOpenModal('risk'); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <Shield className="w-6 h-6" />
+                Risk Models
+              </button>
 
-          </nav>
-        </div>
-      )}
+              <button
+                onClick={() => { onPricing(); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <Wallet className="w-6 h-6" />
+                Pricing
+              </button>
+
+              <button
+                onClick={() => {
+                  alert("Feature Requested! Brokerage connection is coming in v2.");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <Wallet className="w-6 h-6" />
+                Connect Broker
+              </button>
+
+              <hr className="my-2 border-slate-100 dark:border-neutral-800" />
+
+              {!user ? (
+                <button
+                  onClick={() => { onAuth(); setIsMobileMenuOpen(false); }}
+                  className="w-full py-4 mt-2 text-white bg-blue-600 font-bold rounded-xl shadow-lg hover:bg-blue-500 transition-all"
+                >
+                  Sign In
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  Active Session
+                </div>
+              )}
+
+              {/* Mobile Usage Badge */}
+              {usage && (
+                <div className="mt-4 text-center text-sm text-slate-500 dark:text-slate-500">
+                  {usage.tier === 'free' ? `${usage.limit - usage.used} scans remaining` : 'Premium Active'}
+                </div>
+              )}
+
+            </nav>
+          </div>
+        )}
 
     </header >
   );
