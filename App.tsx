@@ -41,6 +41,13 @@ function App() {
     } else {
       localStorage.setItem('kairos_scan_limit_v2', '3'); // Fresh Start
     }
+
+    // Admin Opt-Out via URL
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('admin_opt_out') === 'true') {
+      localStorage.setItem('kairos_opt_out', 'true');
+      alert('Admin Optimization Enabled: Your traffic is now hidden from analytics.');
+    }
   }, []);
 
   // Auth State
