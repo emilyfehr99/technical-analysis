@@ -257,18 +257,24 @@ function App() {
       }));
 
       // Usage Logic
+      console.log("Checking Usage. Session:", session);
+
       if (session?.user) {
         setHasUnlocked(true);
         fetchUsage();
       } else {
-        const scansLeft = parseInt(localStorage.getItem('kairos_scan_limit_v2') || '3'); // Check v2 key
-        // Use State
+        const currentStored = localStorage.getItem('kairos_scan_limit_v2');
+        const scansLeft = parseInt(currentStored || '3');
+        console.log("Anon Usage. Stored:", currentStored, "Parsed:", scansLeft);
+
         if (scansLeft > 0) {
           const newVal = scansLeft - 1;
+          console.log("Decrementing to:", newVal);
           setScansLeft(newVal);
           localStorage.setItem('kairos_scan_limit_v2', newVal.toString());
           setHasUnlocked(true);
         } else {
+          console.log("Limit reached. Gating.");
           if (!hasUnlocked) {
             setShowEmailGate(true);
           }
