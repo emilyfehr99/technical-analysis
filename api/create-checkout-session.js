@@ -18,26 +18,26 @@ export default async function handler(req, res) {
 
         if (plan === 'monthly') {
             priceData = {
-                currency: 'usd',
+                currency: 'cad', // Changed to CAD
                 product_data: {
                     name: 'Kairos.AI Institutional - Monthly',
                     description: 'Unlimited AI Analysis, Advanced Patterns, Risk Engine',
-                    images: ['https://cdn-icons-png.flaticon.com/512/4712/4712009.png'], // Placeholder
+                    // images removed
                 },
-                unit_amount: 2999, // $29.99
+                unit_amount: 3999, // $39.99 CAD
                 recurring: {
                     interval: 'month',
                 },
             };
         } else if (plan === 'annual') {
             priceData = {
-                currency: 'usd',
+                currency: 'cad', // Changed to CAD
                 product_data: {
                     name: 'Kairos.AI Institutional - Annual',
                     description: 'Unlimited AI Analysis (Save 30%)',
-                    images: ['https://cdn-icons-png.flaticon.com/512/4712/4712009.png'],
+                    // images removed
                 },
-                unit_amount: 24999, // $249.99
+                unit_amount: 34999, // $349.99 CAD
                 recurring: {
                     interval: 'year',
                 },
