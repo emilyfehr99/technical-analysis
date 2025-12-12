@@ -202,13 +202,20 @@ function App() {
 
     if (!activeImageUrl) return;
 
+    // DEBUG LOGGING
+    console.log("=== HANDLE ANALYZE DEBUG ===");
+    console.log("activeImageUrl:", activeImageUrl);
+    console.log("isDemoRun:", isDemoRun);
+    console.log("prev.isDemo:", analysisState.isDemo);
+    console.log("============================");
+
     // Sunk Cost Trigger: Update state to 'analyzing'
     setAnalysisState(prev => ({
       ...prev,
       status: 'analyzing',
       error: null,
       imageUrl: activeImageUrl,
-      isDemo: isDemoRun || prev.isDemo
+      isDemo: isDemoRun // ONLY use the parameter, NOT prev.isDemo
     }));
 
     try {
@@ -216,8 +223,11 @@ function App() {
       let mimeType = 'image/png';
 
       // 1. Convert activeImageUrl to base64
+      console.log("Fetching image from:", activeImageUrl);
       const response = await fetch(activeImageUrl);
       const blob = await response.blob();
+      console.log("Blob size:", blob.size, "type:", blob.type);
+
       const base64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
