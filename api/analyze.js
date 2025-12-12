@@ -155,17 +155,34 @@ export default async function handler(req, res) {
             });
         }
 
-        // 3. Call Gemini
+        // 3. Call Gemini with fallback
         const startTime = Date.now();
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash", // Reverted to 1.5 Flash for stability (2.0 was rate limiting)
-            systemInstruction: SYSTEM_INSTRUCTION,
-            generationConfig: { responseMimeType: "application/json" }
-        });
+        let result;
 
-        const result = await model.generateContent({
-            contents: [{ role: 'user', parts }]
-        });
+        try {
+            const model = genAI.getGenerativeModel({
+                model: "gemini-1.5-flash",
+                systemInstruction: SYSTEM_INSTRUCTION,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+
+            result = await model.generateContent({
+                contents: [{ role: 'user', parts }]
+            });
+        } catch (primaryError) {
+            console.warn("Primary model failed:", primaryError.message);
+
+            // Fallback to gemini-2.5-flash
+            const fallbackModel = genAI.getGenerativeModel({
+                model: "gemini-2.5-flash",
+                systemInstruction: SYSTEM_INSTRUCTION,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+
+            result = await fallbackModel.generateContent({
+                contents: [{ role: 'user', parts }]
+            });
+        }
 
         const durationMs = Date.now() - startTime;
 
