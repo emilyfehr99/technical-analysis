@@ -439,13 +439,16 @@ Note: ${data.headline}
     const dashboardRef = useRef<HTMLDivElement>(null);
 
     const handleExport = async () => {
-        if (!dashboardRef.current) return;
         try {
-            const canvas = await html2canvas(dashboardRef.current, {
+            // Capture the entire page (including background) for a true screenshot
+            const canvas = await html2canvas(document.body, {
                 useCORS: true,
                 scale: 2, // Retina quality
-                backgroundColor: '#000000', // Enforce dark background
-                logging: false
+                backgroundColor: null, // Preserve original background (transparent / dark mode)
+                logging: false,
+                // Ensure the full viewport is captured
+                scrollX: -window.scrollX,
+                scrollY: -window.scrollY,
             });
             const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');

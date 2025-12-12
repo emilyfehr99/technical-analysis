@@ -403,11 +403,7 @@ function App() {
                 {/* File Upload Hero */}
                 {!analysisState.imageUrl ? (
                   <>
-                    {/* CMD+V Hint for Desktop */}
-                    <div className="hidden md:flex items-center justify-center gap-2 mb-4 text-sm text-slate-400 font-mono">
-                      <span className="px-2 py-1 bg-slate-200 dark:bg-neutral-800 rounded-md text-xs border border-slate-300 dark:border-neutral-700">CMD + V</span>
-                      to paste instantly
-                    </div>
+
                     {/* Optional Ticker Input - Confidence Booster */}
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
