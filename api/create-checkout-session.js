@@ -14,10 +14,8 @@ export default async function handler(req, res) {
     const host = req.headers.origin || 'https://technical-analysis.vercel.app';
 
     try {
-        let priceData = {};
-
-        // Use absolute URL for Stripe
-        const logoUrl = `${host}/logo.png`;
+        // Use absolute Production URL for Stripe (so it works even if triggered from Localhost)
+        const logoUrl = 'https://technical-analysis.vercel.app/logo.png';
 
         if (plan === 'monthly') {
             priceData = {
