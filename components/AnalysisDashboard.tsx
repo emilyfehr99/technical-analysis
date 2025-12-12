@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { AnalysisResult, TradeAction, TradeOrder } from '../types';
 import {
     TrendingUp,
@@ -30,7 +31,9 @@ import {
     AlertTriangle,
     ShieldAlert,
     BarChart3,
-    Binary
+    BarChart3,
+    Binary,
+    Download
 } from 'lucide-react';
 import { TradeTimeline } from './TradeTimeline';
 
@@ -434,10 +437,31 @@ Note: ${data.headline}
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const dashboardRef = useRef<HTMLDivElement>(null);
+
+    const handleExport = async () => {
+        if (!dashboardRef.current) return;
+        try {
+            const canvas = await html2canvas(dashboardRef.current, {
+                useCORS: true,
+                scale: 2, // Retina quality
+                backgroundColor: '#000000', // Enforce dark background
+                logging: false
+            });
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `kairos_analysis_${Date.now()}.png`;
+            link.click();
+        } catch (e) {
+            console.error("Export failed:", e);
+        }
+    };
+
     return (
         <>
             <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} data={data} />
-            <div className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12">
+            <div ref={dashboardRef} className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12 bg-[#F5F5F7] dark:bg-black p-4 md:p-8 rounded-3xl">
 
                 {/* Dynamic Background Mesh */}
                 {/* Dynamic Background Mesh - REMOVED for Pure Black */}
@@ -473,6 +497,13 @@ Note: ${data.headline}
                                 title="Share on X"
                             >
                                 <XLogo className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={handleExport}
+                                className="flex items-center justify-center w-10 h-10 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm rounded-full text-slate-600 dark:text-slate-300 transition-all active:scale-95"
+                                title="Save Image"
+                            >
+                                <Download className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={copyToClipboard}
