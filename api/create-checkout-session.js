@@ -16,28 +16,31 @@ export default async function handler(req, res) {
     try {
         let priceData = {};
 
+        // Use absolute URL for Stripe
+        const logoUrl = `${host}/logo.png`;
+
         if (plan === 'monthly') {
             priceData = {
-                currency: 'cad', // Changed to CAD
+                currency: 'usd', // Reverted to USD
                 product_data: {
                     name: 'Kairos.AI Institutional - Monthly',
                     description: 'Unlimited AI Analysis, Advanced Patterns, Risk Engine',
-                    // images removed
+                    images: [logoUrl],
                 },
-                unit_amount: 3999, // $39.99 CAD
+                unit_amount: 2999, // $29.99 USD
                 recurring: {
                     interval: 'month',
                 },
             };
         } else if (plan === 'annual') {
             priceData = {
-                currency: 'cad', // Changed to CAD
+                currency: 'usd', // Reverted to USD
                 product_data: {
                     name: 'Kairos.AI Institutional - Annual',
                     description: 'Unlimited AI Analysis (Save 30%)',
-                    // images removed
+                    images: [logoUrl],
                 },
-                unit_amount: 34999, // $349.99 CAD
+                unit_amount: 24999, // $249.99 USD
                 recurring: {
                     interval: 'year',
                 },
@@ -57,7 +60,7 @@ export default async function handler(req, res) {
             mode: 'subscription',
             allow_promotion_codes: true, // Enable coupons
             // automatic_tax: { enabled: true }, // Disabled for Sole Prop
-            billing_address_collection: 'auto',
+            billing_address_collection: 'required', // Enforce billing address
             success_url: `${host}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${host}/?canceled=true`,
             customer_email: email || undefined,

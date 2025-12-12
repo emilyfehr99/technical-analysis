@@ -128,7 +128,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-xl font-bold text-slate-900">CA$39.99</div>
+                                        <div className="text-xl font-bold text-slate-900">$29.99</div>
                                     </div>
                                 </div>
 
@@ -150,7 +150,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-xl font-bold text-slate-900">CA$29.17</div>
+                                        <div className="text-xl font-bold text-slate-900">$20.83</div>
                                         <div className="text-xs text-slate-500 font-medium">/mo</div>
                                     </div>
                                 </div>
