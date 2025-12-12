@@ -157,17 +157,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                             </div>
 
                             {/* Email Input (Optional for Checkout) */}
-                            <div className="mt-8 space-y-3">
-                                <label className="block text-sm font-semibold text-slate-700">Email Address (Optional)</label>
-                                <input
-                                    type="email"
-                                    placeholder="trader@hedgefund.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-                                />
-                                <p className="text-xs text-slate-400">We'll use this to send your receipt and login credentials.</p>
-                            </div>
+                            {/* Email Input Removed per user request */}
 
                             <button
                                 onClick={handleSubscribe}
