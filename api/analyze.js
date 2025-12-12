@@ -183,7 +183,7 @@ Return valid JSON matching the schema: {
                 contents: [{ role: 'user', parts }]
             });
         } catch (primaryError) {
-            console.warn("Primary model (2.0-flash-001) failed:", primaryError.message);
+            console.error("Primary model (2.0-flash-001) failed:", primaryError.message);
 
             try {
                 // Fallback to gemini-2.5-flash
@@ -197,16 +197,17 @@ Return valid JSON matching the schema: {
                     contents: [{ role: 'user', parts }]
                 });
             } catch (secondaryError) {
-                console.warn("Secondary model (2.5-flash) failed:", secondaryError.message);
+                console.error("Secondary model (2.5-flash) failed:", secondaryError.message);
 
-                // Final fallback to gemini-1.5-flash (last resort)
-                const liteModel = genAI.getGenerativeModel({
-                    model: "gemini-1.5-flash",
+                // Final fallback to gemini-1.5-pro (Stable Backup)
+                // Note: 1.5-flash caused 404 errors, so we use 1.5-pro
+                const backupModel = genAI.getGenerativeModel({
+                    model: "gemini-1.5-pro",
                     systemInstruction: SYSTEM_INSTRUCTION,
                     generationConfig: { responseMimeType: "application/json" }
                 });
 
-                result = await liteModel.generateContent({
+                result = await backupModel.generateContent({
                     contents: [{ role: 'user', parts }]
                 });
             }
