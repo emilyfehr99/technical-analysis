@@ -24,6 +24,7 @@ function App() {
     imageUrl: null,
     isDemo: false
   });
+  const [manualTicker, setManualTicker] = useState<string>(''); // For confidence boost
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
   const [currentView, setCurrentView] = useState<'home'>('home');
   const [showPaywall, setShowPaywall] = useState(false);
@@ -155,6 +156,7 @@ function App() {
       error: null,
       imageUrl: null,
     });
+    setManualTicker(''); // clear ticker
   };
 
   const handleDemoAnalysis = async (type: 'BTC' | 'NVDA' | 'SPY' = 'BTC') => {
@@ -247,8 +249,8 @@ function App() {
       const payload = {
         image: base64Data,
         mimeType,
-        symbol: null,
-        isDemo: isDemoRun || analysisState.isDemo
+        symbol: manualTicker || null, // Pass manual ticker if user typed it
+        isDemo: isDemoRun // ONLY use the parameter, NOT prev.isDemo
       };
 
       const res = await fetch('/api/analyze', {
@@ -386,12 +388,29 @@ function App() {
                       <span className="px-2 py-1 bg-slate-200 dark:bg-neutral-800 rounded-md text-xs border border-slate-300 dark:border-neutral-700">CMD + V</span>
                       to paste instantly
                     </div>
+                    {/* Optional Ticker Input - Confidence Booster */}
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Enter Ticker (Optional - Increases Accuracy)"
+                        className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono uppercase tracking-wider text-slate-700 dark:text-slate-200"
+                        value={manualTicker}
+                        onChange={(e) => setManualTicker(e.target.value.toUpperCase())}
+                      />
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <span className="text-xs text-green-500 font-medium px-2 py-1 bg-green-500/10 rounded-md opacity-0 group-focus-within:opacity-100 transition-opacity">
+                          +30% Confidence
+                        </span>
+                      </div>
+                    </div>
 
                     <FileUpload
                       onFileSelect={handleFileSelect}
-                      isAnalyzing={analysisState.status === 'analyzing'}
+                      isAnalyzing={false}
                     />
-
                     {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
                       <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
