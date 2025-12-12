@@ -128,22 +128,28 @@ export default async function handler(req, res) {
         }
 
         // 2. Prepare Gemini Request
-        const promptText = `Analyze this. Ticker: ${symbol || "Unknown (Detect from Chart)"}. 
-        Context: ${marketContext}
+        console.log("Sending analysis request - isDemo:", req.body.isDemo, "hasImage:", !!image, "imageSize:", image ? image.length : 0);
+
+        const promptText = `CRITICAL: Carefully examine the chart image to identify the EXACT ticker symbol shown.
         
-        Return valid JSON matching the schema: {
-          asset, currentPrice, timeframe, action (BUY/SELL/WAIT), confidenceScore (0-100),
-          headline, reasoning, marketCondition, 
-          pattern: { name, type, confidence },
-          tradeHorizon,
-          tradeRadar: [{ style, side, entryPrice, stopLoss, targetPrice, reasoning }],
-          scenarios: [{ name, probability, priceTarget, description }],
-          technicalAnalysis: { macd, alligator, trend, volume },
-          keyLevels: { support, resistance, pivotPoint },
-          setup: { entryZone, stopLoss, takeProfitTargets, optionsStrategy },
-          risk: { riskToRewardRatio, suggestedPositionSize, activeRiskParameters },
-          validationChecklist: [{ label, passed }]
-        }`;
+Analyze this trading chart. The user claims it's: ${symbol || "Unknown (Detect from Chart)"}
+IMPORTANT: Look at the chart image and confirm the actual ticker symbol displayed. DO NOT assume or guess.
+
+Context: ${marketContext}
+
+Return valid JSON matching the schema: {
+  asset, currentPrice, timeframe, action (BUY/SELL/WAIT), confidenceScore (0-100),
+  headline, reasoning, marketCondition, 
+  pattern: { name, type, confidence },
+  tradeHorizon,
+  tradeRadar: [{ style, side, entryPrice, stopLoss, targetPrice, reasoning }],
+  scenarios: [{ name, probability, priceTarget, description }],
+  technicalAnalysis: { macd, alligator, trend, volume },
+  keyLevels: { support, resistance, pivotPoint },
+  setup: { entryZone, stopLoss, takeProfitTargets, optionsStrategy },
+  risk: { riskToRewardRatio, suggestedPositionSize, activeRiskParameters },
+  validationChecklist: [{ label, passed }]
+}`;
 
         const parts = [{ text: promptText }];
         if (image) {
