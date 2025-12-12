@@ -446,16 +446,33 @@ Note: ${data.headline}
         if (isExporting) return; // Prevent double-click
 
         setIsExporting(true);
+
+        // Reference to temporarily injected logo
+        let tempLogo: HTMLElement | null = null;
+
         try {
             console.log('Starting export...');
             const isDark = document.documentElement.classList.contains('dark');
             const ticker = data.asset ? data.asset.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'ANALYSIS';
-            // Use dashboard ref to capture just the analysis card
             const element = dashboardRef.current;
 
             if (!element) {
                 throw new Error('Could not find dashboard element');
             }
+
+            // Temporarily inject logo for export
+            tempLogo = document.createElement('div');
+            tempLogo.className = 'flex items-center gap-3 mb-6 pb-4 border-b border-slate-200/60 dark:border-neutral-800';
+            tempLogo.innerHTML = `
+                <div class="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                    </svg>
+                </div>
+                <span class="font-bold text-xl tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}">Kairos<span class="text-blue-600">.AI</span></span>
+                <span class="text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'} ml-auto">Institutional Analysis</span>
+            `;
+            element.insertBefore(tempLogo, element.firstChild);
 
             console.log('Capturing element...', element);
 
@@ -495,6 +512,10 @@ Note: ${data.headline}
 
             alert(`Export failed: ${errorMsg}. Check console for full error details.`);
         } finally {
+            // Remove temporary logo
+            if (tempLogo && tempLogo.parentNode) {
+                tempLogo.parentNode.removeChild(tempLogo);
+            }
             setIsExporting(false);
         }
     };
@@ -503,19 +524,6 @@ Note: ${data.headline}
         <>
             <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} data={data} />
             <div ref={dashboardRef} className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12 bg-[#F5F5F7] dark:bg-black p-4 md:p-8 rounded-3xl">
-
-                {/* Kairos.AI Branding - Visible in exports */}
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200/60 dark:border-neutral-800">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/20">
-                        <LineChart className="w-6 h-6 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Kairos<span className="text-blue-600">.AI</span></span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 ml-auto">Institutional Analysis</span>
-                </div>
-
-                {/* Dynamic Background Mesh */}
-                {/* Dynamic Background Mesh - REMOVED for Pure Black */}
-                <div className="hidden"></div>
 
                 {/* Header Info Bar */}
                 <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
