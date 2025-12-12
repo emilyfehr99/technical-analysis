@@ -449,20 +449,21 @@ Note: ${data.headline}
             console.log('Starting export...');
             const isDark = document.documentElement.classList.contains('dark');
             const ticker = data.asset ? data.asset.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'ANALYSIS';
-            // Capture the React Root to avoid body scroll issues
-            const element = document.getElementById('root');
+            // Use dashboard ref to capture just the analysis card
+            const element = dashboardRef.current;
 
             if (!element) {
-                throw new Error('Could not find root element');
+                throw new Error('Could not find dashboard element');
             }
 
-            console.log('Capturing element...');
+            console.log('Capturing element...', element);
 
             // Use html-to-image for better transparency/filter handling
             const dataUrl = await toPng(element, {
                 cacheBust: true,
-                backgroundColor: isDark ? '#000000' : '#F5F5F7', // Enforce solid background
-                pixelRatio: 2, // Retina quality
+                backgroundColor: isDark ? '#000000' : '#F5F5F7',
+                pixelRatio: 2,
+                skipFonts: false,
             });
 
             console.log('Image generated, downloading...');
@@ -478,8 +479,19 @@ Note: ${data.headline}
         } catch (e) {
             console.error("Export failed - Full error:", e);
             console.error("Error type:", typeof e);
-            console.error("Error keys:", e ? Object.keys(e) : 'null');
-            const errorMsg = e instanceof Error ? e.message : (e?.toString() || 'Unknown error');
+            console.error("Error constructor:", e?.constructor?.name);
+
+            // Handle Event objects specially
+            let errorMsg = 'Unknown error';
+            if (e instanceof Event) {
+                errorMsg = `Event error: ${e.type || 'unknown event type'}`;
+                console.error("Event details:", { type: e.type, target: e.target });
+            } else if (e instanceof Error) {
+                errorMsg = e.message;
+            } else if (e) {
+                errorMsg = e.toString();
+            }
+
             alert(`Export failed: ${errorMsg}. Check console for full error details.`);
         } finally {
             setIsExporting(false);
