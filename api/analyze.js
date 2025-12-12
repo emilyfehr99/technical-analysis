@@ -138,8 +138,8 @@ export default async function handler(req, res) {
 
         const promptText = `CRITICAL: Carefully examine the chart image to identify the EXACT ticker symbol shown.
         
-Analyze this trading chart. The user claims it's: ${symbol || "Unknown (Detect from Chart)"}
-IMPORTANT: Look at the chart image and confirm the actual ticker symbol displayed. DO NOT assume or guess.
+Analyze this trading chart.
+        ${symbol ? `IMPORTANT: The user has EXPLICITLY confirmed this asset is "${symbol}". TRUST THIS over any OCR text from the image. Use the provided market data context for "${symbol}".` : "The user claims it's: Unknown (Detect from Chart). Look at the chart image and confirm the actual ticker symbol displayed. DO NOT assume or guess."}
 
 Context: ${marketContext}
 

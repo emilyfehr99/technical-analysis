@@ -450,7 +450,7 @@ function App() {
                         {analysisState.status === 'analyzing' ? (
                           <>
                             <RefreshCw className="w-5 h-5 animate-spin" />
-                            Analyzing...
+                            Analyzing{manualTicker ? ` [${manualTicker}]` : ''}...
                           </>
                         ) : (
                           <>
