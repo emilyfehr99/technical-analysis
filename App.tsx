@@ -318,6 +318,7 @@ function App() {
           user={session?.user}
           // isAdmin={isAdmin}
           usage={usage}
+          scansLeft={scansLeft}
         />
 
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
@@ -342,18 +343,6 @@ function App() {
                 <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[1.05] drop-shadow-sm">
                   Roast My Chart.
                 </h1>
-
-                {/* FREE SCAN BADGE */}
-                {scansLeft > 0 ? (
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full text-sm font-bold text-blue-600 dark:text-blue-400 animate-bounce-slow">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    {scansLeft} Free Analysis Remaining
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-sm font-medium text-slate-500">
-                    Free Limit Reached
-                  </div>
-                )}
 
                 <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
                   Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
