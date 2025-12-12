@@ -158,7 +158,7 @@ export default async function handler(req, res) {
         // 3. Call Gemini
         const startTime = Date.now();
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-001", // Upgraded to 2.0 Flash (Stable) as 1.5 is unavailable
+            model: "gemini-1.5-flash", // Reverted to 1.5 Flash for stability (2.0 was rate limiting)
             systemInstruction: SYSTEM_INSTRUCTION,
             generationConfig: { responseMimeType: "application/json" }
         });

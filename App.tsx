@@ -115,8 +115,12 @@ function App() {
               ...prev,
               status: 'idle',
               error: null,
-              imageUrl: URL.createObjectURL(file)
+              imageUrl: URL.createObjectURL(file),
+              isDemo: false // EXPLICTLY RESET DEMO STATE
             }));
+
+            // Also reset Gate for new analysis
+            setHasUnlocked(false);
             return;
           }
         }
@@ -136,8 +140,10 @@ function App() {
       status: 'idle',
       result: null,
       error: null,
-      imageUrl: URL.createObjectURL(file)
+      imageUrl: URL.createObjectURL(file),
+      isDemo: false // EXPLICITLY RESET DEMO STATE
     });
+    setHasUnlocked(false); // Reset Gate
     // Track Upload
     Analytics.trackEvent('upload_chart_select', { fileName: file.name, type: file.type });
   };
