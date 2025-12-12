@@ -32,7 +32,8 @@ import {
     ShieldAlert,
     BarChart3,
     Binary,
-    Download
+    Download,
+    RefreshCw
 } from 'lucide-react';
 import { TradeTimeline } from './TradeTimeline';
 
@@ -438,12 +439,24 @@ Note: ${data.headline}
 
     const dashboardRef = useRef<HTMLDivElement>(null);
 
+    const [isExporting, setIsExporting] = useState(false);
+
     const handleExport = async () => {
+        if (isExporting) return; // Prevent double-click
+
+        setIsExporting(true);
         try {
+            console.log('Starting export...');
             const isDark = document.documentElement.classList.contains('dark');
             const ticker = data.asset ? data.asset.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'ANALYSIS';
             // Capture the React Root to avoid body scroll issues
-            const element = document.getElementById('root') || document.body;
+            const element = document.getElementById('root');
+
+            if (!element) {
+                throw new Error('Could not find root element');
+            }
+
+            console.log('Capturing element...');
 
             // Use html-to-image for better transparency/filter handling
             const dataUrl = await toPng(element, {
@@ -452,12 +465,21 @@ Note: ${data.headline}
                 pixelRatio: 2, // Retina quality
             });
 
+            console.log('Image generated, downloading...');
+
             const link = document.createElement('a');
             link.href = dataUrl;
             link.download = `Kairos.AI_${ticker}.png`;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+
+            console.log('Download triggered successfully');
         } catch (e) {
             console.error("Export failed:", e);
+            alert(`Export failed: ${e.message || 'Unknown error'}. Please check console for details.`);
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -503,10 +525,15 @@ Note: ${data.headline}
                             </button>
                             <button
                                 onClick={handleExport}
-                                className="flex items-center justify-center w-10 h-10 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm rounded-full text-slate-600 dark:text-slate-300 transition-all active:scale-95"
-                                title="Save Image"
+                                disabled={isExporting}
+                                className="flex items-center justify-center w-10 h-10 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm rounded-full text-slate-600 dark:text-slate-300 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={isExporting ? "Exporting..." : "Save Image"}
                             >
-                                <Download className="w-4 h-4" />
+                                {isExporting ? (
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Download className="w-4 h-4" />
+                                )}
                             </button>
                             <button
                                 onClick={copyToClipboard}
