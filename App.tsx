@@ -34,11 +34,12 @@ function App() {
   const [scansLeft, setScansLeft] = useState<number>(3); // Default 3 (Visual)
 
   useEffect(() => {
-    const stored = localStorage.getItem('kairos_anon_scans');
+    // Use v2 key to ensure all users get a fresh set of 3 scans
+    const stored = localStorage.getItem('kairos_scan_limit_v2');
     if (stored) {
       setScansLeft(parseInt(stored));
     } else {
-      localStorage.setItem('kairos_anon_scans', '3'); // Default 3 (Storage)
+      localStorage.setItem('kairos_scan_limit_v2', '3'); // Fresh Start
     }
   }, []);
 
@@ -260,12 +261,12 @@ function App() {
         setHasUnlocked(true);
         fetchUsage();
       } else {
-        const scansLeft = parseInt(localStorage.getItem('kairos_anon_scans') || '1');
+        const scansLeft = parseInt(localStorage.getItem('kairos_scan_limit_v2') || '3'); // Check v2 key
         // Use State
         if (scansLeft > 0) {
           const newVal = scansLeft - 1;
           setScansLeft(newVal);
-          localStorage.setItem('kairos_anon_scans', newVal.toString());
+          localStorage.setItem('kairos_scan_limit_v2', newVal.toString());
           setHasUnlocked(true);
         } else {
           if (!hasUnlocked) {
