@@ -4,7 +4,7 @@ import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import { AnalysisState } from './types';
 import { analyzeChart } from './services/geminiService';
-import { RefreshCw, Wallet, Sparkles, Search } from 'lucide-react';
+import { RefreshCw, Wallet, Sparkles, Search, Shield, LineChart } from 'lucide-react';
 import { Modal } from './components/Modal';
 import PaywallModal from './components/PaywallModal';
 import { AuthModal } from './components/AuthModal';
