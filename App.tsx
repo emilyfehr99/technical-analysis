@@ -31,14 +31,14 @@ function App() {
   const [hasUnlocked, setHasUnlocked] = useState(false);
 
   // Free Scan Count
-  const [scansLeft, setScansLeft] = useState<number>(1);
+  const [scansLeft, setScansLeft] = useState<number>(3); // Default 3 (Visual)
 
   useEffect(() => {
     const stored = localStorage.getItem('kairos_anon_scans');
     if (stored) {
       setScansLeft(parseInt(stored));
     } else {
-      localStorage.setItem('kairos_anon_scans', '1');
+      localStorage.setItem('kairos_anon_scans', '3'); // Default 3 (Storage)
     }
   }, []);
 
