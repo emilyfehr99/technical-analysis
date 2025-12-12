@@ -31,7 +31,6 @@ import {
     AlertTriangle,
     ShieldAlert,
     BarChart3,
-    BarChart3,
     Binary,
     Download
 } from 'lucide-react';
