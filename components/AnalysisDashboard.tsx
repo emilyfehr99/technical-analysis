@@ -440,20 +440,26 @@ Note: ${data.headline}
 
     const handleExport = async () => {
         try {
-            // Check for dark mode
             const isDark = document.documentElement.classList.contains('dark');
             const ticker = data.asset ? data.asset.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'ANALYSIS';
+            // Capture the React Root to avoid body scroll issues
+            const element = document.getElementById('root') || document.body;
 
-            const canvas = await html2canvas(document.body, {
+            const canvas = await html2canvas(element, {
                 useCORS: true,
                 scale: 2,
-                // Fix "Cloudy" look: Enforce solid background matching theme
                 backgroundColor: isDark ? '#000000' : '#F5F5F7',
                 logging: false,
-                scrollX: -window.scrollX,
-                scrollY: -window.scrollY,
-                // Fix "Gray" artifacts: Remove backdrop-filter in the clone
+                windowHeight: element.scrollHeight,
+                windowWidth: element.scrollWidth,
                 onclone: (clonedDoc) => {
+                    // Force opacity on root
+                    const root = clonedDoc.getElementById('root');
+                    if (root) {
+                        root.style.backgroundColor = isDark ? '#000000' : '#F5F5F7';
+                    }
+
+                    // AGGRESSIVELY remove backdrop-filter (Source of "Cloudy/White Film" look)
                     const elements = clonedDoc.querySelectorAll('*');
                     elements.forEach((el) => {
                         // @ts-ignore
