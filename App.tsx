@@ -276,7 +276,8 @@ function App() {
         } else {
           console.log("Limit reached. Gating.");
           if (!hasUnlocked) {
-            setShowEmailGate(true);
+            // Replaced Email Gate with Paywall (Pricing) per user request
+            setShowPaywall(true);
           }
         }
       }
