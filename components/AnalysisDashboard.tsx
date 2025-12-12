@@ -440,20 +440,37 @@ Note: ${data.headline}
 
     const handleExport = async () => {
         try {
-            // Capture the entire page (including background) for a true screenshot
+            // Check for dark mode
+            const isDark = document.documentElement.classList.contains('dark');
+            const ticker = data.asset ? data.asset.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : 'ANALYSIS';
+
             const canvas = await html2canvas(document.body, {
                 useCORS: true,
-                scale: 2, // Retina quality
-                backgroundColor: null, // Preserve original background (transparent / dark mode)
+                scale: 2,
+                // Fix "Cloudy" look: Enforce solid background matching theme
+                backgroundColor: isDark ? '#000000' : '#F5F5F7',
                 logging: false,
-                // Ensure the full viewport is captured
                 scrollX: -window.scrollX,
                 scrollY: -window.scrollY,
+                // Fix "Gray" artifacts: Remove backdrop-filter in the clone
+                onclone: (clonedDoc) => {
+                    const elements = clonedDoc.querySelectorAll('*');
+                    elements.forEach((el) => {
+                        // @ts-ignore
+                        if (el.style) {
+                            // @ts-ignore
+                            el.style.backdropFilter = 'none';
+                            // @ts-ignore
+                            el.style.webkitBackdropFilter = 'none';
+                        }
+                    });
+                }
             });
+
             const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');
             link.href = image;
-            link.download = `kairos_analysis_${Date.now()}.png`;
+            link.download = `Kairos.AI_${ticker}.png`;
             link.click();
         } catch (e) {
             console.error("Export failed:", e);
