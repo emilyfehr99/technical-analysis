@@ -503,6 +503,15 @@ Note: ${data.headline}
             <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} data={data} />
             <div ref={dashboardRef} className="w-full max-w-7xl mx-auto animate-fade-in-up pb-12 bg-[#F5F5F7] dark:bg-black p-4 md:p-8 rounded-3xl">
 
+                {/* Kairos.AI Branding - Visible in exports */}
+                <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-200/60 dark:border-neutral-800">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-black text-sm">K</span>
+                    </div>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">Kairos.AI</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500 ml-auto">Institutional Analysis</span>
+                </div>
+
                 {/* Dynamic Background Mesh */}
                 {/* Dynamic Background Mesh - REMOVED for Pure Black */}
                 <div className="hidden"></div>
