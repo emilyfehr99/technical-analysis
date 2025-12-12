@@ -9,6 +9,13 @@ export const Analytics = {
     async initSession() {
         if (currentSessionId) return; // In-memory check
 
+        // ADMIN OPT-OUT CHECK
+        // Run: localStorage.setItem('kairos_opt_out', 'true') to disable tracking
+        if (localStorage.getItem('kairos_opt_out')) {
+            console.log('Analytics: OPTED OUT by Admin');
+            return;
+        }
+
         // A. Persistence Check (Prevent duplicate session on refresh)
         const storedSession = sessionStorage.getItem('kairos_session_id');
         if (storedSession) {
