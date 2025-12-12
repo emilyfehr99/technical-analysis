@@ -161,7 +161,7 @@ Return valid JSON matching the schema: {
             });
         }
 
-        // 3. Call Gemini with fallback
+        // 3. Call Gemini with fallback ladder
         const startTime = Date.now();
         let result;
 
@@ -176,18 +176,33 @@ Return valid JSON matching the schema: {
                 contents: [{ role: 'user', parts }]
             });
         } catch (primaryError) {
-            console.warn("Primary model failed:", primaryError.message);
+            console.warn("Primary model (1.5-flash) failed:", primaryError.message);
 
-            // Fallback to gemini-2.5-flash
-            const fallbackModel = genAI.getGenerativeModel({
-                model: "gemini-2.5-flash",
-                systemInstruction: SYSTEM_INSTRUCTION,
-                generationConfig: { responseMimeType: "application/json" }
-            });
+            try {
+                // Fallback to gemini-2.5-flash
+                const fallbackModel = genAI.getGenerativeModel({
+                    model: "gemini-2.5-flash",
+                    systemInstruction: SYSTEM_INSTRUCTION,
+                    generationConfig: { responseMimeType: "application/json" }
+                });
 
-            result = await fallbackModel.generateContent({
-                contents: [{ role: 'user', parts }]
-            });
+                result = await fallbackModel.generateContent({
+                    contents: [{ role: 'user', parts }]
+                });
+            } catch (secondaryError) {
+                console.warn("Secondary model (2.5-flash) failed:", secondaryError.message);
+
+                // Final fallback to gemini-2.5-flash-lite
+                const liteModel = genAI.getGenerativeModel({
+                    model: "gemini-2.5-flash-lite",
+                    systemInstruction: SYSTEM_INSTRUCTION,
+                    generationConfig: { responseMimeType: "application/json" }
+                });
+
+                result = await liteModel.generateContent({
+                    contents: [{ role: 'user', parts }]
+                });
+            }
         }
 
         const durationMs = Date.now() - startTime;
