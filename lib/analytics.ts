@@ -40,6 +40,14 @@ export const Analytics = {
             // Get User info (if any)
             const { data: { session } } = await supabase.auth.getSession();
             const userId = session?.user?.id || null;
+            const userEmail = session?.user?.email || null;
+
+            // Auto-Opt-Out for Admin
+            if (userEmail === '8emilyfehr@gmail.com') {
+                console.log("Analytics: Admin Auto-Detected. Opting out.");
+                localStorage.setItem('kairos_opt_out', 'true');
+                return;
+            }
 
             // Insert Session
             const { data, error } = await supabase
