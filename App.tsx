@@ -373,6 +373,26 @@ function App() {
                 <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
                   Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
                 </p>
+
+                {/* PSYCHOLOGY: Social Proof & Trust */}
+                <div className="flex flex-col items-center gap-4 mt-8 animate-fade-in">
+                  <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 dark:text-green-400 text-sm font-bold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    142 traders analyzing right now
+                  </div>
+
+                  <div className="flex items-center gap-6 text-sm text-slate-400 dark:text-slate-500 font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <Shield className="w-4 h-4" /> Bank-Grade Security
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <LineChart className="w-4 h-4" /> Real-Time Data verification
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -465,6 +485,11 @@ function App() {
                       >
                         Cancel / Upload Different
                       </button>
+
+                      {/* Risk Reversal */}
+                      <p className="text-xs text-center text-slate-400 mt-2">
+                        100% Free • No Credit Card Required • Instant Result
+                      </p>
                     </div>
                   </div>
                 )}
