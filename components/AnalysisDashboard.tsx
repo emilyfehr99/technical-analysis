@@ -476,8 +476,11 @@ Note: ${data.headline}
 
             console.log('Download triggered successfully');
         } catch (e) {
-            console.error("Export failed:", e);
-            alert(`Export failed: ${e.message || 'Unknown error'}. Please check console for details.`);
+            console.error("Export failed - Full error:", e);
+            console.error("Error type:", typeof e);
+            console.error("Error keys:", e ? Object.keys(e) : 'null');
+            const errorMsg = e instanceof Error ? e.message : (e?.toString() || 'Unknown error');
+            alert(`Export failed: ${errorMsg}. Check console for full error details.`);
         } finally {
             setIsExporting(false);
         }
