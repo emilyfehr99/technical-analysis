@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { AnalysisResult, TradeAction, TradeOrder } from '../types';
 import {
     TrendingUp,
@@ -445,37 +445,15 @@ Note: ${data.headline}
             // Capture the React Root to avoid body scroll issues
             const element = document.getElementById('root') || document.body;
 
-            const canvas = await html2canvas(element, {
-                useCORS: true,
-                scale: 2,
-                backgroundColor: isDark ? '#000000' : '#F5F5F7',
-                logging: false,
-                windowHeight: element.scrollHeight,
-                windowWidth: element.scrollWidth,
-                onclone: (clonedDoc) => {
-                    // Force opacity on root
-                    const root = clonedDoc.getElementById('root');
-                    if (root) {
-                        root.style.backgroundColor = isDark ? '#000000' : '#F5F5F7';
-                    }
-
-                    // AGGRESSIVELY remove backdrop-filter (Source of "Cloudy/White Film" look)
-                    const elements = clonedDoc.querySelectorAll('*');
-                    elements.forEach((el) => {
-                        // @ts-ignore
-                        if (el.style) {
-                            // @ts-ignore
-                            el.style.backdropFilter = 'none';
-                            // @ts-ignore
-                            el.style.webkitBackdropFilter = 'none';
-                        }
-                    });
-                }
+            // Use html-to-image for better transparency/filter handling
+            const dataUrl = await toPng(element, {
+                cacheBust: true,
+                backgroundColor: isDark ? '#000000' : '#F5F5F7', // Enforce solid background
+                pixelRatio: 2, // Retina quality
             });
 
-            const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');
-            link.href = image;
+            link.href = dataUrl;
             link.download = `Kairos.AI_${ticker}.png`;
             link.click();
         } catch (e) {
