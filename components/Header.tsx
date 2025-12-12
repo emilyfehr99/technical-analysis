@@ -10,11 +10,11 @@ interface HeaderProps {
   onAdmin: () => void;
   onHome: () => void;
   user: any | null;
-  user: any | null;
   usage: { used: number; limit: number; tier: string } | null;
+  scansLeft: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, usage }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, usage, scansLeft }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
