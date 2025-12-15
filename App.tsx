@@ -374,25 +374,6 @@ function App() {
                   Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
                 </p>
 
-                {/* IMPORTANT: Ticker + Chart Required Notice */}
-                <div className="max-w-2xl mx-auto mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 mt-0.5">
-                      <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                        📊 For Best Results: Ticker + Chart Required
-                      </p>
-                      <p className="text-sm text-blue-800 dark:text-blue-200">
-                        Enter your ticker symbol (e.g., BTC-USD, AAPL) <strong>and</strong> upload a chart screenshot for the most accurate technical analysis. Both elements help our AI validate patterns against real market data.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* PSYCHOLOGY: Social Proof & Trust */}
                 <div className="flex flex-col items-center gap-4 mt-8 animate-fade-in">
                   <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 dark:text-green-400 text-sm font-bold">

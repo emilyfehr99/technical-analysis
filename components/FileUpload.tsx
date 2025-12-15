@@ -96,6 +96,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
           disabled={isAnalyzing}
         />
 
+        {/* Red "CHART REQUIRED" Banner */}
+        <div className="absolute top-6 -right-10 pointer-events-none z-20">
+          <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-12 py-1.5 shadow-lg transform rotate-45 tracking-wider">
+            CHART REQUIRED
+          </div>
+        </div>
+
         <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/0 to-white/40 pointer-events-none" />
 
         {isAnalyzing ? (
