@@ -86,7 +86,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                         <p>Most of the time, the Alligator is lazy.</p>
                         <div className="bg-slate-100 dark:bg-neutral-800 p-4 rounded-xl border-l-4 border-slate-500 my-4">
                             <p className="m-0 font-medium italic">
-                                When you look at the chart, if the Blue, Red, and Green lines are all twisted together like a bowl of spaghetti, the Alligator is sleeping.
+                                When you look at the chart, if the Blue, Red, and Green lines are all twisted together like a bowl of spaghetti, <strong>the Alligator is sleeping</strong>.
                             </p>
                         </div>
                         <p>
@@ -98,12 +98,12 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             Eventually, the Alligator gets hungry.
                         </p>
                         <p>
-                            You will see the Green line (Lips) start to move away from the Red line (Teeth), and the Red line move away from the Blue line (Jaw). The lines stop crossing over each other and start pointing in the same direction—usually up or down.
+                            You will see the Green line (Lips) start to move away from the Red line (Teeth), and the Red line move away from the Blue line (Jaw). The lines stop crossing over each other and start pointing in the same direction - usually up or down.
                         </p>
                         <p>This looks like an animal opening its mouth wide.</p>
                         <ul>
-                            <li><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to buy.</li>
-                            <li><strong>If the mouth opens DOWN</strong> (Blue on top, Green on bottom): The Alligator is chasing prices going lower.</li>
+                            <li><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to <strong>buy</strong>.</li>
+                            <li><strong>If the mouth opens DOWN</strong> (Blue on top, Green on bottom): The Alligator is chasing prices going <strong>lower</strong>.</li>
                         </ul>
 
                         <h3>Phase 3: The Feast (Chomp Time!)</h3>
