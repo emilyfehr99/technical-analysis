@@ -63,29 +63,31 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
 
                         <hr className="my-8 border-slate-200 dark:border-neutral-800" />
 
-                        <h2>The Three Lines (The Alligator’s Face)</h2>
+                        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-12 mb-6 tracking-tight">The Three Lines (The Alligator’s Face)</h2>
                         <p>
                             When you turn on the "Alligator" tool on a trading screen, three colored lines appear over the price chart. Think of these lines as parts of the Alligator’s mouth:
                         </p>
-                        <ul className="space-y-2">
+                        <ul className="space-y-4 my-6">
                             <li className="flex items-start">
-                                <span className="w-3 h-3 mt-2 mr-3 rounded-full bg-blue-500 flex-shrink-0" />
-                                <span><strong className="text-blue-500">The Blue Line (The Jaw)</strong>: This is the slowest line. It’s like the heavy, strong jaw of the alligator. It moves slowly because jaws don’t wiggle around much.</span>
+                                <span className="w-4 h-4 mt-1.5 mr-3 rounded-full bg-blue-500 flex-shrink-0 shadow-sm" />
+                                <span className="text-lg"><strong className="font-black text-blue-600 dark:text-blue-400">The Blue Line (The Jaw)</strong>: This is the slowest line. It’s like the heavy, strong jaw of the alligator. It moves slowly because jaws don’t wiggle around much.</span>
                             </li>
                             <li className="flex items-start">
-                                <span className="w-3 h-3 mt-2 mr-3 rounded-full bg-red-500 flex-shrink-0" />
-                                <span><strong className="text-red-500">The Red Line (The Teeth)</strong>: This is right in the middle.</span>
+                                <span className="w-4 h-4 mt-1.5 mr-3 rounded-full bg-red-500 flex-shrink-0 shadow-sm" />
+                                <span className="text-lg"><strong className="font-black text-red-500">The Red Line (The Teeth)</strong>: This is right in the middle.</span>
                             </li>
                             <li className="flex items-start">
-                                <span className="w-3 h-3 mt-2 mr-3 rounded-full bg-green-500 flex-shrink-0" />
-                                <span><strong className="text-green-500">The Green Line (The Lips)</strong>: This is the fastest line. Think of how fast you can smack your lips compared to moving your whole jaw.</span>
+                                <span className="w-4 h-4 mt-1.5 mr-3 rounded-full bg-green-500 flex-shrink-0 shadow-sm" />
+                                <span className="text-lg"><strong className="font-black text-green-500">The Green Line (The Lips)</strong>: This is the fastest line. Think of how fast you can smack your lips compared to moving your whole jaw.</span>
                             </li>
                         </ul>
 
-                        <h3>Phase 1: The Nap (Don’t Touch!)</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-10 mb-4 flex items-center gap-2">
+                            <span className="text-slate-400">01.</span> Phase 1: The Nap (Don’t Touch!)
+                        </h3>
                         <p>Most of the time, the Alligator is lazy.</p>
-                        <div className="bg-slate-100 dark:bg-neutral-800 p-4 rounded-xl border-l-4 border-slate-500 my-4">
-                            <p className="m-0 font-medium italic">
+                        <div className="bg-slate-100 dark:bg-neutral-800 p-6 rounded-2xl border-l-4 border-slate-500 my-6 shadow-sm">
+                            <p className="m-0 font-medium italic text-lg text-slate-700 dark:text-gray-300">
                                 When you look at the chart, if the Blue, Red, and Green lines are all twisted together like a bowl of spaghetti, <strong>the Alligator is sleeping</strong>.
                             </p>
                         </div>
@@ -93,7 +95,9 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             This means the market is boring. The price isn't really going up or down; it’s just wandering sideways. When the alligator is sleeping, <strong>you should stay away</strong>. If you try to grab the treasure while the lines are tangled, you might get tricked. The longer the alligator sleeps, the hungrier he wakes up.
                         </p>
 
-                        <h3>Phase 2: Waking Up (The Yawn)</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-10 mb-4 flex items-center gap-2">
+                            <span className="text-slate-400">02.</span> Phase 2: Waking Up (The Yawn)
+                        </h3>
                         <p>
                             Eventually, the Alligator gets hungry.
                         </p>
@@ -101,12 +105,20 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             You will see the Green line (Lips) start to move away from the Red line (Teeth), and the Red line move away from the Blue line (Jaw). The lines stop crossing over each other and start pointing in the same direction - usually up or down.
                         </p>
                         <p>This looks like an animal opening its mouth wide.</p>
-                        <ul>
-                            <li><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to <strong>buy</strong>.</li>
-                            <li><strong>If the mouth opens DOWN</strong> (Blue on top, Green on bottom): The Alligator is chasing prices going <strong>lower</strong>.</li>
+                        <ul className="my-6 space-y-2">
+                            <li className="flex items-start gap-2">
+                                <TrendingUp className="w-5 h-5 text-green-500 mt-1" />
+                                <span><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to <strong>buy</strong>.</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <TrendingUp className="w-5 h-5 text-slate-400 mt-1 rotate-180" />
+                                <span><strong>If the mouth opens DOWN</strong> (Blue on top, Green on bottom): The Alligator is chasing prices going <strong>lower</strong>.</span>
+                            </li>
                         </ul>
 
-                        <h3>Phase 3: The Feast (Chomp Time!)</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-10 mb-4 flex items-center gap-2">
+                            <span className="text-slate-400">03.</span> Phase 3: The Feast (Chomp Time!)
+                        </h3>
                         <p>
                             Now the Alligator is eating. The three lines are spread far apart, nice and wide. The price candles are running away, but the Alligator keeps chasing them.
                         </p>
@@ -114,21 +126,23 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             This is the <strong>"trend."</strong> This is where the easy money is made. As long as the Alligator’s mouth is wide open and the lines aren't touching, the trend is strong. You just ride the wave.
                         </p>
 
-                        <h3>Phase 4: Full Tummy (Time to Go)</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-10 mb-4 flex items-center gap-2">
+                            <span className="text-slate-400">04.</span> Phase 4: Full Tummy (Time to Go)
+                        </h3>
                         <p>
                             After a big meal, the Alligator gets sleepy again.
                         </p>
                         <p>
                             You’ll notice the Green line starts to curve back toward the Red line. The lines get closer together. The mouth is closing. This tells you the trend is over. The animal is full.
                         </p>
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-700/50 my-4 flex items-start gap-3">
-                            <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-500 flex-shrink-0" />
-                            <p className="m-0 text-sm text-yellow-800 dark:text-yellow-200">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl border border-yellow-200 dark:border-yellow-700/50 my-6 flex items-start gap-4 shadow-sm">
+                            <AlertTriangle className="w-8 h-8 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-1" />
+                            <p className="m-0 text-base font-medium text-yellow-800 dark:text-yellow-200 leading-relaxed">
                                 When the mouth closes and the lines start tangling up into spaghetti again, the show is over. It’s time to take your profit and walk away before the Alligator goes back to sleep.
                             </p>
                         </div>
 
-                        <h2>Why It Works</h2>
+                        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6">Why It Works</h2>
                         <p>
                             The reason this works isn't magic. It’s just a way to teach you <strong>patience</strong>.
                         </p>
