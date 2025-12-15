@@ -54,6 +54,29 @@ export default async function handler(req, res) {
                 console.error('Failed to upgrade user profile:', error);
             } else {
                 console.log('✅ User upgraded successfully');
+
+                // Trigger Discord Notification
+                try {
+                    const protocol = req.headers['x-forwarded-proto'] || 'http';
+                    const host = req.headers.host;
+                    const discordApiUrl = `${protocol}://${host}/api/discord`;
+
+                    await fetch(discordApiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'PAYMENT_SUCCESS',
+                            data: {
+                                email: email,
+                                plan: plan,
+                                amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : '19.00'
+                            }
+                        })
+                    });
+                    console.log('🔔 Discord notification sent');
+                } catch (notifyError) {
+                    console.error('Failed to send Discord notification:', notifyError);
+                }
             }
         }
     }

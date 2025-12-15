@@ -33,6 +33,24 @@ export default async function handler(req, res) {
             };
         }
 
+        // 2. New Paid Subscriber
+        else if (type === 'PAYMENT_SUCCESS') {
+            embed = {
+                title: "💰 New Paid Subscriber!",
+                description: `**${data.email}** just upgraded to **${data.plan.toUpperCase()}**`,
+                color: 0xfacc15, // Gold
+                thumbnail: {
+                    url: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" // VIP/Crown Icon
+                },
+                fields: [
+                    { name: "Plan", value: data.plan.toUpperCase(), inline: true },
+                    { name: "Amount", value: data.amount ? `$${data.amount}` : 'N/A', inline: true },
+                    { name: "Email", value: data.email, inline: true }
+                ],
+                timestamp: new Date().toISOString()
+            };
+        }
+
         // 2. Daily Analytics Report (Triggered by Cron)
         else if (type === 'DAILY_REPORT') {
             // Fetch stats from Supabase
