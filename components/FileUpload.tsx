@@ -8,6 +8,7 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) => {
   const [dragActive, setDragActive] = useState(false);
+  const [showPasteFallback, setShowPasteFallback] = useState(false);
   // Labor Illusion Steps
   const [loadingStep, setLoadingStep] = useState(0);
   const loadingMessages = [
@@ -72,8 +73,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
       alert("No image found in clipboard. Please copy an image first.");
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err);
-      // Fallback for Firefox or if permission is denied
-      alert("Could not access clipboard. Please use the 'Ctrl+V' shortcut or upload a file manually.");
+      // Fallback for Firefox or mobile permissions denied
+      setShowPasteFallback(true);
     }
   };
 
@@ -185,6 +186,55 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
           </>
         )}
       </div>
+
+      {/* Fallback Paste Modal */}
+      {showPasteFallback && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowPasteFallback(false)}
+        >
+          <div
+            className="bg-white dark:bg-neutral-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 dark:border-neutral-800 animate-in zoom-in-95 duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                <Clipboard className="w-6 h-6" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Manual Paste</h3>
+                <p className="text-sm text-slate-500 dark:text-neutral-400">
+                  Tap the box below, then select <span className="font-bold text-slate-700 dark:text-slate-300">"Paste"</span>
+                </p>
+              </div>
+
+              <textarea
+                autoFocus
+                className="w-full h-32 bg-slate-50 dark:bg-black border-2 border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-4 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-base text-slate-900 dark:text-white placeholder:text-slate-400"
+                placeholder="Tap & Hold here to Paste..."
+                onPaste={(e) => {
+                  if (e.clipboardData.files.length > 0) {
+                    e.preventDefault();
+                    processFile(e.clipboardData.files[0]);
+                    setShowPasteFallback(false);
+                  } else {
+                    // If they paste text or something else, give feedback
+                    // But let's just ignore for now or they might be reposting text
+                  }
+                }}
+              />
+
+              <button
+                onClick={() => setShowPasteFallback(false)}
+                className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
