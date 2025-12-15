@@ -95,11 +95,14 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
 
                         <h3>Phase 2: Waking Up (The Yawn)</h3>
                         <p>
-                            Eventually, the Alligator gets hungry. You will see the Green line (Lips) start to move away from the Red line (Teeth), and the Red line move away from the Blue line (Jaw). The lines stop crossing over each other and start pointing in the same direction—usually up or down.
+                            Eventually, the Alligator gets hungry.
+                        </p>
+                        <p>
+                            You will see the Green line (Lips) start to move away from the Red line (Teeth), and the Red line move away from the Blue line (Jaw). The lines stop crossing over each other and start pointing in the same direction—usually up or down.
                         </p>
                         <p>This looks like an animal opening its mouth wide.</p>
                         <ul>
-                            <li><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to <span className="text-green-500 font-bold">BUY</span>.</li>
+                            <li><strong>If the mouth opens UP</strong> (Green on top, Blue on bottom): The Alligator is trying to eat prices that are going higher. This is usually when traders want to buy.</li>
                             <li><strong>If the mouth opens DOWN</strong> (Blue on top, Green on bottom): The Alligator is chasing prices going lower.</li>
                         </ul>
 
@@ -113,7 +116,10 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
 
                         <h3>Phase 4: Full Tummy (Time to Go)</h3>
                         <p>
-                            After a big meal, the Alligator gets sleepy again. You’ll notice the Green line starts to curve back toward the Red line. The lines get closer together. The mouth is closing. This tells you the trend is over. The animal is full.
+                            After a big meal, the Alligator gets sleepy again.
+                        </p>
+                        <p>
+                            You’ll notice the Green line starts to curve back toward the Red line. The lines get closer together. The mouth is closing. This tells you the trend is over. The animal is full.
                         </p>
                         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-700/50 my-4 flex items-start gap-3">
                             <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-500 flex-shrink-0" />
@@ -130,7 +136,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             Most people lose money because they try to trade when the market is sleeping (the spaghetti phase). The Alligator teaches you to sit on your hands and wait until the monster is actually hungry.
                         </p>
                         <p className="text-lg font-bold text-center mt-8">
-                            So, next time you see a chart, look for the green lips, red teeth, and blue jaw. If they’re tangled, take a nap. If the mouth is open, it’s dinner time! 🐊
+                            So, next time you see a chart, look for the green lips, red teeth, and blue jaw. If they’re tangled, take a nap. If the mouth is open, it’s dinner time!
                         </p>
                     </article>              </div>
 
