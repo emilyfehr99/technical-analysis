@@ -97,20 +97,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
     }
   }, [onFileSelect]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
-    }
-  };
-
   return (
     <div className="w-full max-w-2xl mx-auto mb-8">
       <div
-        className={`relative group rounded-3xl border-2 border-dashed transition-all duration-300 ease-out p-12 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden
+        className={`relative group rounded-3xl border-2 border-dashed transition-all duration-300 ease-out p-12 flex flex-col items-center justify-center text-center overflow-hidden
         ${dragActive
             ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-[1.02]'
-            : 'border-slate-300 dark:border-neutral-700 hover:border-slate-400 dark:hover:border-neutral-500 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10'
+            : 'border-slate-300 dark:border-neutral-700 bg-white/40 dark:bg-white/5'
           }
         ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
         `}
@@ -119,14 +112,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <input
-          id="file-upload-input"
-          type="file"
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-          onChange={handleChange}
-          accept="image/*"
-          disabled={isAnalyzing}
-        />
 
         {/* Red "CHART REQUIRED" Banner */}
         {/* Red "CHART REQUIRED" Bubble */}
@@ -157,16 +142,16 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
           </div>
         ) : (
           <>
-            <div className={`w-16 h-16 mb-6 rounded-2xl flex items-center justify-center transition-colors duration-300 ${dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 group-hover:bg-slate-200 dark:group-hover:bg-neutral-700'}`}>
-              <Upload className="w-8 h-8" />
+            <div className={`w-16 h-16 mb-6 rounded-2xl flex items-center justify-center transition-colors duration-300 ${dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400'}`}>
+              <Clipboard className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
-              <span className="hidden md:inline">Upload Chart Screenshot</span>
-              <span className="md:hidden">Upload from Photo Library</span>
+              <span className="hidden md:inline">Paste Chart Screenshot</span>
+              <span className="md:hidden">Paste from Clipboard</span>
             </h3>
             <p className="text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed mb-6">
-              <span className="hidden md:inline">Drag & drop, click to browse, or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly.</span>
-              <span className="md:hidden">Tap above to select from gallery or paste below.</span>
+              <span className="hidden md:inline">Drag & drop or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly.</span>
+              <span className="md:hidden">Tap below to paste a screenshot.</span>
               <br />
               <span className="text-xs text-slate-400 dark:text-neutral-500 mt-2 block">Supported: PNG, JPG, WEBP</span>
             </p>
@@ -188,54 +173,56 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
       </div>
 
       {/* Fallback Paste Modal */}
-      {showPasteFallback && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-          onClick={() => setShowPasteFallback(false)}
-        >
+      {
+        showPasteFallback && (
           <div
-            className="bg-white dark:bg-neutral-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 dark:border-neutral-800 animate-in zoom-in-95 duration-200"
-            onClick={e => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setShowPasteFallback(false)}
           >
-            <div className="text-center space-y-4">
-              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
-                <Clipboard className="w-6 h-6" />
+            <div
+              className="bg-white dark:bg-neutral-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 dark:border-neutral-800 animate-in zoom-in-95 duration-200"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-center space-y-4">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                  <Clipboard className="w-6 h-6" />
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Manual Paste</h3>
+                  <p className="text-sm text-slate-500 dark:text-neutral-400">
+                    Tap the box below, then select <span className="font-bold text-slate-700 dark:text-slate-300">"Paste"</span>
+                  </p>
+                </div>
+
+                <textarea
+                  autoFocus
+                  className="w-full h-32 bg-slate-50 dark:bg-black border-2 border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-4 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-base text-slate-900 dark:text-white placeholder:text-slate-400"
+                  placeholder="Tap & Hold here to Paste..."
+                  onPaste={(e) => {
+                    if (e.clipboardData.files.length > 0) {
+                      e.preventDefault();
+                      processFile(e.clipboardData.files[0]);
+                      setShowPasteFallback(false);
+                    } else {
+                      // If they paste text or something else, give feedback
+                      // But let's just ignore for now or they might be reposting text
+                    }
+                  }}
+                />
+
+                <button
+                  onClick={() => setShowPasteFallback(false)}
+                  className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
-
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Manual Paste</h3>
-                <p className="text-sm text-slate-500 dark:text-neutral-400">
-                  Tap the box below, then select <span className="font-bold text-slate-700 dark:text-slate-300">"Paste"</span>
-                </p>
-              </div>
-
-              <textarea
-                autoFocus
-                className="w-full h-32 bg-slate-50 dark:bg-black border-2 border-dashed border-slate-300 dark:border-neutral-700 rounded-xl p-4 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-base text-slate-900 dark:text-white placeholder:text-slate-400"
-                placeholder="Tap & Hold here to Paste..."
-                onPaste={(e) => {
-                  if (e.clipboardData.files.length > 0) {
-                    e.preventDefault();
-                    processFile(e.clipboardData.files[0]);
-                    setShowPasteFallback(false);
-                  } else {
-                    // If they paste text or something else, give feedback
-                    // But let's just ignore for now or they might be reposting text
-                  }
-                }}
-              />
-
-              <button
-                onClick={() => setShowPasteFallback(false)}
-                className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
