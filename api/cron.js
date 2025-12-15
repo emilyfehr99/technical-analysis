@@ -12,8 +12,9 @@ export default async function handler(req, res) {
     today.setHours(0, 0, 0, 0);
     const todayISO = today.toISOString();
 
-    // Check for Weekly (Monday) and Monthly (1st)
-    const isMonday = today.getDay() === 1;
+    // Check for Weekly (Sunday) and Monthly (1st)
+    // User requested "weekly on sundays"
+    const isSunday = today.getDay() === 0;
     const isFirstOfMonth = today.getDate() === 1;
 
     // Time ranges
@@ -119,8 +120,8 @@ export default async function handler(req, res) {
             timestamp: new Date().toISOString()
         });
 
-        // B. Weekly Embed (Mondays)
-        if (isMonday) {
+        // B. Weekly Embed (Sundays)
+        if (isSunday) {
             const { count: weekSignups } = await supabase.from('waitlist').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString());
             const { count: weekAnalyses } = await supabase.from('analysis_logs').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString());
             const { count: weekSessions } = await supabase.from('analytics_sessions').select('*', { count: 'exact', head: true }).gte('started_at', weekAgo.toISOString());
