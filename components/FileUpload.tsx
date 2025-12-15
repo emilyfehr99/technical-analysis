@@ -44,7 +44,38 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
   };
 
   // Handle Global Paste Events
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (isAnalyzing) return;
+      if (e.clipboardData && e.clipboardData.files.length > 0) {
+        const file = e.clipboardData.files[0];
+        processFile(file);
+      }
+    };
 
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [onFileSelect, isAnalyzing]);
+
+  // Handle Mobile/Button Paste
+  const handleManualPaste = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const item of clipboardItems) {
+        if (item.types && item.types.some(type => type.startsWith('image/'))) {
+          const blob = await item.getType(item.types.find(type => type.startsWith('image/'))!);
+          const file = new File([blob], "pasted-image.png", { type: blob.type });
+          processFile(file);
+          return;
+        }
+      }
+      alert("No image found in clipboard. Please copy an image first.");
+    } catch (err) {
+      console.error('Failed to read clipboard contents: ', err);
+      // Fallback for Firefox or if permission is denied
+      alert("Could not access clipboard. Please use the 'Ctrl+V' shortcut or upload a file manually.");
+    }
+  };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -132,12 +163,25 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
               <span className="hidden md:inline">Upload Chart Screenshot</span>
               <span className="md:hidden">Upload from Photo Library</span>
             </h3>
-            <p className="text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
+            <p className="text-slate-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed mb-6">
               <span className="hidden md:inline">Drag & drop, click to browse, or <span className="font-semibold text-slate-700 dark:text-white bg-slate-200/60 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs mx-1">Paste (Ctrl+V)</span> directly.</span>
-              <span className="md:hidden">Tap to select a screenshot from your gallery.</span>
+              <span className="md:hidden">Tap above to select from gallery or paste below.</span>
               <br />
               <span className="text-xs text-slate-400 dark:text-neutral-500 mt-2 block">Supported: PNG, JPG, WEBP</span>
             </p>
+
+            {/* Mobile Paste Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent file dialog from opening
+                handleManualPaste();
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all z-20 md:hidden"
+            >
+              <Clipboard className="w-4 h-4" />
+              Paste from Clipboard
+            </button>
           </>
         )}
       </div>
