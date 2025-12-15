@@ -12,6 +12,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { supabase } from './lib/supabaseClient';
 import { Analytics } from './lib/analytics';
 
+import { Guides } from './components/Guides';
+
 import { EmailGateModal } from './components/EmailGateModal';
 
 // Init Scans on Mount (Helper, but actually needs to be inside component or global constant, let's put inside)
@@ -26,7 +28,7 @@ function App() {
   });
   const [manualTicker, setManualTicker] = useState<string>(''); // For confidence boost
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
-  const [currentView, setCurrentView] = useState<'home'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'guides'>('home');
   const [showPaywall, setShowPaywall] = useState(false);
   const [showEmailGate, setShowEmailGate] = useState(false);
   const [hasUnlocked, setHasUnlocked] = useState(false);
@@ -344,6 +346,7 @@ function App() {
           }}
           onAdmin={() => { }}
           onHome={() => setCurrentView('home')}
+          onGuides={() => setCurrentView('guides')}
           user={session?.user}
           // isAdmin={isAdmin}
           usage={usage}
@@ -364,187 +367,191 @@ function App() {
             }}
           />
 
-          <>
-            {/* Refactored Hero Section */}
-            {analysisState.status === 'idle' && !analysisState.imageUrl && (
-              <div className="text-center mb-10 mt-6 space-y-6 animate-fade-in-up">
-                {/* Headline Change */}
-                <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[1.05] drop-shadow-sm">
-                  Roast My Chart.
-                </h1>
+          {currentView === 'guides' ? (
+            <Guides onBack={() => setCurrentView('home')} />
+          ) : (
+            <>
+              {/* Refactored Hero Section */}
+              {analysisState.status === 'idle' && !analysisState.imageUrl && (
+                <div className="text-center mb-10 mt-6 space-y-6 animate-fade-in-up">
+                  {/* Headline Change */}
+                  <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[1.05] drop-shadow-sm">
+                    Roast My Chart.
+                  </h1>
 
-                <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                  Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
-                </p>
+                  <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                    Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
+                  </p>
 
-                {/* PSYCHOLOGY: Social Proof & Trust */}
-                <div className="flex flex-col items-center gap-4 mt-8 animate-fade-in">
-                  <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 dark:text-green-400 text-sm font-bold">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    {tradersCount} traders analyzing right now
-                  </div>
+                  {/* PSYCHOLOGY: Social Proof & Trust */}
+                  <div className="flex flex-col items-center gap-4 mt-8 animate-fade-in">
+                    <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 dark:text-green-400 text-sm font-bold">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      {tradersCount} traders analyzing right now
+                    </div>
 
-                  <div className="flex items-center gap-6 text-sm text-slate-400 dark:text-slate-500 font-medium">
-                    <span className="flex items-center gap-1.5">
-                      <Shield className="w-4 h-4" /> Bank-Grade Security
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <LineChart className="w-4 h-4" /> Real-Time Data verification
-                    </span>
+                    <div className="flex items-center gap-6 text-sm text-slate-400 dark:text-slate-500 font-medium">
+                      <span className="flex items-center gap-1.5">
+                        <Shield className="w-4 h-4" /> Bank-Grade Security
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <LineChart className="w-4 h-4" /> Real-Time Data verification
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Upload Section */}
-            {analysisState.status !== 'success' && (
-              <div className="space-y-6 max-w-2xl mx-auto">
+              {/* Upload Section */}
+              {analysisState.status !== 'success' && (
+                <div className="space-y-6 max-w-2xl mx-auto">
 
-                {/* File Upload Hero */}
-                {!analysisState.imageUrl ? (
-                  <>
+                  {/* File Upload Hero */}
+                  {!analysisState.imageUrl ? (
+                    <>
 
-                    {/* Optional Ticker Input - Confidence Booster */}
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Enter Ticker (Optional - Increases Accuracy)"
-                        className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono uppercase tracking-wider text-slate-700 dark:text-slate-200"
-                        value={manualTicker}
-                        onChange={(e) => setManualTicker(e.target.value.toUpperCase())}
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <span className="text-xs text-green-500 font-medium px-2 py-1 bg-green-500/10 rounded-md opacity-0 group-focus-within:opacity-100 transition-opacity">
-                          +30% Confidence
-                        </span>
-                      </div>
-                    </div>
-
-                    <FileUpload
-                      onFileSelect={handleFileSelect}
-                      isAnalyzing={false}
-                    />
-                    {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
-                      <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Breakout</span>
-                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">$NVDA Setup</span>
-                      </button>
-                      <button onClick={() => handleDemoAnalysis('BTC')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition-all group">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Warning</span>
-                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-red-500 transition-colors">$BTC Crash</span>
-                      </button>
-                      <button onClick={() => handleDemoAnalysis('SPY')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all group">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reversal</span>
-                        <span className="font-bold text-slate-800 dark:text-white group-hover:text-green-500 transition-colors">$SPY Dip Buy</span>
-                      </button>
-                    </div>
-
-                  </>
-                ) : (
-                  /* Preview State - (If they uploaded but haven't analyzed yet. 
-                     BUT: User wanted "Paste -> Immediately start loading". 
-                     If they Paste, handleGlobalPaste sets ImageUrl. 
-                     We should probably auto-trigger analyze in useEffect if it came from paste?
-                     Let's keep the button for now as "Confirmation" is often safer, 
-                     or update handleGlobalPaste to set status: 'analyzing' directly?
-                     User said: "If they paste an image, IMMEDIATELY start the loading animation."
-                     I will update handleGlobalPaste logic for that.) */
-                  <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
-                    <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
-                      <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => handleAnalyze()}
-                        disabled={analysisState.status === 'analyzing'}
-                        className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                      >
-                        {analysisState.status === 'analyzing' ? (
-                          <>
-                            <RefreshCw className="w-5 h-5 animate-spin" />
-                            Analyzing{manualTicker ? ` [${manualTicker}]` : ''}...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-5 h-5" />
-                            Run AI Analysis
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={handleReset}
-                        className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
-                      >
-                        Cancel / Upload Different
-                      </button>
-
-                      {/* Risk Reversal */}
-                      <p className="text-xs text-center text-slate-400 mt-2">
-                        100% Free • No Credit Card Required • Instant Result
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Error State */}
-            {analysisState.status === 'error' && (
-              <div className="max-w-xl mx-auto mt-8 p-6 bg-white/80 backdrop-blur-md border border-red-100 rounded-3xl text-center shadow-lg animate-shake">
-                {/* ... error content ... */}
-                <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Analysis Failed</h3>
-                <p className="text-slate-500 mb-6">{analysisState.error}</p>
-                <button
-                  onClick={handleReset}
-                  className="px-6 py-2.5 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl"
-                >
-                  Try Again
-                </button>
-              </div>
-            )}
-
-            {/* Success / Dashboard State - GATED */}
-            {analysisState.status === 'success' && analysisState.result && hasUnlocked && (
-              <div className="relative animate-fade-in-up">
-                {/* Context Bar: Image Preview + Reset */}
-                <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-200/60">
-                  <div className="flex items-center gap-6">
-                    {analysisState.imageUrl && (
-                      <div className="relative group cursor-pointer">
-                        <img
-                          src={analysisState.imageUrl}
-                          alt="Chart Preview"
-                          className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md"
+                      {/* Optional Ticker Input - Confidence Booster */}
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Enter Ticker (Optional - Increases Accuracy)"
+                          className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-mono uppercase tracking-wider text-slate-700 dark:text-slate-200"
+                          value={manualTicker}
+                          onChange={(e) => setManualTicker(e.target.value.toUpperCase())}
                         />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                          <span className="text-xs text-green-500 font-medium px-2 py-1 bg-green-500/10 rounded-md opacity-0 group-focus-within:opacity-100 transition-opacity">
+                            +30% Confidence
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
 
+                      <FileUpload
+                        onFileSelect={handleFileSelect}
+                        isAnalyzing={false}
+                      />
+                      {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
+                        <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Breakout</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">$NVDA Setup</span>
+                        </button>
+                        <button onClick={() => handleDemoAnalysis('BTC')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Warning</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-red-500 transition-colors">$BTC Crash</span>
+                        </button>
+                        <button onClick={() => handleDemoAnalysis('SPY')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reversal</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-green-500 transition-colors">$SPY Dip Buy</span>
+                        </button>
+                      </div>
+
+                    </>
+                  ) : (
+                    /* Preview State - (If they uploaded but haven't analyzed yet. 
+                       BUT: User wanted "Paste -> Immediately start loading". 
+                       If they Paste, handleGlobalPaste sets ImageUrl. 
+                       We should probably auto-trigger analyze in useEffect if it came from paste?
+                       Let's keep the button for now as "Confirmation" is often safer, 
+                       or update handleGlobalPaste to set status: 'analyzing' directly?
+                       User said: "If they paste an image, IMMEDIATELY start the loading animation."
+                       I will update handleGlobalPaste logic for that.) */
+                    <div className="max-w-xl mx-auto bg-white rounded-3xl p-6 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95">
+                      <div className="aspect-video relative rounded-2xl overflow-hidden mb-6 bg-slate-100 border border-slate-200">
+                        <img src={analysisState.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => handleAnalyze()}
+                          disabled={analysisState.status === 'analyzing'}
+                          className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                          {analysisState.status === 'analyzing' ? (
+                            <>
+                              <RefreshCw className="w-5 h-5 animate-spin" />
+                              Analyzing{manualTicker ? ` [${manualTicker}]` : ''}...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-5 h-5" />
+                              Run AI Analysis
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={handleReset}
+                          className="w-full py-3 text-slate-500 font-semibold hover:bg-slate-50 rounded-xl transition-colors"
+                        >
+                          Cancel / Upload Different
+                        </button>
+
+                        {/* Risk Reversal */}
+                        <p className="text-xs text-center text-slate-400 mt-2">
+                          100% Free • No Credit Card Required • Instant Result
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Error State */}
+              {analysisState.status === 'error' && (
+                <div className="max-w-xl mx-auto mt-8 p-6 bg-white/80 backdrop-blur-md border border-red-100 rounded-3xl text-center shadow-lg animate-shake">
+                  {/* ... error content ... */}
+                  <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 mb-2">Analysis Failed</h3>
+                  <p className="text-slate-500 mb-6">{analysisState.error}</p>
                   <button
                     onClick={handleReset}
-                    className="flex items-center px-5 py-2.5 bg-white border border-slate-200 shadow-sm rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all hover:shadow-md"
+                    className="px-6 py-2.5 bg-slate-900 text-white rounded-full font-semibold hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl"
                   >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    New Analysis
+                    Try Again
                   </button>
                 </div>
+              )}
 
-                <ErrorBoundary>
-                  <AnalysisDashboard data={analysisState.result} />
-                </ErrorBoundary>
-              </div>
-            )}
-          </>
+              {/* Success / Dashboard State - GATED */}
+              {analysisState.status === 'success' && analysisState.result && hasUnlocked && (
+                <div className="relative animate-fade-in-up">
+                  {/* Context Bar: Image Preview + Reset */}
+                  <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-200/60">
+                    <div className="flex items-center gap-6">
+                      {analysisState.imageUrl && (
+                        <div className="relative group cursor-pointer">
+                          <img
+                            src={analysisState.imageUrl}
+                            alt="Chart Preview"
+                            className="relative w-28 h-20 object-cover rounded-2xl border-2 border-white shadow-md"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleReset}
+                      className="flex items-center px-5 py-2.5 bg-white border border-slate-200 shadow-sm rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all hover:shadow-md"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      New Analysis
+                    </button>
+                  </div>
+
+                  <ErrorBoundary>
+                    <AnalysisDashboard data={analysisState.result} />
+                  </ErrorBoundary>
+                </div>
+              )}
+            </>
+          )}
 
         </main>
       </div>

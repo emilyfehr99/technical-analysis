@@ -9,12 +9,13 @@ interface HeaderProps {
   onPricing: () => void;
   onAdmin: () => void;
   onHome: () => void;
+  onGuides: () => void; // New prop
   user: any | null;
   usage: { used: number; limit: number; tier: string } | null;
   scansLeft: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, user, usage, scansLeft }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, onGuides, user, usage, scansLeft }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -44,11 +45,19 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
             {/* Admin removed */}
 
             <button
-              onClick={() => onOpenModal('docs')}
+              onClick={onGuides}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-neutral-800 rounded-full transition-all"
             >
               <BookOpen className="w-4 h-4" />
-              Documentation
+              Guides
+            </button>
+
+            <button
+              onClick={() => onOpenModal('docs')}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-neutral-800 rounded-full transition-all"
+            >
+              <Shield className="w-4 h-4" />
+              Docs
             </button>
 
             {/* ... Risk & Pricing (Skipping middle repetitive updates for brevity, focus on dark mode classes for them if needed) ... */}
@@ -155,10 +164,18 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
             {/* Admin removed */}
 
             <button
-              onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
+              onClick={() => { onGuides(); setIsMobileMenuOpen(false); }}
               className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               <BookOpen className="w-6 h-6" />
+              Guides
+            </button>
+
+            <button
+              onClick={() => { onOpenModal('docs'); setIsMobileMenuOpen(false); }}
+              className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <Shield className="w-6 h-6" />
               Documentation
             </button>
 
