@@ -5,7 +5,7 @@ interface GuidesProps {
     onBack: () => void;
 }
 
-type GuideId = 'alligator' | 'candlesticks';
+type GuideId = 'alligator' | 'candlesticks' | 'support-resistance';
 
 interface GuideMeta {
     id: GuideId;
@@ -28,6 +28,13 @@ const GUIDES_LIST: GuideMeta[] = [
         title: 'The Battle of the Bulls and Bears: Reading "Candles"',
         description: 'Learn how to read Japanese Candlesticks and understand the psychology behind every price move.',
         icon: <BarChart2 className="w-6 h-6 text-green-500" />,
+        readTime: '4 min read'
+    },
+    {
+        id: 'support-resistance',
+        title: 'The Bouncy Ball Game: Understanding Floors and Ceilings',
+        description: 'Why prices get trapped in invisible rooms and how to use gravity to your advantage.',
+        icon: <TrendingUp className="w-6 h-6 text-purple-500" />,
         readTime: '4 min read'
     }
 ];
@@ -100,7 +107,9 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                 </button>
 
                 <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 dark:border-neutral-800 animate-fade-in">
-                    {selectedGuide === 'alligator' ? <AlligatorArticle /> : <CandlesticksArticle />}
+                    {selectedGuide === 'alligator' && <AlligatorArticle />}
+                    {selectedGuide === 'candlesticks' && <CandlesticksArticle />}
+                    {selectedGuide === 'support-resistance' && <SupportResistanceArticle />}
                 </div>
             </div>
         </div>
@@ -382,6 +391,139 @@ const CandlesticksArticle = () => (
         </p>
         <p className="text-lg font-bold text-center mt-12 mb-8">
             So, don't just look at the line. Look at the shapes, and see who is winning the tug-of-war.
+        </p>
+    </article>
+);
+
+const SupportResistanceArticle = () => (
+    <article className="prose prose-lg prose-slate dark:prose-invert max-w-none">
+        {/* Header */}
+        <div className="mb-12 text-center">
+            <div className="inline-flex items-center justify-center p-3 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl mb-6 shadow-sm">
+                <Target className="w-8 h-8" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-purple-800 to-slate-900 dark:from-white dark:via-purple-200 dark:to-white">
+                The Bouncy Ball Game: Understanding Floors and Ceilings
+            </h1>
+        </div>
+
+        {/* Hero Image */}
+        <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
+            <img
+                src="/support-resistance-diagram.png"
+                alt="Support and Resistance Diagram"
+                className="w-full h-auto object-cover"
+            />
+        </div>
+
+        <p className="lead text-xl text-slate-600 dark:text-slate-300">
+            If you watch a price chart for long enough, it can look like total chaos. The line wiggles up and down like a crazy fly buzzing around your screen.
+        </p>
+
+        <p>
+            But if you squint your eyes a little bit, you will notice something strange. The price usually isn't moving randomly. It is actually trapped inside a room. It keeps hitting the same invisible walls over and over again.
+        </p>
+
+        <p>
+            In the grown-up trading world, they call this <strong>"Support and Resistance."</strong> But that sounds boring. It is much easier to think of it as <strong>Floors and Ceilings</strong>.
+        </p>
+
+        <p className="font-semibold text-purple-600 dark:text-purple-400">
+            Here is how you can use gravity to win the game.
+        </p>
+
+        <hr className="my-8 border-slate-200 dark:border-neutral-800" />
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-12 mb-6 tracking-tight">
+            01. The Floor (The Safety Net)
+        </h2>
+        <p>
+            Imagine you are holding a super bouncy rubber ball. You drop it. What happens?
+        </p>
+        <p>
+            It falls fast, but eventually, it hits the ground. It goes boing and bounces back up. It doesn't crash through the floor into the basement because the floor is solid.
+        </p>
+        <div className="bg-green-50 dark:bg-green-900/10 p-6 rounded-2xl border-l-4 border-green-500 my-6 shadow-sm">
+            <p className="m-0 font-medium text-lg text-slate-700 dark:text-gray-300">
+                In the stock market, the <strong>"Floor"</strong> is a specific price where people think something is cheap.
+            </p>
+        </div>
+        <p>
+            Let’s say there is a popular video game that usually costs $50. If the price drops down to $30, everyone gets excited. They think it is a great deal. So many people rush in to buy it at $30 that the price stops falling and bounces back up.
+        </p>
+        <p>
+            When you look at a chart, look for a spot at the bottom where the price keeps touching and bouncing up. Draw a straight line there. That is your <strong>Floor</strong>.
+        </p>
+        <p className="flex items-center gap-2 mt-4 font-bold text-green-600 dark:text-green-400">
+            <Target className="w-5 h-5" />
+            The Strategy: When the price gets close to the Floor, you get ready to buy. You are betting that the floor is solid and the ball will bounce.
+        </p>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            02. The Ceiling (The Bonk)
+        </h2>
+        <p>
+            Now imagine you take that same ball and throw it as hard as you can straight up in your living room.
+        </p>
+        <p>
+            It flies up, but then it hits the roof. It goes bonk, hits its head, and falls back down to the ground. It cannot fly into outer space because the roof is in the way.
+        </p>
+        <p className="font-bold text-lg">
+            This is the "Ceiling."
+        </p>
+        <p>
+            This happens when the price gets too expensive. If that video game goes from $50 up to $100, people stop buying it. They say it costs too much money. People who already own it decide to sell it so they can make a profit. Because everyone is selling and nobody is buying, the price hits the ceiling and crashes back down.
+        </p>
+        <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border-l-4 border-red-500 my-6 shadow-sm">
+            <p className="flex items-center gap-2 m-0 font-bold text-lg text-red-700 dark:text-red-300">
+                <AlertTriangle className="w-5 h-5" />
+                The Strategy: When the price hits the Ceiling, be careful. That is usually a good time to sell and take your money.
+            </p>
+        </div>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            03. The Magic Trick: Changing Levels
+        </h2>
+        <p>
+            Here is the coolest part of this strategy.
+        </p>
+        <p>
+            Sometimes, the market gets super strong. It is like the Hulk threw the ball. The price flies up to the Ceiling, but instead of bouncing down, it smashes right through it.
+        </p>
+        <p>
+            When the price breaks a Ceiling, something magical happens.
+        </p>
+        <div className="bg-slate-100 dark:bg-neutral-800 p-6 rounded-2xl my-6 shadow-sm">
+            <p className="m-0 italic text-lg text-slate-700 dark:text-gray-300">
+                Imagine you are in a two-story house. You smash through the ceiling of the first floor and climb up. Now you are standing on the second floor.
+                <br /><br />
+                <strong>What used to be your ceiling is now under your feet. It has become your new floor.</strong>
+            </p>
+        </div>
+        <p>
+            This happens on charts all the time. A price breaks through a Ceiling, flies high, and then comes back down to land on that same line. It bounces off it and goes even higher.
+        </p>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">How to Play</h2>
+        <p>
+            You don't need to be a math genius to do this. You just need a ruler.
+        </p>
+        <ul className="space-y-4 my-6">
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">1</span>
+                <span>Look at the chart and find the places where the price bounced before.</span>
+            </li>
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">2</span>
+                <span>Draw a line connecting the bottoms (<strong>The Floor</strong>).</span>
+            </li>
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">3</span>
+                <span>Draw a line connecting the tops (<strong>The Ceiling</strong>).</span>
+            </li>
+        </ul>
+        <p className="text-lg font-bold text-center mt-8 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-purple-900 dark:text-purple-100">
+            Now you have a map. You know exactly where the ball is going to bounce. Buy at the floor, sell at the ceiling, and watch out if the ball gets thrown too hard!
         </p>
     </article>
 );
