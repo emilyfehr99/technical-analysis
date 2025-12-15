@@ -97,8 +97,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
         />
 
         {/* Red "CHART REQUIRED" Banner */}
-        <div className="absolute top-6 -right-10 pointer-events-none z-20">
-          <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-12 py-1.5 shadow-lg transform rotate-45 tracking-wider">
+        <div className="absolute top-4 -right-12 pointer-events-none z-20">
+          <div className="bg-gradient-to-r from-red-500 to-red-400 text-white text-xs font-black px-14 py-1.5 shadow-lg transform rotate-45 tracking-tighter">
             CHART REQUIRED
           </div>
         </div>
