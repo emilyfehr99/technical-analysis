@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2, Activity } from 'lucide-react';
 
 interface GuidesProps {
     onBack: () => void;
 }
 
-type GuideId = 'alligator' | 'candlesticks' | 'support-resistance';
+type GuideId = 'alligator' | 'candlesticks' | 'support-resistance' | 'rsi';
 
 interface GuideMeta {
     id: GuideId;
@@ -36,6 +36,13 @@ const GUIDES_LIST: GuideMeta[] = [
         description: 'Why prices get trapped in invisible rooms and how to use gravity to your advantage.',
         icon: <TrendingUp className="w-6 h-6 text-purple-500" />,
         readTime: '4 min read'
+    },
+    {
+        id: 'rsi',
+        title: 'The Speedometer: How Fast Are We Going?',
+        description: 'Learn to spot when the market engine is overheating or running on empty using RSI.',
+        icon: <Activity className="w-6 h-6 text-pink-500" />,
+        readTime: '3 min read'
     }
 ];
 
@@ -110,6 +117,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                     {selectedGuide === 'alligator' && <AlligatorArticle />}
                     {selectedGuide === 'candlesticks' && <CandlesticksArticle />}
                     {selectedGuide === 'support-resistance' && <SupportResistanceArticle />}
+                    {selectedGuide === 'rsi' && <RSIArticle />}
                 </div>
             </div>
         </div>
@@ -524,6 +532,116 @@ const SupportResistanceArticle = () => (
         </ul>
         <p className="text-lg font-bold text-center mt-8 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-purple-900 dark:text-purple-100">
             Now you have a map. You know exactly where the ball is going to bounce. Buy at the floor, sell at the ceiling, and watch out if the ball gets thrown too hard!
+        </p>
+    </article>
+);
+
+const RSIArticle = () => (
+    <article className="prose prose-lg prose-slate dark:prose-invert max-w-none">
+        {/* Header */}
+        <div className="mb-12 text-center">
+            <div className="inline-flex items-center justify-center p-3 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 rounded-2xl mb-6 shadow-sm">
+                <Activity className="w-8 h-8" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-pink-600 to-slate-900 dark:from-white dark:via-pink-300 dark:to-white">
+                The Speedometer: How Fast Are We Going?
+            </h1>
+        </div>
+
+        {/* Hero Image */}
+        <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
+            <img
+                src="/rsi-diagram.png"
+                alt="RSI Speedometer Diagram"
+                className="w-full h-auto object-cover"
+            />
+        </div>
+
+        <p className="lead text-xl text-slate-600 dark:text-slate-300">
+            Most people look at a chart and only see the price. They can see <strong>where</strong> the car is, but they can't see <strong>how fast</strong> the engine is spinning.
+        </p>
+
+        <p>
+            Imagine you are driving a Ferrari down the highway at 200 mph. The car looks amazing. It's winning the race. But under the hood, the engine is screaming. It’s glowing red hot. If you don't slow down, the engine is going to blow up.
+        </p>
+
+        <p>
+            In trading, we use a tool to check the engine temperature. It is called the <strong>RSI</strong> (Relative Strength Index).
+        </p>
+
+        <p className="font-semibold text-pink-600 dark:text-pink-400">
+            Think of it as your Speedometer.
+        </p>
+
+        <hr className="my-8 border-slate-200 dark:border-neutral-800" />
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-12 mb-6 tracking-tight">
+            01. Redlining (Overbought)
+        </h2>
+        <p>
+            The RSI is just a line that moves between 0 and 100.
+        </p>
+        <p>
+            When the line goes <strong>above 70</strong>, it enters the "Red Zone."
+        </p>
+        <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border-l-4 border-red-500 my-6 shadow-sm">
+            <p className="m-0 font-medium text-lg text-slate-700 dark:text-gray-300">
+                This means the car is going <strong>too fast</strong>. Everyone got too excited and bought the stock all at once. The engine is overheating.
+            </p>
+        </div>
+        <p>
+            Just like a car can't drive at max speed forever, a price usually can't stay in the Red Zone for long. It needs to take a break. It needs to slow down or even pull over (price drop) to let the engine cool off.
+        </p>
+        <p className="flex items-center gap-2 mt-4 font-bold text-red-600 dark:text-red-400">
+            <AlertTriangle className="w-5 h-5" />
+            The Strategy: If the RSI is above 70, DO NOT BUY. It is too expensive. It might be a good time to sell.
+        </p>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            02. Stalled (Oversold)
+        </h2>
+        <p>
+            Now imagine the car has been driving for hours. It runs out of gas. It rolls to a stop on the side of the road.
+        </p>
+        <p>
+            When the RSI line drops <strong>below 30</strong>, it enters the "Green Zone."
+        </p>
+        <div className="bg-green-50 dark:bg-green-900/10 p-6 rounded-2xl border-l-4 border-green-500 my-6 shadow-sm">
+            <p className="m-0 font-medium text-lg text-slate-700 dark:text-gray-300">
+                This means the selling is <strong>exhausted</strong>. Everyone who wanted to sell has already sold. There is nobody left to push the price down.
+            </p>
+        </div>
+        <p>
+            When a car stops on the highway, a tow truck usually comes to pick it up. In the market, this is when the buyers show up to scoop up the cheap deals.
+        </p>
+        <p className="flex items-center gap-2 mt-4 font-bold text-green-600 dark:text-green-400">
+            <Target className="w-5 h-5" />
+            The Strategy: If the RSI is below 30, it is a great time to look for a "Buy" signal. The price is cheap and the sellers are tired.
+        </p>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            03. The Cruising Speed (50)
+        </h2>
+        <p>
+            The line in the middle (50) is the speed limit.
+        </p>
+        <ul className="space-y-4 my-6">
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">🚀</span>
+                <span>If the RSI is <strong>above 50</strong>, the bulls are driving. The trend is generally UP.</span>
+            </li>
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">🐻</span>
+                <span>If the RSI is <strong>below 50</strong>, the bears are driving. The trend is generally DOWN.</span>
+            </li>
+        </ul>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">How to Win</h2>
+        <p>
+            Don't overcomplicate it. Use the RSI to keep yourself safe.
+        </p>
+        <p className="text-lg font-bold text-center mt-8 p-4 bg-pink-50 dark:bg-pink-900/20 rounded-xl text-pink-900 dark:text-pink-100">
+            If the speedometer says 200mph (Over 70), don't jump in the car. Wait for it to slow down. If the car is parked (Under 30), that's the best time to hop in for a ride!
         </p>
     </article>
 );
