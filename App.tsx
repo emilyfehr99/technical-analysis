@@ -34,6 +34,9 @@ function App() {
   // Free Scan Count
   const [scansLeft, setScansLeft] = useState<number>(3); // Default 3 (Visual)
 
+  // Random traders count (5-30)
+  const [tradersCount] = useState<number>(() => Math.floor(Math.random() * 26) + 5);
+
   useEffect(() => {
     // Use v2 key to ensure all users get a fresh set of 3 scans
     const stored = localStorage.getItem('kairos_scan_limit_v2');
@@ -381,7 +384,7 @@ function App() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                    142 traders analyzing right now
+                    {tradersCount} traders analyzing right now
                   </div>
 
                   <div className="flex items-center gap-6 text-sm text-slate-400 dark:text-slate-500 font-medium">
