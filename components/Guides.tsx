@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2, Activity } from 'lucide-react';
+import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2, Activity, CheckCircle2, XCircle, BrainCircuit } from 'lucide-react';
 
 interface GuidesProps {
     onBack: () => void;
 }
 
-type GuideId = 'alligator' | 'candlesticks' | 'support-resistance' | 'rsi';
+type GuideId = 'alligator' | 'candlesticks' | 'support-resistance' | 'rsi' | 'quiz';
 
 interface GuideMeta {
     id: GuideId;
@@ -43,6 +43,13 @@ const GUIDES_LIST: GuideMeta[] = [
         description: 'Learn to spot when the market engine is overheating or running on empty using RSI.',
         icon: <Activity className="w-6 h-6 text-pink-500" />,
         readTime: '3 min read'
+    },
+    {
+        id: 'quiz',
+        title: 'Final Exam: Test Your Knowledge',
+        description: 'Think you are ready to trade? Prove it by scoring 100% on this quick 4-question quiz.',
+        icon: <BrainCircuit className="w-6 h-6 text-yellow-500" />,
+        readTime: '2 min'
     }
 ];
 
@@ -64,7 +71,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
 
                     <div className="mb-12 text-center animate-fade-in-up">
                         <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-slate-900 dark:from-white dark:via-blue-200 dark:to-white">
-                            Trading Guides
+                            Trading Academy
                         </h1>
                         <p className="text-xl text-slate-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
                             Master the markets with our in-depth educational resources.
@@ -76,13 +83,13 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                             <button
                                 key={guide.id}
                                 onClick={() => setSelectedGuide(guide.id)}
-                                className="group bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-neutral-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all text-left flex items-center gap-6"
+                                className={`group p-6 rounded-2xl shadow-sm border transition-all text-left flex items-center gap-6 ${guide.id === 'quiz' ? 'bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 border-yellow-200 dark:border-yellow-800/30' : 'bg-white dark:bg-neutral-900 border-slate-100 dark:border-neutral-800 hover:border-blue-500 dark:hover:border-blue-500'}`}
                             >
-                                <div className="p-4 bg-slate-100 dark:bg-neutral-800 rounded-xl group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
+                                <div className={`p-4 rounded-xl transition-colors ${guide.id === 'quiz' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400' : 'bg-slate-100 dark:bg-neutral-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20'}`}>
                                     {guide.icon}
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    <h3 className={`text-xl font-bold mb-2 transition-colors ${guide.id === 'quiz' ? 'text-yellow-900 dark:text-yellow-100' : 'text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
                                         {guide.title}
                                     </h3>
                                     <p className="text-slate-600 dark:text-gray-400 mb-3">
@@ -92,7 +99,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                                         {guide.readTime}
                                     </span>
                                 </div>
-                                <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all" />
+                                <ChevronRight className={`w-6 h-6 transition-all transform group-hover:translate-x-1 ${guide.id === 'quiz' ? 'text-yellow-400 group-hover:text-yellow-600' : 'text-slate-300 group-hover:text-blue-500'}`} />
                             </button>
                         ))}
                     </div>
@@ -110,7 +117,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                     className="group flex items-center gap-2 text-slate-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 mb-8 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-semibold">Back to Guides</span>
+                    <span className="font-semibold">Back to Guide List</span>
                 </button>
 
                 <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 dark:border-neutral-800 animate-fade-in">
@@ -118,8 +125,179 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                     {selectedGuide === 'candlesticks' && <CandlesticksArticle />}
                     {selectedGuide === 'support-resistance' && <SupportResistanceArticle />}
                     {selectedGuide === 'rsi' && <RSIArticle />}
+                    {selectedGuide === 'quiz' && <QuizComponent onComplete={() => setSelectedGuide(null)} />}
                 </div>
             </div>
+        </div>
+    );
+};
+
+const QuizComponent: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [score, setScore] = useState(0);
+    const [showResults, setShowResults] = useState(false);
+    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const [isAnswered, setIsAnswered] = useState(false);
+
+    const questions = [
+        {
+            question: "When looking at the Williams Alligator, what does it mean when the three lines are tangled together like spaghetti?",
+            options: [
+                "The Alligator is hungry (Buy Now!)",
+                "The Alligator is sleeping (Do Nothing)",
+                "The Alligator is angry (Sell Everything)",
+                "The trend is extremely strong"
+            ],
+            correct: 1,
+            explanation: "Tangled lines mean the market is sideways or 'sleeping'. This is a dangerous time to trade because there is no clear trend."
+        },
+        {
+            question: "You see a price candle shaped like a 'Hammer' (small body at top, long wick at bottom). What does this usually signal?",
+            options: [
+                "The price is about to crash",
+                "The Bears have won the fight",
+                "The price hit a 'trampoline' and is likely to bounce UP",
+                "The market is closed"
+            ],
+            correct: 2,
+            explanation: "A Hammer shows that Bears tried to push the price down, but Bulls pushed it all the way back up. It is a strong bullish signal."
+        },
+        {
+            question: "In the 'Bouncy Ball' game (Support & Resistance), what happens when a price breaks through a 'Ceiling'?",
+            options: [
+                "The Ceiling disappears forever",
+                "The Ceiling becomes a new Floor",
+                "The price immediately falls back down",
+                "The chart is broken"
+            ],
+            correct: 1,
+            explanation: "When a resistance level (Ceiling) is broken, it often flips to become a new support level (Floor). Imagine climbing to the second story of a house."
+        },
+        {
+            question: "The RSI (Speedometer) reads 75. What does this mean?",
+            options: [
+                "Class Dismissed. It's time to buy!",
+                "The car is out of gas (Oversold)",
+                "The engine is overheating (Overbought) - Be careful!",
+                "The speed limit is 50"
+            ],
+            correct: 2,
+            explanation: "An RSI over 70 is 'Overbought'. The price has moved up too fast and is likely to pull back or slow down."
+        }
+    ];
+
+    const handleAnswer = (index: number) => {
+        if (isAnswered) return;
+        setSelectedAnswer(index);
+        setIsAnswered(true);
+        if (index === questions[currentQuestion].correct) {
+            setScore(score + 1);
+        }
+    };
+
+    const nextQuestion = () => {
+        if (currentQuestion < questions.length - 1) {
+            setCurrentQuestion(currentQuestion + 1);
+            setSelectedAnswer(null);
+            setIsAnswered(false);
+        } else {
+            setShowResults(true);
+        }
+    };
+
+    if (showResults) {
+        return (
+            <div className="text-center py-12">
+                <div className="mb-8">
+                    {score === questions.length ? (
+                        <div className="inline-flex p-4 bg-green-100 dark:bg-green-900/30 rounded-full mb-6">
+                            <Target className="w-16 h-16 text-green-600 dark:text-green-400" />
+                        </div>
+                    ) : (
+                        <div className="inline-flex p-4 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mb-6">
+                            <Activity className="w-16 h-16 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                    )}
+                    <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">
+                        You Scored {score} / {questions.length}
+                    </h2>
+                    <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
+                        {score === questions.length
+                            ? "Perfect score! You are officially ready to read the charts. 🚀"
+                            : "Good effort! Review the guides and try again to get a perfect score."}
+                    </p>
+                    <button
+                        onClick={onComplete}
+                        className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform"
+                    >
+                        Return to Guides
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto">
+            <div className="mb-8 flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Question {currentQuestion + 1} of {questions.length}</span>
+                <span className="text-sm font-bold text-slate-400">Score: {score}</span>
+            </div>
+
+            <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white leading-tight mb-8">
+                    {questions[currentQuestion].question}
+                </h2>
+
+                <div className="space-y-4">
+                    {questions[currentQuestion].options.map((option, index) => {
+                        let buttonStyle = "border-slate-200 dark:border-neutral-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-neutral-800";
+                        const isSelected = selectedAnswer === index;
+                        const isCorrect = index === questions[currentQuestion].correct;
+
+                        if (isAnswered) {
+                            if (isCorrect) {
+                                buttonStyle = "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400";
+                            } else if (isSelected && !isCorrect) {
+                                buttonStyle = "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400";
+                            } else {
+                                buttonStyle = "opacity-50 border-slate-200 dark:border-neutral-800";
+                            }
+                        } else if (isSelected) {
+                            buttonStyle = "border-blue-500 bg-blue-50 dark:bg-blue-900/20";
+                        }
+
+                        return (
+                            <button
+                                key={index}
+                                onClick={() => handleAnswer(index)}
+                                disabled={isAnswered}
+                                className={`w-full p-6 rounded-xl border-2 text-left transition-all flex items-center justify-between group ${buttonStyle}`}
+                            >
+                                <span className="font-semibold text-lg">{option}</span>
+                                {isAnswered && isCorrect && <CheckCircle2 className="w-6 h-6 text-green-500" />}
+                                {isAnswered && isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500" />}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {isAnswered && (
+                <div className="animate-fade-in-up">
+                    <div className="bg-slate-100 dark:bg-neutral-800 p-6 rounded-xl mb-8 border border-slate-200 dark:border-neutral-700">
+                        <p className="font-bold text-slate-900 dark:text-white mb-2">Explanation:</p>
+                        <p className="text-slate-600 dark:text-slate-300">{questions[currentQuestion].explanation}</p>
+                    </div>
+                    <button
+                        onClick={nextQuestion}
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                        {currentQuestion < questions.length - 1 ? "Next Question" : "See Results"}
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
