@@ -380,7 +380,7 @@ function App() {
                   </h1>
 
                   <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                    Paste a screenshot to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
+                    Paste a tradingview chart to see if you're about to <span className="text-red-500 font-bold">lose money</span>.
                   </p>
 
                   {/* PSYCHOLOGY: Social Proof & Trust */}
