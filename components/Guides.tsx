@@ -378,7 +378,7 @@ const CandlesticksArticle = () => (
             But candlesticks help you understand the mood. Are the traders scared? Are they greedy? Is one team getting tired?
         </p>
         <p>
-            If you see big <strong>Green bodies</strong>, the Bulls are strong—stick with them. If you see lots of long wicks on top of the candles, be careful—the Bears are hiding in the bushes, waiting to smack the price down.
+            If you see big <strong>Green bodies</strong>, the Bulls are strong - stick with them. If you see lots of long wicks on top of the candles, be careful - the Bears are hiding in the bushes, waiting to smack the price down.
         </p>
         <p className="text-lg font-bold text-center mt-12 mb-8">
             So, don't just look at the line. Look at the shapes, and see who is winning the tug-of-war.
