@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2, Activity, CheckCircle2, XCircle, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, BookOpen, TrendingUp, AlertTriangle, Target, ChevronRight, BarChart2, Activity, CheckCircle2, XCircle, BrainCircuit, Microscope } from 'lucide-react';
 
 interface GuidesProps {
     onBack: () => void;
 }
 
-type GuideId = 'alligator' | 'candlesticks' | 'support-resistance' | 'rsi' | 'quiz';
+type GuideId = 'alligator' | 'candlesticks' | 'support-resistance' | 'rsi' | 'science' | 'quiz';
 
 interface GuideMeta {
     id: GuideId;
@@ -43,6 +43,13 @@ const GUIDES_LIST: GuideMeta[] = [
         description: 'Learn to spot when the market engine is overheating or running on empty using RSI.',
         icon: <Activity className="w-6 h-6 text-pink-500" />,
         readTime: '3 min read'
+    },
+    {
+        id: 'science',
+        title: 'The Science of Squiggles: Do Charts Actually Work?',
+        description: 'Is it voodoo or math? See what MIT scientists and supercomputers discovered about trading patterns.',
+        icon: <Microscope className="w-6 h-6 text-cyan-500" />,
+        readTime: '4 min read'
     },
     {
         id: 'quiz',
@@ -125,6 +132,7 @@ export const Guides: React.FC<GuidesProps> = ({ onBack }) => {
                     {selectedGuide === 'candlesticks' && <CandlesticksArticle />}
                     {selectedGuide === 'support-resistance' && <SupportResistanceArticle />}
                     {selectedGuide === 'rsi' && <RSIArticle />}
+                    {selectedGuide === 'science' && <ScienceArticle />}
                     {selectedGuide === 'quiz' && <QuizComponent onComplete={() => setSelectedGuide(null)} />}
                 </div>
             </div>
@@ -561,7 +569,7 @@ const CandlesticksArticle = () => (
         <p>
             If you see a Hammer after the price has been dropping for a while, pay attention. It tells you the Bears tried to push the price into the dirt, but the Bulls said, "NOPE!" and hammered the price back up.
         </p>
-        <p className="font-bold text-lg text-green-600 dark:text-green-400 mt-4">
+        <p className="font-bold text-green-600 dark:text-green-400 mt-4">
             When you see a Hammer, it usually means the bad times are over and the price is about to climb.
         </p>
 
@@ -820,6 +828,143 @@ const RSIArticle = () => (
         </p>
         <p className="text-lg font-bold text-center mt-8 p-4 bg-pink-50 dark:bg-pink-900/20 rounded-xl text-pink-900 dark:text-pink-100">
             If the speedometer says 200mph (Over 70), don't jump in the car. Wait for it to slow down. If the car is parked (Under 30), that's the best time to hop in for a ride!
+        </p>
+    </article>
+);
+
+const ScienceArticle = () => (
+    <article className="prose prose-lg prose-slate dark:prose-invert max-w-none">
+        {/* Header */}
+        <div className="mb-12 text-center">
+            <div className="inline-flex items-center justify-center p-3 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-2xl mb-6 shadow-sm">
+                <Microscope className="w-8 h-8" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-cyan-600 to-slate-900 dark:from-white dark:via-cyan-300 dark:to-white">
+                The Science of Squiggles: Do Charts Actually Work?
+            </h1>
+        </div>
+
+        {/* Hero Image */}
+        <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
+            <img
+                src="/science-diagram.png"
+                alt="Science of Squiggles Diagram"
+                className="w-full h-auto object-cover"
+            />
+        </div>
+
+        <p className="lead text-xl text-slate-600 dark:text-slate-300">
+            For a long time, there has been a big argument in the world of money.
+        </p>
+
+        <p>
+            On one side, you have traders who spend all day drawing lines and triangles on charts. They believe these shapes tell them what will happen next.
+        </p>
+
+        <p>
+            On the other side, you have university professors and scientists. For years, these smart people said that looking at charts was silly. They called it "Voodoo." They said it was just as fake as reading palms or tea leaves.
+        </p>
+
+        <p>
+            They had a famous theory called the <strong>Random Walk</strong>. They believed that stock prices moved randomly, like a blindfolded monkey throwing darts at a board. If the movement is random, then looking at past lines cannot help you predict the future.
+        </p>
+
+        <p>
+            But then, some new scientists decided to test this. They used supercomputers to check if the traders were actually crazy or if they were onto something.
+        </p>
+
+        <p className="font-semibold text-cyan-600 dark:text-cyan-400">
+            Here is what the research actually found.
+        </p>
+
+        <hr className="my-8 border-slate-200 dark:border-neutral-800" />
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-12 mb-6 tracking-tight">
+            01. The Robot Test
+        </h2>
+        <p>
+            In the year 2000, three researchers from a very famous school called MIT decided to settle the argument. Their names were Lo, Mamaysky, and Wang.
+        </p>
+        <p>
+            They did not want to rely on human eyes because humans can imagine shapes that are not there. So they wrote a computer program to look at charts. They taught the computer to spot famous trading shapes like "Head and Shoulders" or "Double Bottoms."
+        </p>
+        <p>
+            The computer scanned thousands of charts from over 30 years of history.
+        </p>
+        <div className="bg-cyan-50 dark:bg-cyan-900/10 p-6 rounded-2xl border-l-4 border-cyan-500 my-6 shadow-sm">
+            <p className="m-0 font-medium text-lg text-slate-700 dark:text-gray-300">
+                <strong>The Result: The professors were wrong.</strong> The computer proved that these shapes actually did give a slight edge. They found that when certain shapes appeared, the price moved in a specific direction more often than not. It was not magic. It was math.
+            </p>
+        </div>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            02. The Snowball Effect (Momentum)
+        </h2>
+        <p>
+            Another group of scientists studied something called "Momentum."
+        </p>
+        <p>
+            In physics, if you push a snowball down a hill, it keeps rolling. It does not just stop randomly.
+        </p>
+        <p>
+            Researchers named Jegadeesh and Titman looked at the stock market to see if this was true for money too. They looked at stocks that were winning (going up) and stocks that were losing (going down).
+        </p>
+        <p>
+            They found out that the "Random Walk" theory had a big hole in it.
+        </p>
+        <p>
+            They discovered that stocks that went up over the last few months usually kept going up for the next few months. And stocks that were crashing usually kept crashing.
+        </p>
+        <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border-l-4 border-blue-500 my-6 shadow-sm">
+            <p className="flex items-center gap-2 m-0 font-bold text-lg text-blue-700 dark:text-blue-300">
+                <TrendingUp className="w-5 h-5" />
+                This proved that trends are real. When a line starts moving in one direction, scientific data shows it is likely to stay in that direction for a while.
+            </p>
+        </div>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">
+            03. Why Does It Work?
+        </h2>
+        <p>
+            If stock prices are just numbers, why do they form shapes?
+        </p>
+        <p>
+            The answer comes from a field of science called <strong>Behavioral Finance</strong>. This is the study of how human brains handle money.
+        </p>
+        <p>
+            It turns out that humans make the same mistakes over and over again.
+        </p>
+        <ul className="space-y-4 my-6">
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 text-red-600">😱</span>
+                <span>When prices drop, people get scared and panic.</span>
+            </li>
+            <li className="flex items-start">
+                <span className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 text-green-600">🤑</span>
+                <span>When prices go up, people get greedy and chase it.</span>
+            </li>
+        </ul>
+        <p>
+            Because human emotions do not change, the patterns on the charts do not change. A "panic" looks the same on a chart today as it did in 1920.
+        </p>
+
+        <h2 className="text-3xl font-black text-slate-800 dark:text-white mt-16 mb-6 tracking-tight">The Verdict</h2>
+        <p>
+            Science has taught us that technical analysis is not a crystal ball. It cannot tell you the future 100% of the time.
+        </p>
+        <p>
+            But the research shows it is not useless either.
+        </p>
+        <p>
+            The "Random Walk" is not totally random. The MIT study and the Momentum scientists proved that there are patterns hidden in the noise.
+        </p>
+        <div className="bg-slate-100 dark:bg-neutral-800 p-6 rounded-2xl my-6 shadow-sm border border-slate-200 dark:border-neutral-700">
+            <p className="m-0 italic text-lg text-slate-700 dark:text-gray-300">
+                Think of it like predicting the weather. You cannot know for sure if it will rain at 2:00 PM exactly. But if you see dark clouds and feel the wind change, you know there is a high chance of a storm.
+            </p>
+        </div>
+        <p className="text-lg font-bold text-center mt-8 p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl text-cyan-900 dark:text-cyan-100">
+            Charts are just the weather report for money. And even the scientists now admit that it pays to check the weather.
         </p>
     </article>
 );
