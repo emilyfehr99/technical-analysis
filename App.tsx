@@ -164,42 +164,171 @@ function App() {
     setManualTicker(''); // clear ticker
   };
 
+  // STATIC DEMO DATA (INSTANT LOAD)
+  const STATIC_DEMO_RESULTS: Record<string, AnalysisResult> = {
+    'BTC': {
+      action: 'SELL',
+      confidenceScore: 89,
+      asset: 'Bitcoin (BTC/USD)',
+      currentPrice: '$42,105',
+      timeframe: '4H',
+      headline: 'Bear Flag Confirmed: Downside Likely',
+      reasoning: 'Price has broken down from a consolidation pattern with increasing sell volume. The text-book bear flag suggests a continuation of the downtrend.',
+      technicalAnalysis: {
+        macd: 'Bearish Crossover',
+        alligator: 'Mouth Open Down',
+        trend: 'BEARISH'
+      },
+      keyLevels: {
+        support: ['$40,500', '$38,200'],
+        resistance: ['$43,000', '$44,500']
+      },
+      setup: {
+        entryZone: '$42,000 - $42,300',
+        stopLoss: '$43,500',
+        takeProfitTargets: ['$40,500', '$38,800']
+      },
+      risk: {
+        riskToRewardRatio: '1:2.8',
+        suggestedPositionSize: '2%',
+        activeRiskParameters: 'High Volatility'
+      },
+      pattern: {
+        name: 'Bear Flag',
+        type: 'CONTINUATION',
+        confidence: 92
+      },
+      validationChecklist: [
+        { label: 'Volume Confirmation', passed: true },
+        { label: 'Trend Alignment', passed: true },
+        { label: ' Momentum Bearish', passed: true }
+      ],
+      tradeHorizon: 'Intraday (6-12h)',
+      marketCondition: 'TRENDING',
+      scenarios: [
+        { name: 'base', probability: 75, priceTarget: '$38,200', description: 'Continuation of impulsive move down.' },
+        { name: 'bull', probability: 25, priceTarget: '$44,000', description: 'False breakdown and reversal.' }
+      ] as any, // Type cast for loose scenario matching if strict
+      tradeRadar: []
+    },
+    'NVDA': {
+      action: 'BUY',
+      confidenceScore: 94,
+      asset: 'NVIDIA (NVDA)',
+      currentPrice: '$895.20',
+      timeframe: 'Daily',
+      headline: 'Ascending Triangle Breakout',
+      reasoning: 'Clear breakout above key resistance at $890 on high volume. Institutional accumulation detected.',
+      technicalAnalysis: {
+        macd: 'Bullish Expansion',
+        alligator: 'Feeding (Strong Trend)',
+        trend: 'BULLISH'
+      },
+      keyLevels: {
+        support: ['$880', '$850'],
+        resistance: ['$920', '$950']
+      },
+      setup: {
+        entryZone: '$890 - $900',
+        stopLoss: '$875',
+        takeProfitTargets: ['$950', '$1000']
+      },
+      risk: {
+        riskToRewardRatio: '1:4',
+        suggestedPositionSize: '3%',
+        activeRiskParameters: 'Trend Continuation'
+      },
+      pattern: {
+        name: 'Ascending Triangle',
+        type: 'CONTINUATION',
+        confidence: 96
+      },
+      validationChecklist: [
+        { label: 'Volume Breakout', passed: true },
+        { label: ' RSI Not Overbought', passed: true }
+      ],
+      tradeHorizon: 'Swing (3-10 Days)',
+      marketCondition: 'TRENDING',
+      scenarios: [
+        { name: 'base', probability: 80, priceTarget: '$950', description: 'Measured move to psychological resistance.' },
+        { name: 'bear', probability: 20, priceTarget: '$850', description: 'Failed breakout / Fakeout.' }
+      ] as any,
+      tradeRadar: []
+    },
+    'SPY': {
+      action: 'WAIT',
+      confidenceScore: 65,
+      asset: 'S&P 500 ETF (SPY)',
+      currentPrice: '$510.15',
+      timeframe: '1H',
+      headline: 'Choppy Consolidation near ATH',
+      reasoning: 'Market is indecisive waiting for CPI data. No clear edge until range breaks.',
+      technicalAnalysis: {
+        macd: 'Flat / Whipsaw',
+        alligator: 'Sleeping',
+        trend: 'NEUTRAL'
+      },
+      keyLevels: {
+        support: ['$508', '$505'],
+        resistance: ['$512', '$515']
+      },
+      setup: {
+        entryZone: 'WAIT',
+        stopLoss: 'N/A',
+        takeProfitTargets: []
+      },
+      risk: {
+        riskToRewardRatio: '0:0',
+        suggestedPositionSize: '0%',
+        activeRiskParameters: 'Event Risk'
+      },
+      pattern: {
+        name: 'Rectangle Range',
+        type: 'INDECISION',
+        confidence: 70
+      },
+      validationChecklist: [
+        { label: 'Volume Low', passed: true }
+      ],
+      tradeHorizon: 'N/A',
+      marketCondition: 'RANGING',
+      scenarios: [
+        { name: 'base', probability: 50, priceTarget: '$515', description: 'Range rotation up.' },
+        { name: 'bear', probability: 50, priceTarget: '$508', description: 'Range rotation down.' }
+      ] as any,
+      tradeRadar: []
+    }
+  };
+
   const handleDemoAnalysis = async (type: 'BTC' | 'NVDA' | 'SPY' = 'BTC') => {
     // 1. Track Click Immediately
     Analytics.trackEvent('click_demo_mode', { asset: type });
 
     try {
-      // Load the demo image from public folder
+      // INSTANT LOAD - No Fetch
       const filenameMap: Record<string, string> = {
         'BTC': '/demo-btc.png',
         'NVDA': '/demo-nvda.png',
         'SPY': '/demo-spy.png'
       };
 
-      const response = await fetch(filenameMap[type] || '/demo-chart.png');
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
+      const imageUrl = filenameMap[type] || '/demo-chart.png';
+      const staticResult = STATIC_DEMO_RESULTS[type];
 
+      // Set State IMMEDIATELY with Success
       setAnalysisState({
-        status: 'analyzing', // Start loading immediately per request
-        result: null,
+        status: 'success', 
+        result: staticResult,
         error: null,
-        imageUrl: imageUrl,
+        imageUrl: imageUrl, // Uses public path directly
         isDemo: true
       });
 
-      // Simulate analysis delay for "Labor Illusion"
-      setTimeout(() => {
-        // Auto-trigger analysis success simulation
-        // Since we don't have real backend for different types in this demo logic,
-        // We might just call the API or mock it.
-        // For now, let's call the real API with the demo flag, it should return mock data.
-        handleAnalyze(imageUrl, true);
-      }, 1500);
+      // Unlock gate immediately for demo
+      setHasUnlocked(true);
 
     } catch (e) {
-      console.error("Failed to load demo chart", e);
-      alert("Failed to load demo chart. Please try again.");
+        console.error("Demo load failed", e);
     }
   };
 
@@ -413,6 +542,21 @@ function App() {
                   {!analysisState.imageUrl ? (
                     <>
 
+                      {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                        <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Breakout</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">$NVDA Setup</span>
+                        </button>
+                        <button onClick={() => handleDemoAnalysis('BTC')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Warning</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-red-500 transition-colors">$BTC Crash</span>
+                        </button>
+                        <button onClick={() => handleDemoAnalysis('SPY')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all group">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reversal</span>
+                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-green-500 transition-colors">$SPY Dip Buy</span>
+                        </button>
+                      </div>
                       {/* Optional Ticker Input - Confidence Booster */}
                       <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -436,21 +580,6 @@ function App() {
                         onFileSelect={handleFileSelect}
                         isAnalyzing={false}
                       />
-                      {/* 3 "Pre-Loaded" TRUST BUILDER Demos */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
-                        <button onClick={() => handleDemoAnalysis('NVDA')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group">
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Breakout</span>
-                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">$NVDA Setup</span>
-                        </button>
-                        <button onClick={() => handleDemoAnalysis('BTC')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-red-500 dark:hover:border-red-500 hover:shadow-md transition-all group">
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Warning</span>
-                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-red-500 transition-colors">$BTC Crash</span>
-                        </button>
-                        <button onClick={() => handleDemoAnalysis('SPY')} className="flex flex-col items-center p-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all group">
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reversal</span>
-                          <span className="font-bold text-slate-800 dark:text-white group-hover:text-green-500 transition-colors">$SPY Dip Buy</span>
-                        </button>
-                      </div>
 
                     </>
                   ) : (

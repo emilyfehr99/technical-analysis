@@ -103,7 +103,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isAnalyzing }) =>
         className={`relative group rounded-3xl border-2 border-dashed transition-all duration-300 ease-out p-12 flex flex-col items-center justify-center text-center overflow-hidden
         ${dragActive
             ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 scale-[1.02]'
-            : 'border-slate-300 dark:border-neutral-700 bg-white/40 dark:bg-white/5'
+            : 'border-2 border-dashed border-yellow-500/50 animate-pulse bg-yellow-500/5 dark:bg-yellow-500/10 shadow-[0_0_15px_rgba(234,179,8,0.3)]'
           }
         ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}
         `}
