@@ -710,22 +710,45 @@ function App() {
         onClose={() => setActiveModal(null)}
         title="Documentation & Usage"
       >
-        <div className="prose prose-slate max-w-none">
-          <p className="text-slate-600">
-            Kairos.AI combines <strong>Computer Vision (Gemini 2.5)</strong> with <strong>Hard Mathematical Indicators</strong> (MACD, RSI from Yahoo Finance) to give you an institutional-grade validation of your chart setup.
-          </p>
-          <h4>How to Use</h4>
-          <ol>
-            <li><strong>Enter Ticker</strong>: Type user ticker (e.g. <code>BTC-USD</code>) for accurate ground-truth data.</li>
-            <li><strong>Upload Chart</strong>: Take a screenshot of your TradingView chart. Ensure price axes are visible.</li>
-            <li><strong>Analyze</strong>: The AI will identify patterns, key levels, and generate a 3-scenario trade plan.</li>
-          </ol>
-          <h4>Indicators Supported</h4>
-          <ul>
-            <li><strong>MACD (12, 26, 9)</strong>: For trend direction and momentum.</li>
-            <li><strong>Williams Alligator</strong>: For sleeping/awakening trends.</li>
-            <li><strong>RSI (14)</strong>: For overbought/oversold conditions.</li>
-          </ul>
+        <div className="space-y-6">
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl">
+            <p className="text-slate-800 dark:text-blue-100 font-medium leading-relaxed">
+              Kairos.AI combines <strong className="text-blue-700 dark:text-blue-300">Computer Vision (Gemini 2.5)</strong> with <strong className="text-blue-700 dark:text-blue-300">Hard Mathematical Indicators</strong> (MACD, RSI) to provide institutional-grade setup validation.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white mb-3">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs">1</span>
+              How to Use
+            </h4>
+            <div className="grid gap-3">
+              <div className="p-3 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm">
+                <div className="font-bold text-slate-900 dark:text-white mb-1">Enter Ticker</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">Type ticker (e.g. BTC-USD) for accurate ground-truth data overlay.</div>
+              </div>
+              <div className="p-3 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm">
+                <div className="font-bold text-slate-900 dark:text-white mb-1">Upload Chart</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">Take a screenshot of your TradingView chart. Ensure price axes are visible.</div>
+              </div>
+              <div className="p-3 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm">
+                <div className="font-bold text-slate-900 dark:text-white mb-1">Analyze</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">The AI identifies patterns, key levels, and generates a 3-scenario trade plan.</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white mb-3">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs">2</span>
+              Indicators Supported
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-300 rounded-full text-sm font-semibold border border-slate-200 dark:border-neutral-700">MACD (12, 26, 9)</span>
+              <span className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-300 rounded-full text-sm font-semibold border border-slate-200 dark:border-neutral-700">Williams Alligator</span>
+              <span className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-300 rounded-full text-sm font-semibold border border-slate-200 dark:border-neutral-700">RSI (14)</span>
+            </div>
+          </div>
         </div>
       </Modal>
 
