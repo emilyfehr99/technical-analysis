@@ -800,7 +800,9 @@ function App() {
           setShowPaywall(false);
           setActiveModal('auth');
         }}
+
         isLoggedIn={!!session?.user}
+        usage={usage}
       />
 
     </div >

@@ -5,10 +5,23 @@ import { supabase } from '../lib/supabaseClient';
 interface PaywallModalProps {
     isOpen: boolean;
     onClose?: () => void;
+    onAuth?: () => void;
+    isLoggedIn?: boolean;
+    usage?: { used: number; limit: number; tier: string } | null;
 }
 
-const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, isLoggedIn }) => {
+const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, isLoggedIn, usage }) => {
     if (!isOpen) return null;
+
+    // Derived State
+    const used = usage?.used || 3;
+    const limit = usage?.limit || 3;
+    const isFreeTier = usage?.tier === 'free';
+
+    // Dynamic Text
+    const limitText = isFreeTier
+        ? `Weekly Limit Reached (${used}/${limit})`
+        : `Free Limit Reached (${used}/${limit})`; // For Anon
 
     const features = [
         { icon: <Zap className="w-5 h-5 text-blue-600" />, text: "Unlimited AI Technical Analysis" },
@@ -77,7 +90,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                             </span>
-                            <span className="text-xs font-bold text-red-400 tracking-wide uppercase">Free Limit Reached (3/3)</span>
+                            <span className="text-xs font-bold text-red-400 tracking-wide uppercase">{limitText}</span>
                         </div>
 
                         <h2 className="text-3xl font-bold tracking-tight mb-4 leading-tight">
