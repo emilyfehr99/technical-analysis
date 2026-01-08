@@ -14,6 +14,7 @@ import { Analytics } from './lib/analytics';
 import { Testimonials } from './components/Testimonials';
 
 import { Guides } from './components/Guides';
+import { ProfileHistory } from './components/ProfileHistory';
 
 import { EmailGateModal } from './components/EmailGateModal';
 
@@ -29,7 +30,7 @@ function App() {
   });
   const [manualTicker, setManualTicker] = useState<string>(''); // For confidence boost
   const [activeModal, setActiveModal] = useState<'docs' | 'risk' | 'broker' | 'auth' | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'guides'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'guides' | 'profile'>('home');
   const [showPaywall, setShowPaywall] = useState(false);
   const [showEmailGate, setShowEmailGate] = useState(false);
   const [hasUnlocked, setHasUnlocked] = useState(false);
@@ -477,14 +478,15 @@ function App() {
           onAdmin={() => { }}
           onHome={() => setCurrentView('home')}
           onGuides={() => setCurrentView('guides')}
+          onProfile={() => setCurrentView('profile')}
           user={session?.user}
           // isAdmin={isAdmin}
           usage={usage}
           scansLeft={scansLeft}
         />
 
-        {/* Active Simulated Trade Banner */}
-        {usage?.activeTrade && (
+        {/* Active Simulated Trade Banner (Only on Home) */}
+        {usage?.activeTrade && currentView === 'home' && (
           <div className="bg-blue-600 text-white text-center py-2 px-4 text-sm font-semibold animate-in slide-in-from-top-4">
             🤖 SIMULATED TRADE ACTIVE: <span className="text-blue-100">{usage.activeTrade.direction} {usage.activeTrade.asset_symbol}</span> @ ${usage.activeTrade.entry_price} (Status: {usage.activeTrade.status})
           </div>
@@ -504,7 +506,9 @@ function App() {
             }}
           />
 
-          {currentView === 'guides' ? (
+          {currentView === 'profile' ? (
+            <ProfileHistory user={session?.user} usage={usage} onBack={() => setCurrentView('home')} />
+          ) : currentView === 'guides' ? (
             <Guides onBack={() => setCurrentView('home')} />
           ) : (
             <>

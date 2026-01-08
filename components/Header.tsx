@@ -9,13 +9,14 @@ interface HeaderProps {
   onPricing: () => void;
   onAdmin: () => void;
   onHome: () => void;
-  onGuides: () => void; // New prop
+  onGuides: () => void;
+  onProfile: () => void; // New prop
   user: any | null;
-  usage: { used: number; limit: number; tier: string } | null;
+  usage: { used: number; limit: number; tier: string; activeTrade?: any } | null;
   scansLeft: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, onGuides, user, usage, scansLeft }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin, onHome, onGuides, onProfile, user, usage, scansLeft }) => {
   const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
               Docs
             </button>
 
-            {/* ... Risk & Pricing (Skipping middle repetitive updates for brevity, focus on dark mode classes for them if needed) ... */}
+            {/* ... Risk & Pricing ... */}
 
             <button
               onClick={() => onOpenModal('risk')}
@@ -81,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
             {/* Usage Badge (Auth Users) */}
             {usage && usage.tier === 'free' && (
               <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-neutral-900 rounded-full border border-slate-200 dark:border-neutral-800 ml-2">
-                <div className={`w-2 h-2 rounded-full ${usage.used >= 3 ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
+                <div className={`w-2 h-2 rounded-full ${usage.used >= usage.limit ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
                 <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
                   {Math.min(usage.used, usage.limit)} / {usage.limit} <span className="text-slate-400 font-normal">Credits</span>
                 </span>
@@ -100,7 +101,6 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
 
             <button
               onClick={() => {
-                // Feature Request Logic
                 alert("Feature Requested! Brokerage connection is coming in v2.");
               }}
               className="flex items-center gap-2 px-5 py-2.5 ml-2 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-black hover:bg-slate-800 dark:hover:bg-neutral-200 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
@@ -117,10 +117,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
                 Sign In
               </button>
             ) : (
-              <div className="flex items-center gap-2 ml-4 px-4 py-2 bg-slate-100 dark:bg-neutral-900 rounded-full border border-slate-200 dark:border-neutral-800">
+              <button
+                onClick={onProfile}
+                className="flex items-center gap-2 ml-4 px-4 py-2 bg-slate-100 dark:bg-neutral-900 rounded-full border border-slate-200 dark:border-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer group"
+              >
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Welcome</span>
-              </div>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-blue-600">Profile</span>
+              </button>
             )}
           </nav>
 
@@ -162,6 +165,16 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
             </div>
 
             {/* Admin removed */}
+
+            {user && (
+              <button
+                onClick={() => { onProfile(); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                Profile & History
+              </button>
+            )}
 
             <button
               onClick={() => { onGuides(); setIsMobileMenuOpen(false); }}
@@ -208,24 +221,19 @@ const Header: React.FC<HeaderProps> = ({ onOpenModal, onAuth, onPricing, onAdmin
 
             <hr className="my-2 border-slate-100 dark:border-neutral-800" />
 
-            {!user ? (
+            {!user && (
               <button
                 onClick={() => { onAuth(); setIsMobileMenuOpen(false); }}
                 className="w-full py-4 mt-2 text-white bg-blue-600 font-bold rounded-xl shadow-lg hover:bg-blue-500 transition-all"
               >
                 Sign In
               </button>
-            ) : (
-              <div className="flex items-center justify-center gap-2 p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                Active Session
-              </div>
             )}
 
             {/* Mobile Usage Badge */}
             {usage && (
               <div className="mt-4 text-center text-sm text-slate-500 dark:text-slate-500">
-                {usage.tier === 'free' ? `${usage.limit - usage.used} scans remaining` : 'Premium Active'}
+                {usage.tier === 'free' ? `${usage.limit - usage.used} credits left` : 'Premium Active'}
               </div>
             )}
 
