@@ -39,19 +39,23 @@ export default async function handler(req, res) {
                 // Check User Credits (Profiles table)
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('credits, tier')
+                    .select('credits, tier, weekly_credits')
                     .eq('id', userId)
                     .single();
 
                 if (profile) {
-                    // Logic: credits starts at 3 and goes down? Or counts up?
-                    // "credits" implies remaining. The prompt said "1 out of 3 analyses done" (count up).
-                    // But previous implementation used "credits" descending (credits - 1).
-                    // Let's normalize to: "used = 3 - credits".
                     tier = profile.tier || 'free';
-                    const remaining = profile.credits ?? 0;
-                    used = (tier === 'free') ? (3 - remaining) : 0; // Approximate
-                    if (tier !== 'free') limit = Infinity;
+
+                    if (tier === 'free') {
+                        // Free Tier: Uses weekly_credits (starts at 1, goes to 0)
+                        const remaining = profile.weekly_credits ?? 1; // Default to 1 if null
+                        limit = 1;
+                        used = 1 - remaining;
+                    } else {
+                        // Premium: Unlimited
+                        limit = Infinity;
+                        used = 0;
+                    }
                 }
             }
         }
@@ -70,11 +74,32 @@ export default async function handler(req, res) {
             // Actually my analyze logic inserts with 1. So 0 means untouched.
         }
 
+        if (!userId) { // Re-check to send response
+            res.status(200).json({
+                used: Math.max(0, used),
+                limit,
+                tier,
+                remaining: Math.max(0, limit - used),
+                activeTrade: null
+            });
+            return;
+        }
+        // Fetch Active Simulated Trade
+        const { data: activeTrade } = await supabase
+            .from('simulated_trades')
+            .select('*')
+            .eq('user_id', userId)
+            .in('status', ['PENDING', 'OPEN'])
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
         res.status(200).json({
             used: Math.max(0, used),
             limit,
             tier,
-            remaining: Math.max(0, limit - used)
+            remaining: Math.max(0, limit - used),
+            activeTrade
         });
 
     } catch (error) {

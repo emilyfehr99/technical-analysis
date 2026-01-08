@@ -74,18 +74,28 @@ export default async function handler(req, res) {
                     .from('profiles')
                     .select('credits, tier')
                     .eq('id', userId)
-                    .single();
+                // 4. CHECK LIMITS & CHARGE CREDITS
+                // Fetch Profile with weekly_credits
+                // Uses 'const { data: profile }' which shadows outer scope if not careful, but here we are in same scope.
+                // The previous code had "const { data: profile }" twice.
 
-                console.log("Profile Found:", profile);
+                // Let's use a fresh fetch to be safe and ensure we get weekly_credits
+                const { data: userProfile } = await supabase.from('profiles').select('credits, tier, weekly_credits').eq('id', userId).single();
 
-                if (profile) {
-                    // STRICT PAYWALL: Free tier has 0 allowance after sign up.
-                    // (The 3 free tries are anonymous only)
-                    if (profile.tier === 'free') {
-                        console.log("Paywall Hit: User is Free Tier");
-                        return res.status(403).json({ error: 'LIMIT_REACHED', isAuth: true });
+                const tier = userProfile?.tier || 'free';
+                isFreeTier = tier === 'free';
+
+                if (isFreeTier) {
+                    // Free Tier Logic: Weekly Credit
+                    const credits = userProfile?.weekly_credits ?? 1;
+                    if (credits <= 0) {
+                        return res.status(403).json({ error: 'LIMIT_REACHED', details: 'Weekly free limit reached.' });
                     }
-                    console.log("Paywall Bypassed: User is", profile.tier);
+                    // Decrement
+                    await supabase.from('profiles').update({ weekly_credits: credits - 1 }).eq('id', userId);
+                    console.log(`Free tier user ${userId} used 1 weekly credit. Remaining: ${credits - 1}`);
+                } else {
+                    console.log("Paywall Bypassed: User is", tier);
                 }
             }
         } else {
@@ -243,8 +253,34 @@ Return valid JSON matching the schema: {
         });
         // -----------------------
 
-        res.status(200).json(aiData);
 
+        // 7. SIMULATED TRADE INSERTION (Free Tier Only)
+        if (isFreeTier && userId && jsonResponse.action !== 'WAIT') {
+            const cleanPrice = (p) => {
+                if (!p) return 0;
+                return parseFloat(p.toString().replace(/[^0-9.]/g, '')) || 0;
+            };
+
+            const entry = cleanPrice(jsonResponse.setup?.entryZone) || cleanPrice(jsonResponse.currentPrice);
+            const stop = cleanPrice(jsonResponse.setup?.stopLoss);
+            const target = cleanPrice(jsonResponse.setup?.takeProfitTargets?.[0]);
+
+            if (entry > 0) {
+                console.log(`Starting Simulated Trade for ${userId}: ${jsonResponse.asset}`);
+                await supabase.from('simulated_trades').insert({
+                    user_id: userId,
+                    asset_symbol: jsonResponse.asset ? jsonResponse.asset.split(' ')[0] : 'UNKNOWN',
+                    direction: jsonResponse.action,
+                    entry_price: entry,
+                    stop_loss: stop,
+                    take_profit: target,
+                    status: 'PENDING',
+                    entry_date: new Date().toISOString()
+                });
+            }
+        }
+
+        res.status(200).json(jsonResponse);
     } catch (error) {
         console.error('Backend Analysis Failed:', error);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import FileUpload from './components/FileUpload';
 import AnalysisDashboard from './components/AnalysisDashboard';
-import { AnalysisState } from './types';
+import { AnalysisState, AnalysisResult, TradeAction } from './types';
 import { analyzeChart } from './services/geminiService';
 import { RefreshCw, Wallet, Sparkles, Search, Shield, LineChart } from 'lucide-react';
 import { Modal } from './components/Modal';
@@ -11,6 +11,7 @@ import { AuthModal } from './components/AuthModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { supabase } from './lib/supabaseClient';
 import { Analytics } from './lib/analytics';
+import { Testimonials } from './components/Testimonials';
 
 import { Guides } from './components/Guides';
 
@@ -167,7 +168,7 @@ function App() {
   // STATIC DEMO DATA (INSTANT LOAD)
   const STATIC_DEMO_RESULTS: Record<string, AnalysisResult> = {
     'BTC': {
-      action: 'SELL',
+      action: TradeAction.SELL,
       confidenceScore: 89,
       asset: 'Bitcoin (BTC/USD)',
       currentPrice: '$42,105',
@@ -212,7 +213,7 @@ function App() {
       tradeRadar: []
     },
     'NVDA': {
-      action: 'BUY',
+      action: TradeAction.BUY,
       confidenceScore: 94,
       asset: 'NVIDIA (NVDA)',
       currentPrice: '$895.20',
@@ -256,7 +257,7 @@ function App() {
       tradeRadar: []
     },
     'SPY': {
-      action: 'WAIT',
+      action: TradeAction.WAIT,
       confidenceScore: 65,
       asset: 'S&P 500 ETF (SPY)',
       currentPrice: '$510.15',
@@ -317,7 +318,7 @@ function App() {
 
       // Set State IMMEDIATELY with Success
       setAnalysisState({
-        status: 'success', 
+        status: 'success',
         result: staticResult,
         error: null,
         imageUrl: imageUrl, // Uses public path directly
@@ -328,7 +329,7 @@ function App() {
       setHasUnlocked(true);
 
     } catch (e) {
-        console.error("Demo load failed", e);
+      console.error("Demo load failed", e);
     }
   };
 
@@ -482,6 +483,13 @@ function App() {
           scansLeft={scansLeft}
         />
 
+        {/* Active Simulated Trade Banner */}
+        {usage?.activeTrade && (
+          <div className="bg-blue-600 text-white text-center py-2 px-4 text-sm font-semibold animate-in slide-in-from-top-4">
+            🤖 SIMULATED TRADE ACTIVE: <span className="text-blue-100">{usage.activeTrade.direction} {usage.activeTrade.asset_symbol}</span> @ ${usage.activeTrade.entry_price} (Status: {usage.activeTrade.status})
+          </div>
+        )}
+
         <main className="flex-grow p-6 md:p-12 max-w-7xl mx-auto w-full">
 
           {/* NEW: Sunk Cost / Email Gate Modal */}
@@ -628,6 +636,11 @@ function App() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Social Proof (Testimonials) */}
+              {analysisState.status === 'idle' && !analysisState.imageUrl && (
+                <Testimonials />
               )}
 
               {/* Error State */}

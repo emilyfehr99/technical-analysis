@@ -168,6 +168,20 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                                 <ChevronRight className="w-5 h-5" />
                             </button>
 
+                            {/* Free Tier Option */}
+                            <div className="mt-4 text-center">
+                                <span className="text-sm text-slate-500">Not ready to commit? </span>
+                                <button
+                                    onClick={() => {
+                                        if (onAuth) onAuth();
+                                    }}
+                                    className="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all"
+                                >
+                                    Create Free Account
+                                </button>
+                                <p className="text-xs text-slate-400 mt-1">Get 1 Free AI Simulated Trade / Week</p>
+                            </div>
+
                             <p className="text-center text-xs text-slate-400 mt-4">
                                 Secure payment via Stripe. Cancel anytime.
                             </p>
