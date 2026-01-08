@@ -56,6 +56,39 @@ export const ProfileHistory: React.FC<ProfileHistoryProps> = ({ user, usage, onB
                 </button>
             </div>
 
+            {/* How It Works Guide */}
+            <div className="mb-10 p-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-3xl">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-indigo-600 rounded-lg text-white">
+                        <Clock className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">How AI Simulated Trading Works</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-sm">1</div>
+                        <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-1">Analyze a Chart</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Upload any chart (Crypto, Stocks, Forex). Our AI identifies the best setup.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-sm">2</div>
+                        <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-1">Auto-Execution</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">If you have credits, we automatically "open" a virtual trade based on the AI's entry price.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-sm">3</div>
+                        <div>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-1">Track Results</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">The trade closes automatically when it hits the Target or Stop Loss. Check back here for PnL.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 {/* Membership Card */}
@@ -158,8 +191,8 @@ export const ProfileHistory: React.FC<ProfileHistoryProps> = ({ user, usage, onB
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${trade.direction === 'BUY'
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
-                                                    : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                                                ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
+                                                : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
                                                 }`}>
                                                 {trade.direction}
                                             </span>
