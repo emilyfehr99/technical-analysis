@@ -59,10 +59,10 @@ export const EmailGateModal: React.FC<EmailGateModalProps> = ({ isOpen, onClose,
                         <Check className="w-6 h-6" />
                     </div>
 
-                    <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Analysis Complete</h2>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Institutional Setup Detected</h2>
                     <p className="text-slate-500 dark:text-slate-400 mb-8">
-                        Your institutional validation plan is ready. <br />
-                        Enter your email to unlock the full report.
+                        We've identified high-probability trigger levels for this chart. <br />
+                        Claim your validation plan and save it to your trade journal.
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -89,7 +89,7 @@ export const EmailGateModal: React.FC<EmailGateModalProps> = ({ isOpen, onClose,
                     </form>
 
                     <p className="mt-6 text-xs text-slate-400">
-                        Join 10,000+ traders getting daily alpha. No spam.
+                        Join 12,400+ traders scaling their edge with Kairos. No spam.
                     </p>
                 </div>
             </div>

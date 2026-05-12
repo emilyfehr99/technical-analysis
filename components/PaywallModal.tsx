@@ -20,8 +20,8 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
 
     // Dynamic Text
     const limitText = isFreeTier
-        ? `Weekly Limit Reached (${used}/${limit})`
-        : `Free Limit Reached (${used}/${limit})`; // For Anon
+        ? `Refill Needed: Weekly Scans Exhausted (${used}/${limit})`
+        : `Free Plan Ready: Claim Your Refill (${used}/${limit})`; 
 
     const features = [
         { icon: <Zap className="w-5 h-5 text-blue-600" />, text: "Unlimited AI Technical Analysis" },
@@ -182,17 +182,17 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, is
                             </button>
 
                             {/* Free Tier Option */}
-                            <div className="mt-4 text-center">
-                                <span className="text-sm text-slate-500">Not ready to commit? </span>
+                            <div className="mt-6 p-6 rounded-2xl bg-blue-50/50 border border-blue-100 text-center">
+                                <h4 className="text-sm font-bold text-slate-900 mb-1">Claim Your Free Weekly Scans</h4>
+                                <p className="text-xs text-slate-500 mb-4">Get 3 fresh institutional analysis credits every week.</p>
                                 <button
                                     onClick={() => {
                                         if (onAuth) onAuth();
                                     }}
-                                    className="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all"
+                                    className="w-full py-2.5 bg-white border border-blue-200 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-sm"
                                 >
                                     Create Free Account
                                 </button>
-                                <p className="text-xs text-slate-400 mt-1">Get 1 Free AI Simulated Trade / Week</p>
                             </div>
 
                             <p className="text-center text-xs text-slate-400 mt-4">
