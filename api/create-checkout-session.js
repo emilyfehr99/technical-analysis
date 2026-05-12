@@ -17,6 +17,7 @@ export default async function handler(req, res) {
         // Use absolute Production URL for Stripe (so it works even if triggered from Localhost)
         const logoUrl = 'https://technical-analysis.vercel.app/logo.png';
 
+        let priceData = {};
         if (plan === 'monthly') {
             priceData = {
                 currency: 'usd', // Reverted to USD
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
                     description: 'Unlimited AI Analysis, Advanced Patterns, Risk Engine',
                     images: [logoUrl],
                 },
-                unit_amount: 2999, // $29.99 USD
+                unit_amount: 1999, // $19.99 USD
                 recurring: {
                     interval: 'month',
                 },
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
                     description: 'Unlimited AI Analysis (Save 30%)',
                     images: [logoUrl],
                 },
-                unit_amount: 24999, // $249.99 USD
+                unit_amount: 16788, // $167.88 USD ($13.99/mo)
                 recurring: {
                     interval: 'year',
                 },
