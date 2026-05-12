@@ -33,13 +33,11 @@ const env = { ...envMain, ...envLocal }; // Local overrides Main
 
 const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY; // Use Service Role for Admin Access
-const DISCORD_URL = env.DISCORD_WEBHOOK_URL;
 
-if (!SUPABASE_URL || !SUPABASE_KEY || !DISCORD_URL) {
+if (!SUPABASE_URL || !SUPABASE_KEY) {
     console.error("❌ Missing Credentials in .env / .env.local");
     console.log("Found URL:", !!SUPABASE_URL);
     console.log("Found KEY:", !!SUPABASE_KEY);
-    console.log("Found Discord:", !!DISCORD_URL);
     process.exit(1);
 }
 
@@ -113,23 +111,9 @@ async function generateReport() {
             timestamp: new Date().toISOString()
         };
 
-        // Send to Discord
-        console.log("🚀 Sending to Discord...");
-        const res = await fetch(DISCORD_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: "Kairos Analytics",
-                avatar_url: "https://cdn-icons-png.flaticon.com/512/2782/2782058.png",
-                embeds: [embed]
-            })
-        });
-
-        if (res.ok) {
-            console.log("✅ Report Sent Successfully!");
-        } else {
-            console.error("❌ Failed to send:", await res.text());
-        }
+        // Discord notifications removed
+        console.log("📊 Historical Report Generated (Discord notifications disabled):");
+        console.log(JSON.stringify(embed, null, 2));
 
     } catch (err) {
         console.error("Critical Error:", err);

@@ -51,42 +51,6 @@ export default async function handler(req, res) {
             };
         }
 
-        // 2. Daily Analytics Report (Triggered by Cron)
-        else if (type === 'DAILY_REPORT') {
-            // Fetch stats from Supabase
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const todayISO = today.toISOString();
-
-            // A. Signups Today
-            const { count: signupsToday } = await supabase
-                .from('waitlist')
-                .select('*', { count: 'exact', head: true })
-                .gte('created_at', todayISO);
-
-            // B. Analysis Runs Today
-            const { count: analysisToday } = await supabase
-                .from('analysis_logs')
-                .select('*', { count: 'exact', head: true })
-                .gte('created_at', todayISO);
-
-            // C. Total Waitlist
-            const { count: totalWaitlist } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
-
-            embed = {
-                title: "📊 Daily Analytics Report",
-                description: `Activity for ${new Date().toLocaleDateString()}`,
-                color: 0x3b82f6, // Blue
-                fields: [
-                    { name: "📝 New Signups Today", value: `${signupsToday}`, inline: true },
-                    { name: "⚡️ Analyses Ran", value: `${analysisToday}`, inline: true },
-                    { name: "👥 Total Waitlist", value: `${totalWaitlist}`, inline: true }
-                ],
-                footer: { text: "Kairos.AI Analytics" },
-                timestamp: new Date().toISOString()
-            };
-        }
-
         if (!embed) {
             return res.status(400).json({ error: 'Invalid notification type' });
         }

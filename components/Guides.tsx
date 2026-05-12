@@ -330,7 +330,7 @@ const AlligatorArticle = () => (
         <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
             <img
                 src="/alligator-diagram.png"
-                alt="Williams Alligator Indicator Diagram"
+                alt="Williams Alligator Indicator Chart Example"
                 className="w-full h-auto object-cover"
             />
         </div>
@@ -461,7 +461,7 @@ const CandlesticksArticle = () => (
         <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
             <img
                 src="/candlestick-diagram.png"
-                alt="Japanese Candlestick Anatomy Diagram"
+                alt="Trading Candlestick Patterns and Anatomy"
                 className="w-full h-auto object-cover"
             />
         </div>
@@ -605,7 +605,7 @@ const SupportResistanceArticle = () => (
         <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
             <img
                 src="/support-resistance-diagram.png"
-                alt="Support and Resistance Diagram"
+                alt="Support and Resistance Price Level Concepts"
                 className="w-full h-auto object-cover"
             />
         </div>
@@ -738,7 +738,7 @@ const RSIArticle = () => (
         <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
             <img
                 src="/rsi-diagram.png"
-                alt="RSI Speedometer Diagram"
+                alt="Relative Strength Index (RSI) Indicator Guide"
                 className="w-full h-auto object-cover"
             />
         </div>
@@ -848,7 +848,7 @@ const ScienceArticle = () => (
         <div className="not-prose mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-neutral-800">
             <img
                 src="/science-diagram.png"
-                alt="Science of Squiggles Diagram"
+                alt="Algorithmic Trading and Pattern Science"
                 className="w-full h-auto object-cover"
             />
         </div>

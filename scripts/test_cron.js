@@ -13,7 +13,6 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -138,25 +137,9 @@ async function runTest() {
         timestamp: new Date().toISOString()
     };
 
-    if (!WEBHOOK_URL) {
-        console.log("⚠️ No Webhook URL found. Skipping send.");
-        console.log(JSON.stringify(embed, null, 2));
-        return;
-    }
-
-    // 4. Send
-    console.log("Sending to Discord...");
-    const res = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: "Kairos Test Bot",
-            embeds: [embed]
-        })
-    });
-
-    if (res.ok) console.log("✅ Sent successfully!");
-    else console.error("❌ Send failed:", await res.text());
+    // Discord notifications removed
+    console.log("📊 Report generated (Discord notifications disabled):");
+    console.log(JSON.stringify(embed, null, 2));
 }
 
 runTest();

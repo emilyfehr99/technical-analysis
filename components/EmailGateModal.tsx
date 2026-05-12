@@ -45,7 +45,7 @@ export const EmailGateModal: React.FC<EmailGateModalProps> = ({ isOpen, onClose,
                 {/* Header Image (Blurry version of their upload?) */}
                 <div className="h-32 bg-slate-100 dark:bg-neutral-800 relative overflow-hidden">
                     {imageUrl ? (
-                        <img src={imageUrl} className="w-full h-full object-cover opacity-50 blur-sm" />
+                        <img src={imageUrl} alt="Chart Preview" className="w-full h-full object-cover opacity-50 blur-sm" />
                     ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
                             <Lock className="w-12 h-12 text-slate-300 dark:text-neutral-600" />
