@@ -56,6 +56,7 @@ export default async function handler(req, res) {
         // --- USAGE TRACKING (Supabase) ---
         const authHeader = req.headers.authorization;
         let userId = null;
+        let isFreeTier = false;
 
         // 1. Check Auth User
         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -230,7 +231,7 @@ Return valid JSON matching the schema: {
         // Clean markdown formatting if present
         aiResponseText = aiResponseText.replace(/```json\n/g, '').replace(/```/g, '').trim();
 
-        const aiData = JSON.parse(aiResponseText);
+        const jsonResponse = JSON.parse(aiResponseText);
 
         // Merge hard technical data if available (optional enhancement)
         if (technicalData && technicalData.raw) {
@@ -244,7 +245,7 @@ Return valid JSON matching the schema: {
             user_id: userId,
             ip_address: getIp(req),
             user_agent: req.headers['user-agent'],
-            symbol: symbol || aiData.asset || 'UNKNOWN', // Try to capture detected asset if symbol was missing
+            symbol: symbol || jsonResponse.asset || 'UNKNOWN', // Try to capture detected asset if symbol was missing
             input_type: image ? (symbol ? 'HYBRID' : 'IMAGE') : 'TEXT',
             status: 'SUCCESS',
             duration_ms: durationMs
