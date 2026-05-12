@@ -183,9 +183,9 @@ Return valid JSON matching the schema: {
         let result;
 
         try {
-            // Primary: gemini-2.0-flash-001 (proven to work well with vision)
+            // Primary: gemini-2.0-flash (fast, supports JSON mode)
             const model = genAI.getGenerativeModel({
-                model: "gemini-2.0-flash-001",
+                model: "gemini-2.0-flash",
                 systemInstruction: SYSTEM_INSTRUCTION,
                 generationConfig: { responseMimeType: "application/json" }
             });
@@ -197,9 +197,9 @@ Return valid JSON matching the schema: {
             console.error("Primary model (2.0-flash-001) failed:", primaryError.message);
 
             try {
-                // Fallback to gemini-2.5-flash
+                // Fallback to gemini-1.5-flash (Highly stable)
                 const fallbackModel = genAI.getGenerativeModel({
-                    model: "gemini-2.5-flash",
+                    model: "gemini-1.5-flash",
                     systemInstruction: SYSTEM_INSTRUCTION,
                     generationConfig: { responseMimeType: "application/json" }
                 });
@@ -210,10 +210,9 @@ Return valid JSON matching the schema: {
             } catch (secondaryError) {
                 console.error("Secondary model (2.5-flash) failed:", secondaryError.message);
 
-                // Final fallback to gemini-1.5-pro (Stable Backup)
-                // Note: 1.5-flash caused 404 errors, so we use 1.5-pro
+                // Final fallback to gemini-1.5-pro (High intelligence backup)
                 const backupModel = genAI.getGenerativeModel({
-                    model: "gemini-1.5-pro",
+                    model: "gemini-1.5-pro-002",
                     systemInstruction: SYSTEM_INSTRUCTION,
                     generationConfig: { responseMimeType: "application/json" }
                 });
